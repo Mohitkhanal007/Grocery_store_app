@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:jerseyhub/view/dashboard_screenview.dart';
+import 'package:jerseyhub/view/signup_screenview.dart';
 
 class LoginScreenview extends StatefulWidget {
   const LoginScreenview({super.key});
