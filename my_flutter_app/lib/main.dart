@@ -5,7 +5,13 @@ import 'screens/signup_screen.dart';
 import 'screens/dashboard_screen.dart';
 
 void main() {
-  runApp(const GroceryStoreApp());
+  runApp(MaterialApp(
+    initialRoute: '/login',
+    routes: {
+      '/login': (context) => const LoginScreen(),
+      '/dashboard': (context) => const DashboardScreen(),
+    },
+  ));
 }
 
 class GroceryStoreApp extends StatelessWidget {
