@@ -1,6 +1,5 @@
-
 import 'package:flutter/material.dart';
-import 'package:jerseyhub/view/login_screenview.dart';
+import 'package:jerseyhub/view/splash_screenview.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -8,7 +7,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home:LoginScreenview (),
+      home:SplashScreenview (),
       debugShowCheckedModeBanner: false,
     );
   }

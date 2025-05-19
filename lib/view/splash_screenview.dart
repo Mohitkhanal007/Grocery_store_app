@@ -33,7 +33,7 @@ class _SplashScreenviewState extends State<SplashScreenview> {
             height: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/splash_screen.png'),
+                image: AssetImage('assets/images/image.png'),
                 fit: BoxFit.fill,
               ),
             ),
