@@ -89,6 +89,7 @@ class _LoginScreenviewState extends State<LoginScreenview> {
                     const Text(
                       'Login',
                       style: TextStyle(
+                        fontFamily: 'OpenSans Bold',
                         color: Colors.white,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
