@@ -1,52 +1,49 @@
 import 'package:flutter/material.dart';
 
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+class DashboardScreen extends StatefulWidget {
+  @override
+  _DashboardScreenState createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = [
+    HomeScreen(),
+    CartScreen(),
+    OrdersScreen(),
+    ProfileScreen(),
+  ];
+
+  final List<String> _titles = [
+    'Home',
+    'Cart',
+    'Orders',
+    'Profile',
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Dashboard Home"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => Navigator.pushReplacementNamed(context, '/'),
-          )
-        ],
+        title: Text(_titles[_currentIndex]),
+        centerTitle: true,
       ),
-      body: GridView.count(
-        crossAxisCount: 2,
-        padding: const EdgeInsets.all(10),
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        children: [
-          _buildDashboardCard(Icons.shopping_cart, "Shop"),
-          _buildDashboardCard(Icons.category, "Categories"),
-          _buildDashboardCard(Icons.favorite, "Favorites"),
-          _buildDashboardCard(Icons.account_circle, "Profile"),
-        ],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
       ),
-    );
-  }
-
-  Widget _buildDashboardCard(IconData icon, String label) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(12),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 40, color: Colors.deepPurple),
-              const SizedBox(height: 10),
-              Text(label, style: const TextStyle(fontSize: 16))
-            ],
-          ),
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
+          BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'Orders'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
       ),
     );
   }

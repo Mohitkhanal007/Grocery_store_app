@@ -1,7 +1,36 @@
 import 'package:flutter/material.dart';
 
 class SignupScreen extends StatelessWidget {
-  const SignupScreen({super.key});
+  SignupScreen({super.key});
+
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  void handleSignup(BuildContext context) {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All fields are required')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    // Navigate to dashboard if all validations pass
+    Navigator.pushReplacementNamed(context, '/dashboard');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,25 +41,27 @@ class SignupScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TextField(
-              decoration: InputDecoration(labelText: 'Full Name'),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Full Name'),
             ),
-            const TextField(
-              decoration: InputDecoration(labelText: 'Email'),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
-            const TextField(
+            TextField(
+              controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Password'),
             ),
-            const TextField(
+            TextField(
+              controller: confirmPasswordController,
               obscureText: true,
-              decoration: InputDecoration(labelText: 'Confirm Password'),
+              decoration: const InputDecoration(labelText: 'Confirm Password'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/dashboard');
-              },
+              onPressed: () => handleSignup(context),
               child: const Text('Sign Up'),
             ),
             TextButton(
