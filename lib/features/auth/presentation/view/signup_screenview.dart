@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:jerseyhub/view/login_screenview.dart';
+import 'package:jerseyhub/features/auth/presentation/view/login_screenview.dart';
 
-class SignupScreenview extends StatefulWidget {
-  const SignupScreenview({super.key});
+class SignupScreenview extends StatelessWidget {
+  SignupScreenview({super.key});
 
-  @override
-  State<SignupScreenview> createState() => _SignupScreenviewState();
-}
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-class _SignupScreenviewState extends State<SignupScreenview> {
-  final _usernameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  void _showAlertDialog({required String title, required String content}) {
+  void _showAlertDialog(BuildContext context,
+      {required String title, required String content}) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -21,7 +17,7 @@ class _SignupScreenviewState extends State<SignupScreenview> {
         content: Text(content),
         actions: [
           TextButton(
-            child: Text("OK"),
+            child: const Text("OK"),
             onPressed: () {
               Navigator.of(ctx).pop();
             },
@@ -31,13 +27,14 @@ class _SignupScreenviewState extends State<SignupScreenview> {
     );
   }
 
-  void _register() {
+  void _register(BuildContext context) {
     final username = _usernameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     if (username.isEmpty || email.isEmpty || password.isEmpty) {
       _showAlertDialog(
+        context,
         title: "Missing Fields",
         content: "Please fill in all the fields before registering.",
       );
@@ -46,6 +43,7 @@ class _SignupScreenviewState extends State<SignupScreenview> {
 
     if (password.length < 6) {
       _showAlertDialog(
+        context,
         title: "Weak Password",
         content: "Password must be at least 6 characters long.",
       );
@@ -53,6 +51,7 @@ class _SignupScreenviewState extends State<SignupScreenview> {
     }
 
     _showAlertDialog(
+      context,
       title: "Success",
       content: "You have been registered successfully!",
     );
@@ -89,7 +88,7 @@ class _SignupScreenviewState extends State<SignupScreenview> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Sign Up',
                     style: TextStyle(
                       color: Colors.white,
@@ -97,7 +96,7 @@ class _SignupScreenviewState extends State<SignupScreenview> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
 
                   /// Username Field
                   Container(
@@ -108,17 +107,18 @@ class _SignupScreenviewState extends State<SignupScreenview> {
                     ),
                     child: TextFormField(
                       controller: _usernameController,
-                      style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
+                      style: const TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
                         hintText: "Enter Username",
                         hintStyle: TextStyle(color: Colors.black),
                         prefixIcon: Icon(Icons.person, color: Colors.black),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                        contentPadding:
+                        EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   /// Email Field
                   Container(
@@ -129,17 +129,18 @@ class _SignupScreenviewState extends State<SignupScreenview> {
                     ),
                     child: TextFormField(
                       controller: _emailController,
-                      style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
+                      style: const TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
                         hintText: "Enter Email",
                         hintStyle: TextStyle(color: Colors.black),
                         prefixIcon: Icon(Icons.email, color: Colors.black),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                        contentPadding:
+                        EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   /// Password Field
                   Container(
@@ -151,31 +152,32 @@ class _SignupScreenviewState extends State<SignupScreenview> {
                     child: TextFormField(
                       controller: _passwordController,
                       obscureText: true,
-                      style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
+                      style: const TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
                         hintText: "Enter Password",
                         hintStyle: TextStyle(color: Colors.black),
                         prefixIcon: Icon(Icons.lock, color: Colors.black),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                        contentPadding:
+                        EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                       ),
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
                   /// SignUp Button
                   SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
-                      onPressed: _register,
+                      onPressed: () => _register(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white.withOpacity(0.7),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Sign Up',
                         style: TextStyle(
                           color: Colors.black,
@@ -185,13 +187,13 @@ class _SignupScreenviewState extends State<SignupScreenview> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   /// Already Have Account
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         "Already have an account?",
                         style: TextStyle(color: Colors.white),
                       ),
@@ -199,10 +201,11 @@ class _SignupScreenviewState extends State<SignupScreenview> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => LoginScreenview()),
+                            MaterialPageRoute(
+                                builder: (context) => LoginView()),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           'Login',
                           style: TextStyle(
                             color: Colors.blueAccent,

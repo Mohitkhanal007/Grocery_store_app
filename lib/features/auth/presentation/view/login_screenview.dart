@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:jerseyhub/view/dashboard_screenview.dart';
-import 'package:jerseyhub/view/signup_screenview.dart';
+import 'package:jerseyhub/features/auth/presentation/view/signup_screenview.dart';
 
-class LoginScreenview extends StatefulWidget {
-  const LoginScreenview({super.key});
+class LoginView extends StatelessWidget {
+  LoginView({super.key});
 
-  @override
-  State<LoginScreenview> createState() => _LoginScreenviewState();
-}
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-class _LoginScreenviewState extends State<LoginScreenview> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  void _login() {
+  void _login(BuildContext context) {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      _showAlertDialog(
+      _showAlertDialog(context,
         title: "Missing Fields",
         content: "Please enter both the username and password to login.",
       );
@@ -26,20 +20,17 @@ class _LoginScreenviewState extends State<LoginScreenview> {
     }
 
     if (password.length < 6) {
-      _showAlertDialog(
+      _showAlertDialog(context,
         title: "Weak Password",
         content: "Password must be at least 6 characters long.",
       );
       return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => DashboardScreenview()),
-    );
+    // Navigate or other login logic
   }
 
-  void _showAlertDialog({required String title, required String content}) {
+  void _showAlertDialog(BuildContext context, {required String title, required String content}) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -47,10 +38,8 @@ class _LoginScreenviewState extends State<LoginScreenview> {
         content: Text(content),
         actions: [
           TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
+            child: const Text("OK"),
+            onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
       ),
@@ -147,7 +136,7 @@ class _LoginScreenviewState extends State<LoginScreenview> {
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: _login,
+                        onPressed: () => _login(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white.withOpacity(0.7),
                           shape: RoundedRectangleBorder(
