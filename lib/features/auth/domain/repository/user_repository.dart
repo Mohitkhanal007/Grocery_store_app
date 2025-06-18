@@ -8,7 +8,7 @@ abstract interface class IUserRepository {
   Future<Either<Failure, void>> registerUser(UserEntity user);
 
   Future<Either<Failure, String>> loginUser(
-      String username,
+      String email,
       String password,
       );
 

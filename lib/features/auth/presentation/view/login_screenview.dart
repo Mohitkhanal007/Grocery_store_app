@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jerseyhub/features/auth/presentation/view/signup_screenview.dart';
+import 'package:jerseyhub/features/auth/presentation/view/register_view.dart';
 
 class LoginView extends StatelessWidget {
   LoginView({super.key});
@@ -164,7 +164,7 @@ class LoginView extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => SignupScreenview()),
+                              MaterialPageRoute(builder: (context) => RegisterView()),
                             );
                           },
                           child: const Text(

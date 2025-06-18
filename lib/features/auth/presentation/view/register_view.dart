@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jerseyhub/features/auth/presentation/view/login_screenview.dart';
 
-class SignupScreenview extends StatelessWidget {
-  SignupScreenview({super.key});
+class RegisterView extends StatelessWidget {
+  RegisterView({super.key});
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
