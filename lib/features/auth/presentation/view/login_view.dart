@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jerseyhub/features/auth/presentation/view/register_view.dart';
+import 'package:jerseyhub/features/home/presentation/view/HomePage.dart';
 
 class LoginView extends StatelessWidget {
   LoginView({super.key});
@@ -12,7 +13,8 @@ class LoginView extends StatelessWidget {
     final password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      _showAlertDialog(context,
+      _showAlertDialog(
+        context,
         title: "Missing Fields",
         content: "Please enter both the username and password to login.",
       );
@@ -20,17 +22,38 @@ class LoginView extends StatelessWidget {
     }
 
     if (password.length < 6) {
-      _showAlertDialog(context,
+      _showAlertDialog(
+        context,
         title: "Weak Password",
         content: "Password must be at least 6 characters long.",
       );
       return;
     }
 
-    // Navigate or other login logic
+    // ✅ Login Success: Show Dialog then Navigate to Home
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Login Successful"),
+        content: const Text("Welcome back! Redirecting to Home..."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(); // Close dialog
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const HomePage()),
+              );
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
-  void _showAlertDialog(BuildContext context, {required String title, required String content}) {
+  void _showAlertDialog(BuildContext context,
+      {required String title, required String content}) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -51,7 +74,7 @@ class LoginView extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          /// Background Image - fills entire screen
+          /// Background Image
           Positioned.fill(
             child: Image.asset(
               'assets/images/login.png',
@@ -59,14 +82,14 @@ class LoginView extends StatelessWidget {
             ),
           ),
 
-          /// Optional overlay for better text visibility
+          /// Overlay
           Positioned.fill(
             child: Container(
               color: Colors.black.withOpacity(0.4),
             ),
           ),
 
-          /// Foreground content
+          /// Content
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -101,7 +124,8 @@ class LoginView extends StatelessWidget {
                           hintStyle: TextStyle(color: Colors.black),
                           prefixIcon: Icon(Icons.person, color: Colors.black),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                          contentPadding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                         ),
                       ),
                     ),
@@ -124,7 +148,8 @@ class LoginView extends StatelessWidget {
                           hintStyle: TextStyle(color: Colors.black),
                           prefixIcon: Icon(Icons.lock, color: Colors.black),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                          contentPadding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                         ),
                       ),
                     ),
@@ -164,7 +189,8 @@ class LoginView extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => RegisterView()),
+                              MaterialPageRoute(
+                                  builder: (context) => RegisterView()),
                             );
                           },
                           child: const Text(

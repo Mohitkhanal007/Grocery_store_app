@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/app/theme/theme_data.dart';
-import 'package:jerseyhub/features/splash/data/repository/view/splash_view.dart';
-import 'package:jerseyhub/features/splash/data/repository/view_model/splash_view_model.dart';
+import 'package:jerseyhub/features/splash/presentation/view/splash_view.dart';
+import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
+
 
 class App extends StatelessWidget {
   const App({super.key});

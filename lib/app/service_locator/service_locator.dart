@@ -5,7 +5,8 @@ import 'package:jerseyhub/features/auth/data/repository/local_repository/user_lo
 import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
 import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
-import 'package:jerseyhub/features/splash/data/repository/view_model/splash_view_model.dart';
+import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
+import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -13,6 +14,7 @@ Future<void> initDependencies() async {
   await _initCore();
   await _initAuthModule();
   await _initSplashModule();
+  await _initHomeModule();  // Make sure to call this!
 }
 
 Future<void> _initCore() async {
@@ -20,7 +22,7 @@ Future<void> _initCore() async {
 }
 
 Future<void> _initAuthModule() async {
-  // ✅ Data layer
+  // Data layer
   serviceLocator.registerLazySingleton<UserLocalDatasource>(
         () => UserLocalDatasource(hiveService: serviceLocator<HiveService>()),
   );
@@ -29,12 +31,12 @@ Future<void> _initAuthModule() async {
         () => UserLocalRepository(userLocalDatasource: serviceLocator<UserLocalDatasource>()),
   );
 
-  // ✅ Domain layer
+  // Domain layer
   serviceLocator.registerLazySingleton<UserLoginUsecase>(
         () => UserLoginUsecase(userRepository: serviceLocator<IUserRepository>()),
   );
 
-  // ✅ Presentation layer
+  // Presentation layer
   serviceLocator.registerFactory<LoginViewModel>(
         () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
   );
@@ -42,4 +44,8 @@ Future<void> _initAuthModule() async {
 
 Future<void> _initSplashModule() async {
   serviceLocator.registerFactory(() => SplashViewModel());
+}
+
+Future<void> _initHomeModule() async {
+  serviceLocator.registerFactory<HomeViewModel>(() => HomeViewModel());
 }

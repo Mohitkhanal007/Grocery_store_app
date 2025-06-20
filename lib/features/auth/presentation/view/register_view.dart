@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jerseyhub/features/auth/presentation/view/login_screenview.dart';
+import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
 
 class RegisterView extends StatelessWidget {
   RegisterView({super.key});

@@ -1,9 +1,24 @@
-import 'package:flutter/cupertino.dart';
-import 'package:jerseyhub/app/app.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
+import 'package:jerseyhub/features/splash/presentation/view/splash_view.dart';
+import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
 
-
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(App());
+  await initDependencies();  // Initialize all dependencies before running app
+
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => serviceLocator<SplashViewModel>()),
+        // You can add more BlocProviders here if needed
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: SplashScreenView(),
+      ),
+    ),
+  );
 }
