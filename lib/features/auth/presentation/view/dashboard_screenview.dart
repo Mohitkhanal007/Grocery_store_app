@@ -1,9 +1,9 @@
 //
 // import 'package:flutter/material.dart';
-// import 'package:jerseyhub/button_screen/about_screen.dart';
-// import 'package:jerseyhub/button_screen/cart_screen.dart';
-// import 'package:jerseyhub/button_screen/home_screen.dart';
-// import 'package:jerseyhub/button_screen/profile_screen.dart';
+// import 'package:jerseyhub/view/about_screen.dart';
+// import 'package:jerseyhub/view/cart_screen.dart';
+// import 'package:jerseyhub/view/home_screen.dart';
+// import 'package:jerseyhub/view/profile_screen.dart';
 //
 // class DashboardScreenview extends StatefulWidget {
 //   const DashboardScreenview({super.key});

@@ -12,7 +12,5 @@ abstract interface class IUserRepository {
       String password,
       );
 
-  Future<Either<Failure, String>> uploadProfilePicture(File file);
-
   Future<Either<Failure, UserEntity>> getCurrentUser();
 }

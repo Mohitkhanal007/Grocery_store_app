@@ -51,15 +51,7 @@ flutter:
   assets:
     - assets/images/
 
-  fonts:
-    - family: Montserrat
-      fonts:
-        - asset: assets/fonts/montserrat/Montserrat-Regular.ttf
-        - asset: assets/fonts/montserrat/Montserrat-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/montserrat/Montserrat-Thin.ttf
-          weight: 300
-
+fonts:
     - family: OpenSans
       fonts:
         - asset: assets/fonts/open_sans/OpenSans-Regular.ttf
@@ -67,3 +59,10 @@ flutter:
           weight: 700
         - asset: assets/fonts/open_sans/OpenSans-Light.ttf
           weight: 300
+  #   - family: Montserrat
+  #     fonts:
+  #       - asset: assets/fonts/montserrat/Montserrat-Regular.ttf
+  #       - asset: assets/fonts/montserrat/Montserrat-Bold.ttf
+  #         weight: 700
+  #       - asset: assets/fonts/montserrat/Montserrat-Thin.ttf
+  #         weight: 300

@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:jerseyhub/app/use_case/usecase.dart';
 import 'package:jerseyhub/core/error/failure.dart';
 import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
 

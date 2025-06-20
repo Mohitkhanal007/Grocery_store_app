@@ -14,8 +14,8 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.getApplicationTheme(isDarkMode: false),
       home: BlocProvider(
-        create: (context) => SplashViewmodel(),
-        child: SplashView(),
+        create: (context) => SplashViewModel(),
+        child: SplashScreenView(),
       ),
     );
   }

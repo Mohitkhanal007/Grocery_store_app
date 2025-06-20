@@ -1,26 +1,25 @@
-
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/auth/presentation/view/login_screenview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SplashViewmodel extends Cubit<void>{
-  SplashViewmodel(): super(null);
+/// Enum representing the possible states for splash screen
+enum SplashState {
+  initial,
+  navigateToLogin,
+}
 
+/// SplashViewModel controls the splash screen flow
+class SplashViewModel extends Cubit<SplashState> {
+  SplashViewModel() : super(SplashState.initial);
 
-  Future<void>init (BuildContext context)async{
-    await  Future.delayed(const Duration(seconds: 3),()async{
+  /// Determines where to navigate after splash screen
+  Future<void> decideNavigation() async {
+    // Optional delay to simulate splash duration
+    await Future.delayed(const Duration(seconds: 2));
 
-      if(context.mounted){
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context)=> BlocProvider(
-              create: (context)=>LoginViewModel(),
-              child: LoginView(),
-            ),
-          ),
-        );
-      }
-    });
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    // Since you only want login, we ignore isLoggedIn
+    emit(SplashState.navigateToLogin);
   }
 }

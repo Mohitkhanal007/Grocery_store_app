@@ -22,7 +22,7 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
       event.context,
       MaterialPageRoute(
         builder: (context) => MultiBlocProvider(
-          providers: [],
+          providers: [], // Add needed providers if any
           child: RegisterView(),
         ),
       ),
@@ -51,6 +51,7 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
       },
           (token) {
         emit(state.copyWith(isLoading: false, isSuccess: true));
+
         showMySnackBar(
           context: event.context,
           message: 'Login successful!',

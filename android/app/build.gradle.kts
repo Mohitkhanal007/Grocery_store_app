@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.jerseyhub"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion =ndkVersion = "27.0.12077973"ndkVersion = "27
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

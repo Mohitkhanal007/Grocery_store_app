@@ -1,37 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
+import 'package:jerseyhub/features/auth/presentation/view/login_screenview.dart';
+import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:jerseyhub/features/splash/data/repository/view_model/splash_view_model.dart';
 
-class SplashView extends StatelessWidget {
-  const SplashView({super.key});
+class SplashScreenView extends StatefulWidget {
+  @override
+  State<SplashScreenView> createState() => _SplashScreenViewState();
+}
+
+class _SplashScreenViewState extends State<SplashScreenView> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<SplashViewModel>().decideNavigation();
+  }
 
   @override
   Widget build(BuildContext context) {
-   WidgetsBinding.instance.addPostFrameCallback((_){
-     context.read<SplashViewmodel>().init(context);
-
-   });
-   return Scaffold(
-     body: Stack(
-       children: [
-         Center(
-           child: Column(
-             mainAxisAlignment: MainAxisAlignment.center,
-             children: [
-               SizedBox(
-                 height: 200,
-                 width: 200,
-                 child: Image.asset('assets/images/logo.png'),
-               ),
-               const SizedBox(height: 10),
-               const CircularProgressIndicator(),
-               const SizedBox(height: 10),
-               const Text('version:1.0.0'),
-             ],
-           ),
-         )
-       ],
-     )
-   );
+    return BlocListener<SplashViewModel, SplashState>(
+      listener: (context, state) {
+        if (state == SplashState.navigateToLogin) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider<LoginViewModel>(
+                create: (_) => serviceLocator<LoginViewModel>(),
+                child: LoginView(),
+              ),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        body: Center(
+          child: Image.asset(
+            'assets/images/splash.png',
+            width: 200,
+            height: 200,
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
   }
 }
