@@ -1,13 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
-
+import '../../../../../app/constant/api_endpoints.dart';
+import '../../../../../core/network/api_service.dart';
+import '../../model/user_api_model.dart';
 import '../user_data_source.dart';
 
 class UserRemoteDataSource implements IUserDataSource {
   final ApiService _apiService;
 
-  UserRemoteDataSource({required ApiService apiService})
-      : _apiService = apiService;
+  UserRemoteDataSource({required ApiService apiService}) : _apiService = apiService;
 
   @override
   Future<UserEntity> getCurrentUser(String id) async {
