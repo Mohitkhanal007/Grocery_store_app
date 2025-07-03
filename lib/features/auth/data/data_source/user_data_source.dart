@@ -1,9 +1,12 @@
-import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
+
+import '../../domain/entity/user_entity.dart';
 
 abstract interface class IUserDataSource {
-  Future<void> registerUser(UserEntity userData);
+  Future<void> registerUser(UserEntity user);
 
-  Future<String> loginUser(String email, String password);
+  Future<String> loginUser(String username, String password);
 
-  Future<UserEntity> getCurrentUser();
+  Future<String> uploadProfilePicture(String filePath);
+
+  Future<UserEntity> getCurrentUser(String id);
 }

@@ -28,7 +28,9 @@ Future<void> _initAuthModule() async {
   );
 
   serviceLocator.registerLazySingleton<IUserRepository>(
-        () => UserLocalRepository(userLocalDatasource: serviceLocator<UserLocalDatasource>()),
+        () => UserRemoteRepository(
+      remoteDataSource: serviceLocator<UserRemoteDataSource>(),
+    ),
   );
 
   // Domain layer

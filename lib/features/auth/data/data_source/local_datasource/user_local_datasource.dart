@@ -33,15 +33,18 @@ class UserLocalDatasource implements IUserDataSource {
   }
 
   @override
-  Future<UserEntity> getCurrentUser() async {
-    try {
-      final userHiveModel = await _hiveService.getCurrentUser();
-      if (userHiveModel == null) {
-        throw Exception("No user found");
-      }
-      return userHiveModel.toEntity();
-    } catch (e) {
-      throw Exception("Fetching current user failed: $e");
+  Future<UserEntity> getCurrentUser(String id) async {
+    final users = await _hiveService.getAllUsers();
+    if (users.isNotEmpty) {
+      return users.first.toEntity(); // You might update logic later
+    } else {
+      throw Exception("No user found in Hive.");
     }
+  }
+
+  @override
+  Future<String> uploadProfilePicture(String filePath) {
+    // TODO: implement uploadProfilePicture
+    throw UnimplementedError();
   }
 }

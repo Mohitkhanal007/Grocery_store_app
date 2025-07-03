@@ -8,9 +8,11 @@ abstract interface class IUserRepository {
   Future<Either<Failure, void>> registerUser(UserEntity user);
 
   Future<Either<Failure, String>> loginUser(
-      String email,
+      String username,
       String password,
       );
 
-  Future<Either<Failure, UserEntity>> getCurrentUser();
+  Future<Either<Failure, String>> uploadProfilePicture(File file);
+
+  Future<Either<Failure, UserEntity>> getCurrentUser(String id);
 }

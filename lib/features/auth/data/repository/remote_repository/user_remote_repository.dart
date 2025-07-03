@@ -1,15 +1,15 @@
 import 'dart:io';
 import 'package:dartz/dartz.dart';
-import '../../../../../core/error/failure.dart';
-import '../../../domain/entity/user_entity.dart';
+import 'package:jerseyhub/core/error/failure.dart';
+import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
 import '../../../domain/repository/user_repository.dart';
-import '../../data_source/user_data_source.dart';
+import '../../data_source/remote_datasource/user_remote_datasource.dart';
 
-class UserLocalRepository implements IUserRepository {
-  final IUserDataSource _dataSource;
+class UserRemoteRepository implements IUserRepository {
+  final UserRemoteDataSource _remoteDataSource;
 
-  UserLocalRepository({required IUserDataSource dataSource})
-      : _dataSource = dataSource;
+  UserRemoteRepository({required UserRemoteDataSource remoteDataSource})
+      : _remoteDataSource = remoteDataSource;
 
   @override
   Future<Either<Failure, UserEntity>> getCurrentUser(String id) {
@@ -18,7 +18,7 @@ class UserLocalRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, String>> loginUser(String email, String password) {
+  Future<Either<Failure, String>> loginUser(String username, String password) {
     // TODO: implement loginUser
     throw UnimplementedError();
   }
@@ -34,6 +34,4 @@ class UserLocalRepository implements IUserRepository {
     // TODO: implement uploadProfilePicture
     throw UnimplementedError();
   }
-
- 
 }
