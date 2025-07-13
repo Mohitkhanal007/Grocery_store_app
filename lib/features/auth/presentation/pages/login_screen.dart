@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -17,7 +18,27 @@ class LoginScreen extends StatelessWidget {
       return;
     }
 
-    // Navigate to dashboard if both fields are filled
+    final usersBox = Hive.box('usersBox');
+
+    if (!usersBox.containsKey(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not found. Please sign up.')),
+      );
+      return;
+    }
+
+    final user = usersBox.get(email);
+    if (user['password'] != password) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Incorrect password')),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Login successful')),
+    );
+
     Navigator.pushReplacementNamed(context, '/dashboard');
   }
 

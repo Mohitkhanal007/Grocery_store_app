@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
-import 'screens/welcome_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/signup_screen.dart';
-import 'screens/dashboard_screen.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() {
+import 'features/home/presentation/pages/dashboard_screen.dart';
+import 'features/auth/presentation/pages/login_screen.dart';
+import 'features/auth/presentation/pages/signup_screen.dart';
+import 'features/splash/presentation/pages/welcome_screen.dart';
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive
+  final appDocumentDir = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter(appDocumentDir.path);
+
+  // Open a box for user data
+  await Hive.openBox('usersBox');
+
   runApp(const MyApp());
 }
 
@@ -30,11 +44,11 @@ class MyApp extends StatelessWidget {
           ),
         ),
         textTheme: const TextTheme(
-          displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87), // Headline1 equivalent
-          titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87), // Headline6 equivalent
-          bodyLarge: TextStyle(fontSize: 16, color: Colors.black87), // BodyText1 equivalent
-          bodyMedium: TextStyle(fontSize: 14, color: Colors.black54), // BodyText2 equivalent
-          labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white), // Button text
+          displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
+          titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
+          bodyLarge: TextStyle(fontSize: 16, color: Colors.black87),
+          bodyMedium: TextStyle(fontSize: 14, color: Colors.black54),
+          labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
