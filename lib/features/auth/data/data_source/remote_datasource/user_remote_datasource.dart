@@ -95,9 +95,8 @@ class UserRemoteDataSource implements IUserDataSource {
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout) {
-        // For testing purposes, simulate successful login when backend is not available
         print('Backend not available, simulating successful login for testing');
-        return 'simulated_token_${DateTime.now().millisecondsSinceEpoch}'; // Return a simulated token
+        return 'simulated_token_${DateTime.now().millisecondsSinceEpoch}';
       } else {
         throw Exception('Failed to login user: ${e.message}');
       }
