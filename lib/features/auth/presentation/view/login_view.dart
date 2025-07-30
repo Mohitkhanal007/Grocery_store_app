@@ -78,7 +78,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
     );
   }
 
-  void _login(BuildContext context) {
+  void _login(BuildContext context, LoginViewModel viewModel) {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
@@ -100,7 +100,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
       return;
     }
 
-    context.read<LoginViewModel>().add(
+    viewModel.add(
       LoginWithEmailAndPasswordEvent(email: username, password: password),
     );
   }
@@ -232,7 +232,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
                                   const SizedBox(height: 30),
 
                                   // Login Button
-                                  _buildLoginButton(state),
+                                  _buildLoginButton(context, state),
 
                                   const SizedBox(height: 30),
 
@@ -358,7 +358,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLoginButton(LoginState state) {
+  Widget _buildLoginButton(BuildContext context, LoginState state) {
     return Container(
       width: double.infinity,
       height: 55,
@@ -380,7 +380,9 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
       ),
       child: ElevatedButton(
         key: const Key('loginButton'),
-        onPressed: state.isLoading ? null : () => _login(context),
+        onPressed: state.isLoading
+            ? null
+            : () => _login(context, context.read<LoginViewModel>()),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
