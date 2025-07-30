@@ -9,31 +9,48 @@ class UserLocalRepository implements IUserRepository {
   final IUserDataSource _dataSource;
 
   UserLocalRepository({required IUserDataSource dataSource})
-      : _dataSource = dataSource;
+    : _dataSource = dataSource;
 
   @override
-  Future<Either<Failure, UserEntity>> getCurrentUser(String id) {
-    // TODO: implement getCurrentUser
-    throw UnimplementedError();
+  Future<Either<Failure, UserEntity>> getCurrentUser(String id) async {
+    try {
+      final user = await _dataSource.getCurrentUser(id);
+      return Right(user);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 
   @override
-  Future<Either<Failure, String>> loginUser(String email, String password) {
-    // TODO: implement loginUser
-    throw UnimplementedError();
+  Future<Either<Failure, String>> loginUser(
+    String email,
+    String password,
+  ) async {
+    try {
+      final token = await _dataSource.loginUser(email, password);
+      return Right(token);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 
   @override
-  Future<Either<Failure, void>> registerUser(UserEntity user) {
-    // TODO: implement registerUser
-    throw UnimplementedError();
+  Future<Either<Failure, void>> registerUser(UserEntity user) async {
+    try {
+      await _dataSource.registerUser(user);
+      return const Right(null);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 
   @override
-  Future<Either<Failure, String>> uploadProfilePicture(File file) {
-    // TODO: implement uploadProfilePicture
-    throw UnimplementedError();
+  Future<Either<Failure, String>> uploadProfilePicture(File file) async {
+    try {
+      final filePath = await _dataSource.uploadProfilePicture(file.path);
+      return Right(filePath);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
-
- 
 }

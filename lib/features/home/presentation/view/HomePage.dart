@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
+import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,19 +13,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<String> _titles = [
-    'Home',
-    'Cart',
-    'Notifications',
-    'Profile',
-  ];
-
-  final List<Widget> _pages = [
-    Center(child: Text('Home', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Cart', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Notifications', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Profile', style: TextStyle(fontSize: 24))),
-  ];
+  final List<String> _titles = ['Home', 'Cart', 'Notifications', 'Profile'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,14 +21,69 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Widget _buildProfilePage() {
+    return BlocListener<HomeViewModel, HomeState>(
+      listener: (context, state) {
+        if (state == HomeState.loggedOut) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => LoginView()),
+          );
+        }
+      },
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.grey,
+              child: Icon(Icons.person, size: 50, color: Colors.white),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'User Profile',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton.icon(
+              onPressed: () {
+                context.read<HomeViewModel>().logout();
+              },
+              icon: const Icon(Icons.logout),
+              label: const Text('Logout'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 15,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      const Center(child: Text('Home', style: TextStyle(fontSize: 24))),
+      const Center(child: Text('Cart', style: TextStyle(fontSize: 24))),
+      const Center(
+        child: Text('Notifications', style: TextStyle(fontSize: 24)),
+      ),
+      _buildProfilePage(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_selectedIndex]),
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -46,8 +92,14 @@ class _HomePageState extends State<HomePage> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notifications'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),

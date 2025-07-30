@@ -4,7 +4,9 @@ import 'package:jerseyhub/core/network/hive_service.dart';
 import 'package:jerseyhub/features/auth/data/data_source/local_datasource/user_local_datasource.dart';
 import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
 import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
+import 'package:jerseyhub/features/auth/domain/use_case/user_register_usecase.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:jerseyhub/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
 import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
 import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
 import '../../core/network/api_service.dart';
@@ -18,12 +20,15 @@ Future<void> initDependencies() async {
   await _initAuthModule();
   await _initApiService();
   await _initSplashModule();
-  await _initHomeModule();  // Make sure to call this!
+  await _initHomeModule(); // Make sure to call this!
 }
 
 Future<void> _initCore() async {
-  serviceLocator.registerLazySingleton<HiveService>(() => HiveService());
+  final hiveService = HiveService();
+  await hiveService.init(); // Initialize Hive
+  serviceLocator.registerLazySingleton<HiveService>(() => hiveService);
 }
+
 Future<void> _initApiService() async {
   serviceLocator.registerLazySingleton<Dio>(() => Dio());
   serviceLocator.registerLazySingleton(() => ApiService(serviceLocator<Dio>()));
@@ -32,23 +37,36 @@ Future<void> _initApiService() async {
 Future<void> _initAuthModule() async {
   // Data layer
   serviceLocator.registerLazySingleton<UserLocalDatasource>(
-        () => UserLocalDatasource(hiveService: serviceLocator<HiveService>()),
+    () => UserLocalDatasource(hiveService: serviceLocator<HiveService>()),
+  );
+
+  serviceLocator.registerLazySingleton<UserRemoteDataSource>(
+    () => UserRemoteDataSource(apiService: serviceLocator<ApiService>()),
   );
 
   serviceLocator.registerLazySingleton<IUserRepository>(
-        () => UserRemoteRepository(
+    () => UserRemoteRepository(
       remoteDataSource: serviceLocator<UserRemoteDataSource>(),
     ),
   );
 
   // Domain layer
   serviceLocator.registerLazySingleton<UserLoginUsecase>(
-        () => UserLoginUsecase(userRepository: serviceLocator<IUserRepository>()),
+    () => UserLoginUsecase(userRepository: serviceLocator<IUserRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<UserRegisterUsecase>(
+    () =>
+        UserRegisterUsecase(userRepository: serviceLocator<IUserRepository>()),
   );
 
   // Presentation layer
   serviceLocator.registerFactory<LoginViewModel>(
-        () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
+    () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
+  );
+
+  serviceLocator.registerFactory<RegisterViewModel>(
+    () => RegisterViewModel(serviceLocator<UserRegisterUsecase>()),
   );
 }
 

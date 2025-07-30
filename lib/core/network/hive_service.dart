@@ -8,7 +8,6 @@ class HiveService {
 
   Future<void> init() async {
     var directory = await getApplicationDocumentsDirectory();
-    var path = '${directory.path}/jersey.db';
     Hive.init(directory.path);
 
     Hive.registerAdapter(UserHiveModelAdapter());
@@ -34,11 +33,11 @@ class HiveService {
   }
 
   // Login and save current user
-  Future<UserHiveModel?> login(String username, String password) async {
+  Future<UserHiveModel?> login(String email, String password) async {
     var box = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
     try {
       final user = box.values.firstWhere(
-            (u) => u.username == username && u.password == password,
+        (u) => u.email == email && u.password == password,
       );
       // Save logged-in user
       await box.put(currentUserKey, user);

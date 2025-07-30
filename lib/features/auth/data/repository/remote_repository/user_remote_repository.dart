@@ -9,7 +9,7 @@ class UserRemoteRepository implements IUserRepository {
   final UserRemoteDataSource _remoteDataSource;
 
   UserRemoteRepository({required UserRemoteDataSource remoteDataSource})
-      : _remoteDataSource = remoteDataSource;
+    : _remoteDataSource = remoteDataSource;
 
   @override
   Future<Either<Failure, UserEntity>> getCurrentUser(String id) async {
@@ -22,9 +22,12 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, String>> loginUser(String username, String password) async {
+  Future<Either<Failure, String>> loginUser(
+    String email,
+    String password,
+  ) async {
     try {
-      final token = await _remoteDataSource.loginUser(username, password);
+      final token = await _remoteDataSource.loginUser(email, password);
       return Right(token);
     } catch (e) {
       return Left(RemoteDatabaseFailure(message: e.toString()));

@@ -1,22 +1,27 @@
+import 'backend_config.dart';
+
 class ApiEndpoints {
   ApiEndpoints._();
 
   // Timeouts
-  static const connectionTimeout = Duration(seconds: 1000);
-  static const receiveTimeout = Duration(seconds: 1000);
+  static Duration get connectionTimeout =>
+      Duration(seconds: BackendConfig.connectionTimeoutSeconds);
+  static Duration get receiveTimeout =>
+      Duration(seconds: BackendConfig.receiveTimeoutSeconds);
 
   // Base URLs
-  static const String serverAddress = "http://10.0.2.2:2000"; // Android emulator
-  static const String baseUrl = "$serverAddress/";
-  static const String imageUrl = "${serverAddress}/uploads/";
-
+  static String get serverAddress => BackendConfig.serverAddress;
+  static String get baseUrl => BackendConfig.baseUrl;
+  static String get imageUrl => BackendConfig.uploadUrl;
 
   // User endpoints
-  static const String registerUser = "user/register";
-  static const String loginUser = "user/login";
-  static const String getAllUsers = "user/";
-  static const String uploadImg = "user/uploadImg";
-  static String getUserById(String id) => "user/$id";
-  static String updateUserById(String id) => "user/$id";
-  static String deleteUserById(String id) => "user/$id";
+  static const String registerUser = BackendConfig.registerEndpoint;
+  static const String loginUser = BackendConfig.loginEndpoint;
+  static const String getAllUsers = BackendConfig.getUserEndpoint;
+  static const String uploadImg = BackendConfig.uploadImageEndpoint;
+  static String getUserById(String id) => "${BackendConfig.getUserEndpoint}$id";
+  static String updateUserById(String id) =>
+      "${BackendConfig.getUserEndpoint}$id";
+  static String deleteUserById(String id) =>
+      "${BackendConfig.getUserEndpoint}$id";
 }

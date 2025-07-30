@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 
 @immutable
-sealed class LoginEvent{}
+sealed class LoginEvent {}
 
-class NavigateToRegisterViewEvent extends LoginEvent{
-  final BuildContext context;
-
-  NavigateToRegisterViewEvent({required this.context});
+class NavigateToRegisterViewEvent extends LoginEvent {
+  // No context here
+  // UI will handle navigation on this event externally
 }
-class LoginWithEmailAndPasswordEvent extends LoginEvent{
-  final BuildContext context;
+
+class LoginWithEmailAndPasswordEvent extends LoginEvent {
   final String email;
   final String password;
 
-  LoginWithEmailAndPasswordEvent({
-    required this.context,
-    required this.email,
-    required this.password,
-});
+  LoginWithEmailAndPasswordEvent({required this.email, required this.password});
 }
