@@ -14,10 +14,49 @@ class RegisterView extends StatefulWidget {
   State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
+class _RegisterViewState extends State<RegisterView>
+    with TickerProviderStateMixin {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  bool _isPasswordVisible = false;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
 
   void _showAlertDialog(
     BuildContext context, {
@@ -27,7 +66,8 @@ class _RegisterViewState extends State<RegisterView> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(title),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         content: Text(content),
         actions: [
           TextButton(
@@ -41,12 +81,13 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  void _register(BuildContext context) {
+  void _register(BuildContext context, RegisterViewModel viewModel) {
     final username = _usernameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+    final address = _addressController.text.trim();
 
-    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+    if (username.isEmpty || email.isEmpty || password.isEmpty || address.isEmpty) {
       _showAlertDialog(
         context,
         title: "Missing Fields",
@@ -64,22 +105,15 @@ class _RegisterViewState extends State<RegisterView> {
       return;
     }
 
-    context.read<RegisterViewModel>().add(
+    viewModel.add(
       RegisterUserEvent(
         context: context,
         username: username,
         email: email,
         password: password,
+        address: address,
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 
   @override
@@ -94,155 +128,147 @@ class _RegisterViewState extends State<RegisterView> {
                 _usernameController.clear();
                 _emailController.clear();
                 _passwordController.clear();
+                _addressController.clear();
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      'Registration successful! Please login.',
+                    ),
+                    backgroundColor: Colors.green.shade600,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                );
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginView()),
+                );
               }
             },
             child: BlocBuilder<RegisterViewModel, RegisterState>(
               builder: (context, state) {
                 return Scaffold(
-                  body: Stack(
-                    children: [
-                      /// Background Image
-                      Positioned.fill(
-                        child: Image.asset(
-                          'assets/images/login.png',
-                          fit: BoxFit.cover,
-                        ),
+                  body: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.indigo.shade900,
+                          Colors.purple.shade800,
+                          Colors.blue.shade900,
+                        ],
                       ),
-
-                      /// Overlay for readability
-                      Positioned.fill(
-                        child: Container(color: Colors.black.withOpacity(0.4)),
-                      ),
-
-                      /// Centered Signup Form
-                      Center(
+                    ),
+                    child: SafeArea(
+                      child: Center(
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 30),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 40),
-
-                              /// Username Field
-                              Container(
-                                decoration: _fieldDecoration(),
-                                child: TextFormField(
-                                  key: const Key('usernameField'),
-                                  controller: _usernameController,
-                                  style: const TextStyle(color: Colors.black),
-                                  decoration: _inputDecoration(
-                                    "Enter Username",
-                                    Icons.person,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-
-                              /// Email Field
-                              Container(
-                                decoration: _fieldDecoration(),
-                                child: TextFormField(
-                                  key: const Key('emailField'),
-                                  controller: _emailController,
-                                  style: const TextStyle(color: Colors.black),
-                                  decoration: _inputDecoration(
-                                    "Enter Email",
-                                    Icons.email,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-
-                              /// Password Field
-                              Container(
-                                decoration: _fieldDecoration(),
-                                child: TextFormField(
-                                  key: const Key('passwordField'),
-                                  controller: _passwordController,
-                                  obscureText: true,
-                                  style: const TextStyle(color: Colors.black),
-                                  decoration: _inputDecoration(
-                                    "Enter Password",
-                                    Icons.lock,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 30),
-
-                              /// SignUp Button
-                              SizedBox(
-                                width: double.infinity,
-                                height: 55,
-                                child: ElevatedButton(
-                                  key: const Key('signUpButton'),
-                                  onPressed: state.isLoading
-                                      ? null
-                                      : () => _register(context),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white.withOpacity(
-                                      0.7,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: state.isLoading
-                                      ? const CircularProgressIndicator(
-                                          color: Colors.black,
-                                        )
-                                      : const Text(
-                                          'Sign Up',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-
-                              /// Already Have Account
-                              Row(
+                          child: FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: SlideTransition(
+                              position: _slideAnimation,
+                              child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Text(
-                                    "Already have an account?",
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => LoginView(),
-                                        ),
-                                      );
-                                    },
-                                    child: const Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        color: Colors.blueAccent,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
+                                  // Logo/Brand Section
+                                  Container(
+                                    padding: const EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.2),
                                       ),
                                     ),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.sports_soccer,
+                                          size: 60,
+                                          color: Colors.white,
+                                        ),
+                                        const SizedBox(height: 10),
+                                        const Text(
+                                          'JERSEY HUB',
+                                          style: TextStyle(
+                                            fontFamily: 'OpenSans Bold',
+                                            color: Colors.white,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 2,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'Join Our Community!',
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(
+                                              0.8,
+                                            ),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
+
+                                  const SizedBox(height: 40),
+
+                                  // Username Field
+                                  _buildInputField(
+                                    controller: _usernameController,
+                                    hintText: "Enter Username",
+                                    icon: Icons.person_outline,
+                                    key: const Key('usernameField'),
+                                  ),
+
+                                  const SizedBox(height: 20),
+
+                                  // Email Field
+                                  _buildInputField(
+                                    controller: _emailController,
+                                    hintText: "Enter Email",
+                                    icon: Icons.email_outlined,
+                                    key: const Key('emailField'),
+                                  ),
+
+                                  const SizedBox(height: 20),
+
+                                  // Password Field
+                                  _buildPasswordField(),
+
+                                  const SizedBox(height: 20),
+
+                                  // Address Field
+                                  _buildInputField(
+                                    controller: _addressController,
+                                    hintText: "Enter Address",
+                                    icon: Icons.location_on_outlined,
+                                    key: const Key('addressField'),
+                                  ),
+
+                                  const SizedBox(height: 30),
+
+                                  // SignUp Button
+                                  _buildSignUpButton(context, state),
+
+                                  const SizedBox(height: 30),
+
+                                  // Login Link
+                                  _buildLoginLink(context),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 );
               },
@@ -253,22 +279,197 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  /// 🔧 Helper for consistent input box styling
-  BoxDecoration _fieldDecoration() {
-    return BoxDecoration(
-      color: Colors.white.withOpacity(0.4),
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: Colors.white54),
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    required Key key,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        key: key,
+        controller: controller,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 16,
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: Colors.white.withOpacity(0.8),
+            size: 24,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 20,
+          ),
+        ),
+      ),
     );
   }
 
-  InputDecoration _inputDecoration(String hint, IconData icon) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Colors.black),
-      prefixIcon: Icon(icon, color: Colors.black),
-      border: InputBorder.none,
-      contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+  Widget _buildPasswordField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        key: const Key('passwordField'),
+        controller: _passwordController,
+        obscureText: !_isPasswordVisible,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: InputDecoration(
+          hintText: "Enter Password",
+          hintStyle: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 16,
+          ),
+          prefixIcon: Icon(
+            Icons.lock_outline,
+            color: Colors.white.withOpacity(0.8),
+            size: 24,
+          ),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              color: Colors.white.withOpacity(0.8),
+            ),
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignUpButton(BuildContext context, RegisterState state) {
+    return Container(
+      width: double.infinity,
+      height: 55,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withOpacity(0.9),
+            Colors.white.withOpacity(0.7),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        key: const Key('signUpButton'),
+        onPressed: state.isLoading
+            ? null
+            : () => _register(context, context.read<RegisterViewModel>()),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+        child: state.isLoading
+            ? const CircularProgressIndicator(
+                color: Colors.black,
+                strokeWidth: 2,
+              )
+            : const Text(
+                'Sign Up',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildLoginLink(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "Already have an account?",
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginView()),
+              );
+            },
+            child: Text(
+              "Login",
+              style: TextStyle(
+                color: Colors.yellow.shade300,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
