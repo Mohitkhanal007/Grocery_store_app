@@ -87,7 +87,10 @@ class _RegisterViewState extends State<RegisterView>
     final password = _passwordController.text;
     final address = _addressController.text.trim();
 
-    if (username.isEmpty || email.isEmpty || password.isEmpty || address.isEmpty) {
+    if (username.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        address.isEmpty) {
       _showAlertDialog(
         context,
         title: "Missing Fields",

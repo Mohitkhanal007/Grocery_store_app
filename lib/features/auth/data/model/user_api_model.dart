@@ -11,12 +11,14 @@ class UserApiModel extends Equatable {
   final String email;
   final String username;
   final String password;
+  final String address;
 
   const UserApiModel({
     this.id,
     required this.email,
     required this.username,
     required this.password,
+    required this.address,
   });
 
   /// JSON -> Model
@@ -33,6 +35,7 @@ class UserApiModel extends Equatable {
       email: email,
       username: username,
       password: password,
+      address: address,
     );
   }
 
@@ -43,6 +46,7 @@ class UserApiModel extends Equatable {
       email: entity.email,
       username: entity.username,
       password: entity.password,
+      address: entity.address,
     );
   }
 
