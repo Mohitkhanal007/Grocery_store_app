@@ -9,10 +9,10 @@ class BackendConfig {
   /// For physical device: http://YOUR_COMPUTER_IP:PORT
   /// For production: https://your-domain.com
   static const String serverAddress =
-      "http://10.0.2.2:2000"; // Local Jersey backend for testing
+      "http://10.0.2.2:5050"; // Local Jersey backend for testing
 
   /// API base path (usually empty for Jersey, or "/api" if you have it configured)
-  static const String apiPath = "";
+  static const String apiPath = "/api";
 
   /// Full base URL for API calls
   static String get baseUrl => "$serverAddress$apiPath/";
@@ -23,10 +23,23 @@ class BackendConfig {
   // ===== JERSEY ENDPOINTS =====
 
   /// User authentication endpoints
-  static const String loginEndpoint = "user/login";
-  static const String registerEndpoint = "user/register";
-  static const String getUserEndpoint = "user/";
-  static const String uploadImageEndpoint = "user/uploadImg";
+  static const String loginEndpoint = "auth/login";
+  static const String registerEndpoint = "auth/register";
+  static const String getUserEndpoint = "auth/";
+  static const String uploadImageEndpoint = "auth/uploadImg";
+
+  /// Product endpoints
+  static const String productsEndpoint = "admin/product";
+  static const String categoriesEndpoint = "admin/category";
+
+  /// Order endpoints
+  static const String ordersEndpoint = "orders";
+
+  /// Payment endpoints
+  static const String esewaEndpoint = "esewa";
+
+  /// Notification endpoints
+  static const String notificationsEndpoint = "notifications";
 
   // ===== JERSEY RESPONSE FORMATS =====
 
