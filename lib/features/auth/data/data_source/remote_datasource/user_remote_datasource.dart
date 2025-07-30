@@ -49,6 +49,7 @@ class UserRemoteDataSource implements IUserDataSource {
           username: 'Test User',
           email: 'test@example.com',
           password: '',
+          address: 'Simulated Address',
         );
       } else {
         throw Exception('Failed to get current user: ${e.message}');

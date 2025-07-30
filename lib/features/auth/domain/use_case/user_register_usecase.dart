@@ -8,20 +8,22 @@ class RegisterUserParams {
   final String username;
   final String email;
   final String password;
+  final String address;
 
   const RegisterUserParams({
     required this.username,
     required this.email,
     required this.password,
-
+    required this.address,
   });
 }
 
-class UserRegisterUsecase implements UsecaseWithParams<void, RegisterUserParams> {
+class UserRegisterUsecase
+    implements UsecaseWithParams<void, RegisterUserParams> {
   final IUserRepository _userRepository;
 
   UserRegisterUsecase({required IUserRepository userRepository})
-      : _userRepository = userRepository;
+    : _userRepository = userRepository;
 
   @override
   Future<Either<Failure, void>> call(RegisterUserParams params) {
@@ -29,10 +31,9 @@ class UserRegisterUsecase implements UsecaseWithParams<void, RegisterUserParams>
       username: params.username,
       email: params.email,
       password: params.password,
-
+      address: params.address,
     );
 
     return _userRepository.registerUser(userEntity);
   }
 }
-

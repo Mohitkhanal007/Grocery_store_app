@@ -15,17 +15,20 @@ void main() {
   const tUsername = 'testuser';
   const tEmail = 'test@example.com';
   const tPassword = 'securepassword';
+  const tAddress = '123 Test Street, Test City';
 
   const tParams = RegisterUserParams(
     username: tUsername,
     email: tEmail,
     password: tPassword,
+    address: tAddress,
   );
 
   const tUserEntity = UserEntity(
     username: tUsername,
     email: tEmail,
     password: tPassword,
+    address: tAddress,
   );
 
   setUp(() {
@@ -39,6 +42,7 @@ void main() {
         username: 'fallback_username',
         email: 'fallback@example.com',
         password: 'fallback_password',
+        address: 'fallback_address',
       ),
     );
   });
