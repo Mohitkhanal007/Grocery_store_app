@@ -63,11 +63,18 @@ class ProductViewModel extends Bloc<ProductEvent, ProductState> {
     LoadAllProductsEvent event,
     Emitter<ProductState> emit,
   ) async {
+    print('ProductViewModel: Loading all products...');
     emit(ProductLoading());
     final result = await _getAllProductsUseCase();
     result.fold(
-      (failure) => emit(ProductError(message: failure.message)),
-      (products) => emit(ProductsLoaded(products: products)),
+      (failure) {
+        print('ProductViewModel: Error loading products: ${failure.message}');
+        emit(ProductError(message: failure.message));
+      },
+      (products) {
+        print('ProductViewModel: Loaded ${products.length} products');
+        emit(ProductsLoaded(products: products));
+      },
     );
   }
 

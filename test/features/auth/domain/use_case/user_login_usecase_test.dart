@@ -4,11 +4,19 @@ import 'package:dartz/dartz.dart';
 import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
 import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:jerseyhub/core/error/failure.dart';
+import 'package:jerseyhub/app/shared_prefs/token_shared_prefs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockUserRepository extends Mock implements IUserRepository {}
 
+class MockTokenSharedPrefs extends Mock implements TokenSharedPrefs {}
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
 void main() {
   late MockUserRepository mockUserRepository;
+  late MockTokenSharedPrefs mockTokenSharedPrefs;
+  late MockSharedPreferences mockSharedPreferences;
   late UserLoginUsecase userLoginUsecase;
 
   const tEmail = 'test@example.com';
@@ -19,7 +27,13 @@ void main() {
 
   setUp(() {
     mockUserRepository = MockUserRepository();
-    userLoginUsecase = UserLoginUsecase(userRepository: mockUserRepository);
+    mockTokenSharedPrefs = MockTokenSharedPrefs();
+    mockSharedPreferences = MockSharedPreferences();
+    userLoginUsecase = UserLoginUsecase(
+      userRepository: mockUserRepository,
+      tokenSharedPrefs: mockTokenSharedPrefs,
+      sharedPreferences: mockSharedPreferences,
+    );
 
     registerFallbackValue(const LoginParams.initial());
   });
@@ -30,13 +44,25 @@ void main() {
       () => mockUserRepository.loginUser(any(), any()),
     ).thenAnswer((_) async => const Right(tToken));
 
+    when(
+      () => mockTokenSharedPrefs.saveToken(any()),
+    ).thenAnswer((_) async => const Right(null));
+
+    when(
+      () => mockSharedPreferences.setBool(any(), any()),
+    ).thenAnswer((_) async => true);
+
     // Act
     final result = await userLoginUsecase(tParams);
 
     // Assert
     expect(result, const Right(tToken));
     verify(() => mockUserRepository.loginUser(tEmail, tPassword)).called(1);
+    verify(() => mockTokenSharedPrefs.saveToken(tToken)).called(1);
+    verify(() => mockSharedPreferences.setBool('isLoggedIn', true)).called(1);
     verifyNoMoreInteractions(mockUserRepository);
+    verifyNoMoreInteractions(mockTokenSharedPrefs);
+    verifyNoMoreInteractions(mockSharedPreferences);
   });
 
   test('returns failure on login error', () async {
@@ -54,5 +80,33 @@ void main() {
     expect(result, const Left(failure));
     verify(() => mockUserRepository.loginUser(tEmail, tPassword)).called(1);
     verifyNoMoreInteractions(mockUserRepository);
+    verifyNoMoreInteractions(mockTokenSharedPrefs);
+    verifyNoMoreInteractions(mockSharedPreferences);
+  });
+
+  test('returns failure when token save fails', () async {
+    // Arrange
+    const saveFailure = SharedPreferencesFailure(
+      message: 'Failed to save token',
+    );
+
+    when(
+      () => mockUserRepository.loginUser(any(), any()),
+    ).thenAnswer((_) async => const Right(tToken));
+
+    when(
+      () => mockTokenSharedPrefs.saveToken(any()),
+    ).thenAnswer((_) async => const Left(saveFailure));
+
+    // Act
+    final result = await userLoginUsecase(tParams);
+
+    // Assert
+    expect(result, const Left(saveFailure));
+    verify(() => mockUserRepository.loginUser(tEmail, tPassword)).called(1);
+    verify(() => mockTokenSharedPrefs.saveToken(tToken)).called(1);
+    verifyNoMoreInteractions(mockUserRepository);
+    verifyNoMoreInteractions(mockTokenSharedPrefs);
+    verifyNoMoreInteractions(mockSharedPreferences);
   });
 }

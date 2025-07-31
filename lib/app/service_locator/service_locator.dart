@@ -79,6 +79,7 @@ Future<void> _initAuthModule() async {
     () => UserLoginUsecase(
       userRepository: serviceLocator<IUserRepository>(),
       tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
+      sharedPreferences: serviceLocator<SharedPreferences>(),
     ),
   );
 

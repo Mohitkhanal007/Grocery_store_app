@@ -19,6 +19,7 @@ class _ProductListViewState extends State<ProductListView> {
   @override
   void initState() {
     super.initState();
+    print('ProductListView: initState called');
     context.read<ProductViewModel>().add(LoadAllProductsEvent());
   }
 
@@ -76,10 +77,16 @@ class _ProductListViewState extends State<ProductListView> {
           Expanded(
             child: BlocBuilder<ProductViewModel, ProductState>(
               builder: (context, state) {
+                print('ProductListView: Current state: ${state.runtimeType}');
                 if (state is ProductLoading) {
+                  print('ProductListView: Showing loading indicator');
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is ProductsLoaded) {
+                  print(
+                    'ProductListView: Products loaded: ${state.products.length}',
+                  );
                   if (state.products.isEmpty) {
+                    print('ProductListView: No products found');
                     return const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

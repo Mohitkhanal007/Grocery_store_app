@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
 import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
 

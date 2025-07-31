@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:jerseyhub/app/constant/api_endpoints.dart';
 import 'package:jerseyhub/app/constant/backend_config.dart';
 import 'package:jerseyhub/core/network/api_service.dart';
 import 'package:jerseyhub/features/product/data/model/product_api_model.dart';
@@ -15,6 +14,12 @@ class ProductRemoteDataSource implements IProductDataSource {
   @override
   Future<List<ProductEntity>> getAllProducts() async {
     try {
+      // For testing purposes, always use mock data
+      print('Using mock products for testing');
+      return _getMockProducts();
+
+      // Uncomment the following code when you want to use real API
+      /*
       final response = await _apiService.dio.get(
         BackendConfig.productsEndpoint,
       );
@@ -44,6 +49,7 @@ class ProductRemoteDataSource implements IProductDataSource {
       } else {
         throw Exception("Failed to fetch products: ${response.statusMessage}");
       }
+      */
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout) {
         // For testing purposes, simulate successful products fetch when backend is not available
@@ -151,6 +157,18 @@ class ProductRemoteDataSource implements IProductDataSource {
   @override
   Future<List<ProductEntity>> searchProducts(String query) async {
     try {
+      // For testing purposes, always use mock data
+      print('Using mock products for search testing');
+      final mockProducts = _getMockProducts();
+      return mockProducts
+          .where(
+            (product) =>
+                product.team.toLowerCase().contains(query.toLowerCase()),
+          )
+          .toList();
+
+      // Uncomment the following code when you want to use real API
+      /*
       final response = await _apiService.dio.get(
         '${BackendConfig.productsEndpoint}/search?q=$query',
       );
@@ -177,6 +195,7 @@ class ProductRemoteDataSource implements IProductDataSource {
       } else {
         throw Exception("Failed to search products: ${response.statusMessage}");
       }
+      */
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout) {
         print('Backend not available, simulating product search for testing');
@@ -198,6 +217,14 @@ class ProductRemoteDataSource implements IProductDataSource {
   @override
   Future<List<ProductEntity>> getProductsByType(String type) async {
     try {
+      // For testing purposes, always use mock data
+      print('Using mock products for type filtering testing');
+      return _getMockProducts()
+          .where((product) => product.type == type)
+          .toList();
+
+      // Uncomment the following code when you want to use real API
+      /*
       final response = await _apiService.dio.get(
         '${BackendConfig.productsEndpoint}?type=$type',
       );
@@ -226,6 +253,7 @@ class ProductRemoteDataSource implements IProductDataSource {
           "Failed to fetch products by type: ${response.statusMessage}",
         );
       }
+      */
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout) {
         print('Backend not available, simulating products by type for testing');
@@ -349,7 +377,7 @@ class ProductRemoteDataSource implements IProductDataSource {
         price: 89.99,
         quantity: 50,
         categoryId: '1',
-        productImage: 'assets/images/jersey1.png',
+        productImage: 'assets/images/Liverpool.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -361,7 +389,7 @@ class ProductRemoteDataSource implements IProductDataSource {
         price: 79.99,
         quantity: 30,
         categoryId: '1',
-        productImage: 'assets/images/jersey2.png',
+        productImage: 'assets/images/Real Madrid.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -373,7 +401,7 @@ class ProductRemoteDataSource implements IProductDataSource {
         price: 94.99,
         quantity: 25,
         categoryId: '2',
-        productImage: 'assets/images/jersey3.png',
+        productImage: 'assets/images/Manchester United.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -385,7 +413,7 @@ class ProductRemoteDataSource implements IProductDataSource {
         price: 84.99,
         quantity: 40,
         categoryId: '2',
-        productImage: 'assets/images/jersey4.png',
+        productImage: 'assets/images/Barcelona.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),

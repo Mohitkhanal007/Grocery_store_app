@@ -21,12 +21,15 @@ class LoginParams extends Equatable {
 class UserLoginUsecase implements UsecaseWithParams<String, LoginParams> {
   final IUserRepository _userRepository;
   final TokenSharedPrefs _tokenSharedPrefs;
+  final SharedPreferences _sharedPreferences;
 
   UserLoginUsecase({
     required IUserRepository userRepository,
     required TokenSharedPrefs tokenSharedPrefs,
+    required SharedPreferences sharedPreferences,
   }) : _userRepository = userRepository,
-       _tokenSharedPrefs = tokenSharedPrefs;
+       _tokenSharedPrefs = tokenSharedPrefs,
+       _sharedPreferences = sharedPreferences;
 
   @override
   Future<Either<Failure, String>> call(LoginParams params) async {
@@ -41,8 +44,7 @@ class UserLoginUsecase implements UsecaseWithParams<String, LoginParams> {
         final saveTokenResult = await _tokenSharedPrefs.saveToken(token);
         return saveTokenResult.fold((failure) => Left(failure), (_) async {
           // Set login status to true
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('isLoggedIn', true);
+          await _sharedPreferences.setBool('isLoggedIn', true);
           return Right(token);
         });
       });
