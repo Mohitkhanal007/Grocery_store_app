@@ -38,6 +38,15 @@ import '../../features/cart/domain/use_case/get_cart_usecase.dart';
 import '../../features/cart/domain/use_case/remove_from_cart_usecase.dart';
 import '../../features/cart/domain/use_case/update_quantity_usecase.dart';
 import '../../features/cart/presentation/viewmodel/cart_viewmodel.dart';
+import '../../features/order/data/data_source/local_datasource/order_local_datasource.dart';
+import '../../features/order/data/repository/order_repository_impl.dart';
+import '../../features/order/domain/repository/order_repository.dart';
+import '../../features/order/domain/use_case/get_all_orders_usecase.dart';
+import '../../features/order/domain/use_case/get_order_by_id_usecase.dart';
+import '../../features/order/domain/use_case/create_order_usecase.dart';
+import '../../features/order/domain/use_case/update_order_status_usecase.dart';
+import '../../features/order/domain/use_case/delete_order_usecase.dart';
+import '../../features/order/presentation/viewmodel/order_viewmodel.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -50,6 +59,7 @@ Future<void> initDependencies() async {
   await _initProductModule(); // Make sure to call this!
   await _initCategoryModule(); // Make sure to call this!
   await _initCartModule(); // Make sure to call this!
+  await _initOrderModule(); // Make sure to call this!
 }
 
 Future<void> _initCore() async {
@@ -252,6 +262,49 @@ Future<void> _initCartModule() async {
       removeFromCartUseCase: serviceLocator<RemoveFromCartUseCase>(),
       updateQuantityUseCase: serviceLocator<UpdateQuantityUseCase>(),
       clearCartUseCase: serviceLocator<ClearCartUseCase>(),
+    ),
+  );
+}
+
+Future<void> _initOrderModule() async {
+  // Data layer
+  serviceLocator.registerLazySingleton<OrderLocalDataSource>(
+    () => OrderLocalDataSourceImpl(),
+  );
+
+  serviceLocator.registerLazySingleton<OrderRepository>(
+    () => OrderRepositoryImpl(serviceLocator<OrderLocalDataSource>()),
+  );
+
+  // Domain layer
+  serviceLocator.registerLazySingleton<GetAllOrdersUseCase>(
+    () => GetAllOrdersUseCase(serviceLocator<OrderRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<GetOrderByIdUseCase>(
+    () => GetOrderByIdUseCase(serviceLocator<OrderRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<CreateOrderUseCase>(
+    () => CreateOrderUseCase(serviceLocator<OrderRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<UpdateOrderStatusUseCase>(
+    () => UpdateOrderStatusUseCase(serviceLocator<OrderRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<DeleteOrderUseCase>(
+    () => DeleteOrderUseCase(serviceLocator<OrderRepository>()),
+  );
+
+  // Presentation layer
+  serviceLocator.registerFactory<OrderViewModel>(
+    () => OrderViewModel(
+      getAllOrdersUseCase: serviceLocator<GetAllOrdersUseCase>(),
+      getOrderByIdUseCase: serviceLocator<GetOrderByIdUseCase>(),
+      createOrderUseCase: serviceLocator<CreateOrderUseCase>(),
+      updateOrderStatusUseCase: serviceLocator<UpdateOrderStatusUseCase>(),
+      deleteOrderUseCase: serviceLocator<DeleteOrderUseCase>(),
     ),
   );
 }

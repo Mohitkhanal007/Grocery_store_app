@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
 
 class ProductDetailView extends StatefulWidget {
   final String productId;
@@ -460,8 +463,17 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   }
 
   void _addToCart(BuildContext context, ProductEntity product) {
-    // TODO: Implement cart functionality
-    // For now, just show a snackbar
+    final cartItem = CartItemEntity(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      product: product,
+      quantity: 1,
+      selectedSize: product.size,
+      addedAt: DateTime.now(),
+    );
+
+    // Add to cart using CartViewModel
+    context.read<CartViewModel>().add(AddToCartEvent(item: cartItem));
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product.team} added to cart!'),
@@ -470,7 +482,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           label: 'View Cart',
           textColor: Colors.white,
           onPressed: () {
-            // TODO: Navigate to cart
+            // Navigate to cart tab
+            Navigator.pop(context);
           },
         ),
       ),

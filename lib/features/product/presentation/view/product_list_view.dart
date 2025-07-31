@@ -4,6 +4,7 @@ import 'package:jerseyhub/app/service_locator/service_locator.dart';
 import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
 import 'package:jerseyhub/features/category/presentation/view/category_list_view.dart';
 import 'package:jerseyhub/features/category/presentation/viewmodel/category_viewmodel.dart';
+import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
 import 'package:jerseyhub/features/product/presentation/view/product_detail_view.dart';
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
@@ -236,8 +237,15 @@ class _ProductListViewState extends State<ProductListView> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BlocProvider(
-                  create: (context) => serviceLocator<ProductViewModel>(),
+                builder: (context) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (context) => serviceLocator<ProductViewModel>(),
+                    ),
+                    BlocProvider(
+                      create: (context) => serviceLocator<CartViewModel>(),
+                    ),
+                  ],
                   child: ProductDetailView(
                     productId: product.id,
                     initialProduct: product,

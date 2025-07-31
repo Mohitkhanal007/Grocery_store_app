@@ -5,6 +5,8 @@ import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
 import 'package:jerseyhub/features/cart/presentation/view/cart_view.dart';
 import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
+import 'package:jerseyhub/features/order/presentation/view/order_list_view.dart';
+import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
 import 'package:jerseyhub/features/product/presentation/view/product_list_view.dart';
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
 
@@ -18,7 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<String> _titles = ['', 'Cart', 'Notifications', 'Profile'];
+  final List<String> _titles = ['', 'Cart', 'Orders', 'Profile'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -90,8 +92,9 @@ class _HomePageState extends State<HomePage> {
         create: (context) => serviceLocator<CartViewModel>(),
         child: const CartView(),
       ),
-      const Center(
-        child: Text('Notifications', style: TextStyle(fontSize: 24)),
+      BlocProvider(
+        create: (context) => serviceLocator<OrderViewModel>(),
+        child: const OrderListView(),
       ),
       _buildProfilePage(),
     ];
@@ -115,8 +118,8 @@ class _HomePageState extends State<HomePage> {
             label: 'Cart',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
+            icon: Icon(Icons.shopping_bag),
+            label: 'Orders',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],

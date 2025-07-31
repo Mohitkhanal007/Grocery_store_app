@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 import 'package:jerseyhub/features/cart/presentation/widgets/cart_item_widget.dart';
+import 'package:jerseyhub/features/order/presentation/view/checkout_view.dart';
+import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
 
 class CartView extends StatefulWidget {
   const CartView({super.key});
@@ -166,11 +169,13 @@ class _CartViewState extends State<CartView> {
               height: 56,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Implement checkout
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Checkout functionality coming soon!'),
-                      backgroundColor: Colors.blue,
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider(
+                        create: (context) => serviceLocator<OrderViewModel>(),
+                        child: CheckoutView(cart: cart),
+                      ),
                     ),
                   );
                 },
