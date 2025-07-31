@@ -10,6 +10,13 @@ import 'package:jerseyhub/features/auth/domain/use_case/user_register_usecase.da
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
 import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
+import 'package:jerseyhub/features/product/data/data_source/remote_datasource/product_remote_datasource.dart';
+import 'package:jerseyhub/features/product/data/repository/product_repository_impl.dart';
+import 'package:jerseyhub/features/product/domain/repository/product_repository.dart';
+import 'package:jerseyhub/features/product/domain/use_case/get_all_products_usecase.dart';
+import 'package:jerseyhub/features/product/domain/use_case/get_product_by_id_usecase.dart';
+import 'package:jerseyhub/features/product/domain/use_case/search_products_usecase.dart';
+import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
 import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/network/api_service.dart';
@@ -23,7 +30,8 @@ Future<void> initDependencies() async {
   await _initAuthModule();
   await _initApiService();
   await _initSplashModule();
-  await _initHomeModule(); // Make sure to call this!
+  await _initHomeModule();
+  await _initProductModule(); // Make sure to call this!
 }
 
 Future<void> _initCore() async {
@@ -103,5 +111,43 @@ Future<void> _initSplashModule() async {
 Future<void> _initHomeModule() async {
   serviceLocator.registerFactory<HomeViewModel>(
     () => HomeViewModel(logoutUseCase: serviceLocator<UserLogoutUseCase>()),
+  );
+}
+
+Future<void> _initProductModule() async {
+  // Data layer
+  serviceLocator.registerLazySingleton<ProductRemoteDataSource>(
+    () => ProductRemoteDataSource(apiService: serviceLocator<ApiService>()),
+  );
+
+  serviceLocator.registerLazySingleton<IProductRepository>(
+    () => ProductRepositoryImpl(
+      remoteDataSource: serviceLocator<ProductRemoteDataSource>(),
+    ),
+  );
+
+  // Domain layer
+  serviceLocator.registerLazySingleton<GetAllProductsUseCase>(
+    () =>
+        GetAllProductsUseCase(repository: serviceLocator<IProductRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<GetProductByIdUseCase>(
+    () =>
+        GetProductByIdUseCase(repository: serviceLocator<IProductRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<SearchProductsUseCase>(
+    () =>
+        SearchProductsUseCase(repository: serviceLocator<IProductRepository>()),
+  );
+
+  // Presentation layer
+  serviceLocator.registerFactory<ProductViewModel>(
+    () => ProductViewModel(
+      getAllProductsUseCase: serviceLocator<GetAllProductsUseCase>(),
+      getProductByIdUseCase: serviceLocator<GetProductByIdUseCase>(),
+      searchProductsUseCase: serviceLocator<SearchProductsUseCase>(),
+    ),
   );
 }
