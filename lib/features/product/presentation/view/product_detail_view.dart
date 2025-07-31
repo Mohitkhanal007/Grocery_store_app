@@ -245,15 +245,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             height: 56,
             child: ElevatedButton(
               onPressed: product.quantity > 0
-                  ? () {
-                      // TODO: Add to cart functionality
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Added to cart!'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    }
+                  ? () => _addToCart(context, product)
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).primaryColor,
@@ -464,6 +456,24 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           ),
         );
       },
+    );
+  }
+
+  void _addToCart(BuildContext context, ProductEntity product) {
+    // TODO: Implement cart functionality
+    // For now, just show a snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${product.team} added to cart!'),
+        backgroundColor: Colors.green,
+        action: SnackBarAction(
+          label: 'View Cart',
+          textColor: Colors.white,
+          onPressed: () {
+            // TODO: Navigate to cart
+          },
+        ),
+      ),
     );
   }
 }

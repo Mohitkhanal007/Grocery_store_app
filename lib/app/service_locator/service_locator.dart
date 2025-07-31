@@ -29,6 +29,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/network/api_service.dart';
 import '../../features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
 import '../../features/auth/data/repository/remote_repository/user_remote_repository.dart';
+import '../../features/cart/data/data_source/local_datasource/cart_local_datasource.dart';
+import '../../features/cart/data/repository/cart_repository_impl.dart';
+import '../../features/cart/domain/repository/cart_repository.dart';
+import '../../features/cart/domain/use_case/add_to_cart_usecase.dart';
+import '../../features/cart/domain/use_case/clear_cart_usecase.dart';
+import '../../features/cart/domain/use_case/get_cart_usecase.dart';
+import '../../features/cart/domain/use_case/remove_from_cart_usecase.dart';
+import '../../features/cart/domain/use_case/update_quantity_usecase.dart';
+import '../../features/cart/presentation/viewmodel/cart_viewmodel.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -40,6 +49,7 @@ Future<void> initDependencies() async {
   await _initHomeModule();
   await _initProductModule(); // Make sure to call this!
   await _initCategoryModule(); // Make sure to call this!
+  await _initCartModule(); // Make sure to call this!
 }
 
 Future<void> _initCore() async {
@@ -199,6 +209,49 @@ Future<void> _initCategoryModule() async {
     () => CategoryViewModel(
       getAllCategoriesUseCase: serviceLocator<GetAllCategoriesUseCase>(),
       getCategoryByIdUseCase: serviceLocator<GetCategoryByIdUseCase>(),
+    ),
+  );
+}
+
+Future<void> _initCartModule() async {
+  // Data layer
+  serviceLocator.registerLazySingleton<CartLocalDataSource>(
+    () => CartLocalDataSourceImpl(),
+  );
+
+  serviceLocator.registerLazySingleton<CartRepository>(
+    () => CartRepositoryImpl(serviceLocator<CartLocalDataSource>()),
+  );
+
+  // Domain layer
+  serviceLocator.registerLazySingleton<GetCartUseCase>(
+    () => GetCartUseCase(serviceLocator<CartRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<AddToCartUseCase>(
+    () => AddToCartUseCase(serviceLocator<CartRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<RemoveFromCartUseCase>(
+    () => RemoveFromCartUseCase(serviceLocator<CartRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<UpdateQuantityUseCase>(
+    () => UpdateQuantityUseCase(serviceLocator<CartRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<ClearCartUseCase>(
+    () => ClearCartUseCase(serviceLocator<CartRepository>()),
+  );
+
+  // Presentation layer
+  serviceLocator.registerFactory<CartViewModel>(
+    () => CartViewModel(
+      getCartUseCase: serviceLocator<GetCartUseCase>(),
+      addToCartUseCase: serviceLocator<AddToCartUseCase>(),
+      removeFromCartUseCase: serviceLocator<RemoveFromCartUseCase>(),
+      updateQuantityUseCase: serviceLocator<UpdateQuantityUseCase>(),
+      clearCartUseCase: serviceLocator<ClearCartUseCase>(),
     ),
   );
 }

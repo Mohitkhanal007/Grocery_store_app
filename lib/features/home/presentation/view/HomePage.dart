@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
 import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
+import 'package:jerseyhub/features/cart/presentation/view/cart_view.dart';
+import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
 import 'package:jerseyhub/features/product/presentation/view/product_list_view.dart';
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
@@ -84,7 +86,10 @@ class _HomePageState extends State<HomePage> {
         create: (context) => serviceLocator<ProductViewModel>(),
         child: const ProductListView(),
       ),
-      const Center(child: Text('Cart', style: TextStyle(fontSize: 24))),
+      BlocProvider(
+        create: (context) => serviceLocator<CartViewModel>(),
+        child: const CartView(),
+      ),
       const Center(
         child: Text('Notifications', style: TextStyle(fontSize: 24)),
       ),
