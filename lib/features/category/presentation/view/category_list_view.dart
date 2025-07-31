@@ -5,7 +5,7 @@ import 'package:jerseyhub/features/category/presentation/viewmodel/category_view
 import 'package:jerseyhub/features/category/presentation/widgets/category_card.dart';
 
 class CategoryListView extends StatefulWidget {
-  final Function(CategoryEntity)? onCategorySelected;
+  final Function(CategoryEntity?)? onCategorySelected;
   final String? selectedCategoryId;
 
   const CategoryListView({
@@ -82,21 +82,43 @@ class _CategoryListViewState extends State<CategoryListView> {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: categories.length,
+      itemCount: categories.length + 1, // +1 for "Show All" option
       itemBuilder: (context, index) {
-        final category = categories[index];
-        final isSelected = widget.selectedCategoryId == category.id;
+        if (index == 0) {
+          // "Show All" option
+          final isSelected = widget.selectedCategoryId == null;
+          return SizedBox(
+            width: 150,
+            child: CategoryCard(
+              category: CategoryEntity(
+                id: '',
+                name: 'Show All',
+                description: 'View all products',
+                imageUrl: null,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+              isSelected: isSelected,
+              onTap: () {
+                widget.onCategorySelected?.call(null);
+              },
+            ),
+          );
+        } else {
+          final category = categories[index - 1];
+          final isSelected = widget.selectedCategoryId == category.id;
 
-        return SizedBox(
-          width: 150,
-          child: CategoryCard(
-            category: category,
-            isSelected: isSelected,
-            onTap: () {
-              widget.onCategorySelected?.call(category);
-            },
-          ),
-        );
+          return SizedBox(
+            width: 150,
+            child: CategoryCard(
+              category: category,
+              isSelected: isSelected,
+              onTap: () {
+                widget.onCategorySelected?.call(category);
+              },
+            ),
+          );
+        }
       },
     );
   }

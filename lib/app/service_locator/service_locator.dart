@@ -21,6 +21,7 @@ import 'package:jerseyhub/features/category/domain/use_case/get_category_by_id_u
 import 'package:jerseyhub/features/category/presentation/viewmodel/category_viewmodel.dart';
 import 'package:jerseyhub/features/product/domain/use_case/get_all_products_usecase.dart';
 import 'package:jerseyhub/features/product/domain/use_case/get_product_by_id_usecase.dart';
+import 'package:jerseyhub/features/product/domain/use_case/get_products_by_category_usecase.dart';
 import 'package:jerseyhub/features/product/domain/use_case/search_products_usecase.dart';
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
 import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
@@ -145,6 +146,12 @@ Future<void> _initProductModule() async {
         GetProductByIdUseCase(repository: serviceLocator<IProductRepository>()),
   );
 
+  serviceLocator.registerLazySingleton<GetProductsByCategoryUseCase>(
+    () => GetProductsByCategoryUseCase(
+      repository: serviceLocator<IProductRepository>(),
+    ),
+  );
+
   serviceLocator.registerLazySingleton<SearchProductsUseCase>(
     () =>
         SearchProductsUseCase(repository: serviceLocator<IProductRepository>()),
@@ -155,6 +162,8 @@ Future<void> _initProductModule() async {
     () => ProductViewModel(
       getAllProductsUseCase: serviceLocator<GetAllProductsUseCase>(),
       getProductByIdUseCase: serviceLocator<GetProductByIdUseCase>(),
+      getProductsByCategoryUseCase:
+          serviceLocator<GetProductsByCategoryUseCase>(),
       searchProductsUseCase: serviceLocator<SearchProductsUseCase>(),
     ),
   );

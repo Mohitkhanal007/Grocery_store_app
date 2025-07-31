@@ -35,18 +35,38 @@ class _ProductListViewState extends State<ProductListView> {
 
   void _onSearch(String query) {
     if (query.isNotEmpty) {
+      // If a category is selected, we should search within that category
+      // For now, we'll use the general search and filter client-side
+      // TODO: Implement server-side search within category
       context.read<ProductViewModel>().add(SearchProductsEvent(query: query));
     } else {
-      context.read<ProductViewModel>().add(LoadAllProductsEvent());
+      // If no search query, show products based on current category selection
+      if (_selectedCategory == null) {
+        context.read<ProductViewModel>().add(LoadAllProductsEvent());
+      } else {
+        context.read<ProductViewModel>().add(
+          LoadProductsByCategoryEvent(categoryId: _selectedCategory!.id),
+        );
+      }
     }
   }
 
-  void _onCategorySelected(CategoryEntity category) {
+  void _onCategorySelected(CategoryEntity? category) {
     setState(() {
       _selectedCategory = category;
     });
-    // TODO: Implement category filtering
-    print('Selected category: ${category.name}');
+
+    if (category == null) {
+      // Show All selected
+      print('Show All selected - loading all products');
+      context.read<ProductViewModel>().add(LoadAllProductsEvent());
+    } else {
+      // Specific category selected
+      print('Selected category: ${category.name} (ID: ${category.id})');
+      context.read<ProductViewModel>().add(
+        LoadProductsByCategoryEvent(categoryId: category.id),
+      );
+    }
   }
 
   @override
