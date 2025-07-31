@@ -1,17 +1,28 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jerseyhub/features/auth/domain/use_case/user_logout_usecase.dart';
 
-enum HomeState {
-  initial,
-  loggedOut,
-}
+enum HomeState { initial, loggedOut, logoutError }
 
 class HomeViewModel extends Cubit<HomeState> {
-  HomeViewModel() : super(HomeState.initial);
+  final UserLogoutUseCase _logoutUseCase;
+
+  HomeViewModel({required UserLogoutUseCase logoutUseCase})
+    : _logoutUseCase = logoutUseCase,
+      super(HomeState.initial);
 
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', false);
-    emit(HomeState.loggedOut);
+    try {
+      final result = await _logoutUseCase();
+      result.fold(
+        (failure) {
+          emit(HomeState.logoutError);
+        },
+        (_) {
+          emit(HomeState.loggedOut);
+        },
+      );
+    } catch (e) {
+      emit(HomeState.logoutError);
+    }
   }
 }

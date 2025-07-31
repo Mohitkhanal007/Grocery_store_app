@@ -1,4 +1,3 @@
-
 import '../../domain/entity/user_entity.dart';
 
 abstract interface class IUserDataSource {
@@ -9,4 +8,6 @@ abstract interface class IUserDataSource {
   Future<String> uploadProfilePicture(String filePath);
 
   Future<UserEntity> getCurrentUser(String id);
+
+  Future<void> logout();
 }

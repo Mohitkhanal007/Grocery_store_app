@@ -6,7 +6,8 @@ import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
 class UserLocalDatasource implements IUserDataSource {
   final HiveService _hiveService;
 
-  UserLocalDatasource({required HiveService hiveService}) : _hiveService = hiveService;
+  UserLocalDatasource({required HiveService hiveService})
+    : _hiveService = hiveService;
 
   @override
   Future<String> loginUser(String email, String password) async {
@@ -46,5 +47,16 @@ class UserLocalDatasource implements IUserDataSource {
   Future<String> uploadProfilePicture(String filePath) {
     // TODO: implement uploadProfilePicture
     throw UnimplementedError();
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      // Clear all Hive data
+      await _hiveService.clearAll();
+      print('Local logout successful - Hive data cleared');
+    } catch (e) {
+      throw Exception('Failed to logout from local storage: $e');
+    }
   }
 }

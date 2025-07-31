@@ -7,7 +7,7 @@ class TokenSharedPrefs {
   final SharedPreferences _sharedPreferences;
 
   TokenSharedPrefs({required SharedPreferences sharedPreferences})
-      : _sharedPreferences = sharedPreferences;
+    : _sharedPreferences = sharedPreferences;
 
   Future<Either<Failure, void>> saveToken(String token) async {
     try {
@@ -27,6 +27,17 @@ class TokenSharedPrefs {
     } catch (e) {
       return Left(
         SharedPreferencesFailure(message: 'Failed to retrieve token: $e'),
+      );
+    }
+  }
+
+  Future<Either<Failure, void>> clearToken() async {
+    try {
+      await _sharedPreferences.remove('token');
+      return Right(null);
+    } catch (e) {
+      return Left(
+        SharedPreferencesFailure(message: 'Failed to clear token: $e'),
       );
     }
   }

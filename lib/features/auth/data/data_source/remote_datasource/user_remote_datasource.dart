@@ -179,4 +179,17 @@ class UserRemoteDataSource implements IUserDataSource {
       throw Exception('Failed to upload profile picture: $e');
     }
   }
+
+  @override
+  Future<void> logout() async {
+    try {
+      // Remove the authentication token from API service headers
+      _apiService.removeAuthToken();
+
+      // For testing purposes, simulate successful logout when backend is not available
+      print('Logout successful - authentication token cleared');
+    } catch (e) {
+      throw Exception('Failed to logout: $e');
+    }
+  }
 }

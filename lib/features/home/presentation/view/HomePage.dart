@@ -29,6 +29,13 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(builder: (_) => LoginView()),
           );
+        } else if (state == HomeState.logoutError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Logout failed. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
       child: Center(
