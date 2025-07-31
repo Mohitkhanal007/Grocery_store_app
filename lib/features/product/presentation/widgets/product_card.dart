@@ -33,30 +33,36 @@ class ProductCard extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.grey[200]),
-                  child: _buildProductImage(),
-                ),
+                child: _buildProductImage(),
               ),
             ),
             // Product Info
             Expanded(
               flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(16),
+                  ),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Team Name
-                    Text(
-                      product.team,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    Flexible(
+                      child: Text(
+                        product.team,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     // Type and Size
@@ -64,12 +70,12 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: 6,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
                             color: _getTypeColor(product.type),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             product.type,
@@ -80,21 +86,22 @@ class ProductCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: 6,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.grey[300]!),
                           ),
                           child: Text(
                             'Size ${product.size}',
                             style: TextStyle(
                               fontSize: 10,
-                              color: Colors.grey[700],
+                              color: Colors.grey[800],
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -102,14 +109,14 @@ class ProductCard extends StatelessWidget {
                       ],
                     ),
                     const Spacer(),
-                    // Price
+                    // Price and Stock Status
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           '\$${product.price.toStringAsFixed(2)}',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
                           ),
@@ -118,38 +125,62 @@ class ProductCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
-                              vertical: 2,
+                              vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green[100],
+                              color: Colors.green[50],
                               borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.green[200]!),
                             ),
-                            child: Text(
-                              'In Stock',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.green[700],
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  size: 10,
+                                  color: Colors.green[700],
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  'In Stock (${product.quantity})',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.green[700],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           )
                         else
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
-                              vertical: 2,
+                              vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.red[100],
+                              color: Colors.red[50],
                               borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red[200]!),
                             ),
-                            child: Text(
-                              'Out of Stock',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.red[700],
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.cancel,
+                                  size: 10,
+                                  color: Colors.red[700],
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  'Out of Stock',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.red[700],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                       ],
@@ -167,16 +198,32 @@ class ProductCard extends StatelessWidget {
   Widget _buildProductImage() {
     // Try to load from assets first, then fallback to network or placeholder
     if (product.productImage.startsWith('assets/')) {
-      return Image.asset(
-        product.productImage,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.grey[200],
+        child: Image.asset(
+          product.productImage,
+          fit: BoxFit.contain,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildPlaceholderImage(),
+        ),
       );
     } else if (product.productImage.isNotEmpty) {
-      return Image.network(
-        product.productImage,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.grey[200],
+        child: Image.network(
+          product.productImage,
+          fit: BoxFit.contain,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildPlaceholderImage(),
+        ),
       );
     } else {
       return _buildPlaceholderImage();
@@ -185,6 +232,8 @@ class ProductCard extends StatelessWidget {
 
   Widget _buildPlaceholderImage() {
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       color: Colors.grey[300],
       child: const Center(
         child: Icon(Icons.sports_soccer, size: 48, color: Colors.grey),
