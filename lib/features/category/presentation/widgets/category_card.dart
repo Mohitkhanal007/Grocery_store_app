@@ -133,16 +133,16 @@ class CategoryCard extends StatelessWidget {
     String lowerName = categoryName.toLowerCase();
 
     if (lowerName.contains('barcelona') || lowerName.contains('fcb')) {
-      return 'assets/images/Barcelona.png';
+      return 'assets/images/barcelonalogo.png';
     } else if (lowerName.contains('manchester') ||
         lowerName.contains('united') ||
         lowerName.contains('man utd')) {
-      return 'assets/images/Manchester United.png';
+      return 'assets/images/manchesterUnitelogo.png';
     } else if (lowerName.contains('real madrid') ||
         lowerName.contains('madrid')) {
-      return 'assets/images/Real Madrid.png';
+      return 'assets/images/realmadrid logo.png';
     } else if (lowerName.contains('liverpool') || lowerName.contains('lfc')) {
-      return 'assets/images/Liverpool.png';
+      return 'assets/images/liverpoollogo.png';
     }
 
     return null;
