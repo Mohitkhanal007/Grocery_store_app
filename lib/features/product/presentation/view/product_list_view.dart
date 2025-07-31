@@ -238,7 +238,10 @@ class _ProductListViewState extends State<ProductListView> {
               MaterialPageRoute(
                 builder: (context) => BlocProvider(
                   create: (context) => serviceLocator<ProductViewModel>(),
-                  child: ProductDetailView(productId: product.id),
+                  child: ProductDetailView(
+                    productId: product.id,
+                    initialProduct: product,
+                  ),
                 ),
               ),
             );

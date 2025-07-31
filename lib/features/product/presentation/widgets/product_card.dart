@@ -87,22 +87,36 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.grey[300]!),
-                          ),
-                          child: Text(
-                            'Size ${product.size}',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[800],
-                              fontWeight: FontWeight.bold,
+                        GestureDetector(
+                          onTap: () => _showSizeSelector(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Size ${product.size}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey[800],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -252,5 +266,105 @@ class ProductCard extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  void _showSizeSelector(BuildContext context) {
+    final List<String> availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Title
+              Text(
+                'Select Size for ${product.team}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Size grid
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 2.5,
+                ),
+                itemCount: availableSizes.length,
+                itemBuilder: (context, index) {
+                  final size = availableSizes[index];
+                  final isCurrentSize = size == product.size;
+
+                  return GestureDetector(
+                    onTap: () {
+                      // Here you can add logic to update the product size
+                      // For now, we'll just show a snackbar
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Size $size selected for ${product.team}',
+                          ),
+                          duration: const Duration(seconds: 2),
+                          backgroundColor: Theme.of(context).primaryColor,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isCurrentSize
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isCurrentSize
+                              ? Theme.of(context).primaryColor
+                              : Colors.grey[300]!,
+                          width: isCurrentSize ? 2 : 1,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          size,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isCurrentSize
+                                ? Colors.white
+                                : Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
