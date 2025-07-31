@@ -187,6 +187,34 @@ class _ProductListViewState extends State<ProductListView> {
   }
 
   Widget _buildProductsGrid(List<ProductEntity> products) {
+    // Filter products to only show those from clubs that have logos
+    final filteredProducts = products.where((product) {
+      return _hasClubLogo(product.team);
+    }).toList();
+
+    if (filteredProducts.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No products from supported clubs found',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Currently supporting: Barcelona, Manchester United, Real Madrid, Liverpool',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -195,9 +223,9 @@ class _ProductListViewState extends State<ProductListView> {
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
-      itemCount: products.length,
+      itemCount: filteredProducts.length,
       itemBuilder: (context, index) {
-        final product = products[index];
+        final product = filteredProducts[index];
         return ProductCard(
           product: product,
           onTap: () {
@@ -215,5 +243,26 @@ class _ProductListViewState extends State<ProductListView> {
         );
       },
     );
+  }
+
+  bool _hasClubLogo(String teamName) {
+    String lowerName = teamName.toLowerCase();
+
+    // Check for Atletico Madrid first and exclude it
+    if (lowerName.contains('atletico') ||
+        lowerName.contains('atletico madrid') ||
+        lowerName.contains('atleti')) {
+      return false;
+    }
+
+    return lowerName.contains('barcelona') ||
+        lowerName.contains('fcb') ||
+        lowerName.contains('manchester') ||
+        lowerName.contains('united') ||
+        lowerName.contains('man utd') ||
+        lowerName.contains('real madrid') ||
+        lowerName.contains('madrid') ||
+        lowerName.contains('liverpool') ||
+        lowerName.contains('lfc');
   }
 }

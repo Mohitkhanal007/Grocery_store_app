@@ -48,15 +48,35 @@ class ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Team Name
-                    Text(
-                      product.team,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    // Team Name with Club Logo
+                    Row(
+                      children: [
+                        // Club Logo
+                        if (_getClubLogoPath(product.team) != null)
+                          Container(
+                            width: 24,
+                            height: 24,
+                            margin: const EdgeInsets.only(right: 8),
+                            child: Image.asset(
+                              _getClubLogoPath(product.team)!,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const SizedBox.shrink(),
+                            ),
+                          ),
+                        // Team Name
+                        Expanded(
+                          child: Text(
+                            product.team,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     // Type and Size
@@ -203,5 +223,31 @@ class ProductCard extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  String? _getClubLogoPath(String teamName) {
+    String lowerName = teamName.toLowerCase();
+
+    // Check for Atletico Madrid first and exclude it
+    if (lowerName.contains('atletico') ||
+        lowerName.contains('atletico madrid') ||
+        lowerName.contains('atleti')) {
+      return null;
+    }
+
+    if (lowerName.contains('barcelona') || lowerName.contains('fcb')) {
+      return 'assets/images/Barcelona.png';
+    } else if (lowerName.contains('manchester') ||
+        lowerName.contains('united') ||
+        lowerName.contains('man utd')) {
+      return 'assets/images/Manchester United.png';
+    } else if (lowerName.contains('real madrid') ||
+        lowerName.contains('madrid')) {
+      return 'assets/images/Real Madrid.png';
+    } else if (lowerName.contains('liverpool') || lowerName.contains('lfc')) {
+      return 'assets/images/Liverpool.png';
+    }
+
+    return null;
   }
 }

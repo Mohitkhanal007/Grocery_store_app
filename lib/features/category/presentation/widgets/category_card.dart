@@ -56,27 +56,34 @@ class CategoryCard extends StatelessWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      category.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.white : Colors.black,
+                    Flexible(
+                      child: Text(
+                        category.name,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     if (category.description != null)
-                      Text(
-                        category.description!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isSelected ? Colors.white70 : Colors.grey[600],
+                      Flexible(
+                        child: Text(
+                          category.description!,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isSelected
+                                ? Colors.white70
+                                : Colors.grey[600],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                   ],
                 ),
@@ -89,6 +96,18 @@ class CategoryCard extends StatelessWidget {
   }
 
   Widget _buildCategoryImage() {
+    // First try to get club logo based on category name
+    String? clubLogoPath = _getClubLogoPath(category.name);
+
+    if (clubLogoPath != null) {
+      return Image.asset(
+        clubLogoPath,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+      );
+    }
+
+    // Fallback to original imageUrl logic
     if (category.imageUrl != null && category.imageUrl!.isNotEmpty) {
       if (category.imageUrl!.startsWith('assets/')) {
         return Image.asset(
@@ -108,6 +127,25 @@ class CategoryCard extends StatelessWidget {
     } else {
       return _buildPlaceholderImage();
     }
+  }
+
+  String? _getClubLogoPath(String categoryName) {
+    String lowerName = categoryName.toLowerCase();
+
+    if (lowerName.contains('barcelona') || lowerName.contains('fcb')) {
+      return 'assets/images/Barcelona.png';
+    } else if (lowerName.contains('manchester') ||
+        lowerName.contains('united') ||
+        lowerName.contains('man utd')) {
+      return 'assets/images/Manchester United.png';
+    } else if (lowerName.contains('real madrid') ||
+        lowerName.contains('madrid')) {
+      return 'assets/images/Real Madrid.png';
+    } else if (lowerName.contains('liverpool') || lowerName.contains('lfc')) {
+      return 'assets/images/Liverpool.png';
+    }
+
+    return null;
   }
 
   Widget _buildPlaceholderImage() {

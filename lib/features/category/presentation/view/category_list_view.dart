@@ -79,10 +79,21 @@ class _CategoryListViewState extends State<CategoryListView> {
   }
 
   Widget _buildCategoriesList(List<CategoryEntity> categories) {
+    // Filter categories to only show those with images
+    final categoriesWithImages = categories.where((category) {
+      // Check if category has a club logo (based on name)
+      final hasClubLogo = _hasClubLogo(category.name);
+      // Check if category has a valid imageUrl
+      final hasImageUrl =
+          category.imageUrl != null && category.imageUrl!.isNotEmpty;
+
+      return hasClubLogo || hasImageUrl;
+    }).toList();
+
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: categories.length + 1, // +1 for "Show All" option
+      itemCount: categoriesWithImages.length + 1, // +1 for "Show All" option
       itemBuilder: (context, index) {
         if (index == 0) {
           // "Show All" option
@@ -105,7 +116,7 @@ class _CategoryListViewState extends State<CategoryListView> {
             ),
           );
         } else {
-          final category = categories[index - 1];
+          final category = categoriesWithImages[index - 1];
           final isSelected = widget.selectedCategoryId == category.id;
 
           return SizedBox(
@@ -121,5 +132,19 @@ class _CategoryListViewState extends State<CategoryListView> {
         }
       },
     );
+  }
+
+  bool _hasClubLogo(String categoryName) {
+    String lowerName = categoryName.toLowerCase();
+
+    return lowerName.contains('barcelona') ||
+        lowerName.contains('fcb') ||
+        lowerName.contains('manchester') ||
+        lowerName.contains('united') ||
+        lowerName.contains('man utd') ||
+        lowerName.contains('real madrid') ||
+        lowerName.contains('madrid') ||
+        lowerName.contains('liverpool') ||
+        lowerName.contains('lfc');
   }
 }
