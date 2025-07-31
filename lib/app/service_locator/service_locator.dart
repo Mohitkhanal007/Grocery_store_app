@@ -13,6 +13,12 @@ import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmode
 import 'package:jerseyhub/features/product/data/data_source/remote_datasource/product_remote_datasource.dart';
 import 'package:jerseyhub/features/product/data/repository/product_repository_impl.dart';
 import 'package:jerseyhub/features/product/domain/repository/product_repository.dart';
+import 'package:jerseyhub/features/category/data/data_source/remote_datasource/category_remote_datasource.dart';
+import 'package:jerseyhub/features/category/data/repository/category_repository_impl.dart';
+import 'package:jerseyhub/features/category/domain/repository/category_repository.dart';
+import 'package:jerseyhub/features/category/domain/use_case/get_all_categories_usecase.dart';
+import 'package:jerseyhub/features/category/domain/use_case/get_category_by_id_usecase.dart';
+import 'package:jerseyhub/features/category/presentation/viewmodel/category_viewmodel.dart';
 import 'package:jerseyhub/features/product/domain/use_case/get_all_products_usecase.dart';
 import 'package:jerseyhub/features/product/domain/use_case/get_product_by_id_usecase.dart';
 import 'package:jerseyhub/features/product/domain/use_case/search_products_usecase.dart';
@@ -32,6 +38,7 @@ Future<void> initDependencies() async {
   await _initSplashModule();
   await _initHomeModule();
   await _initProductModule(); // Make sure to call this!
+  await _initCategoryModule(); // Make sure to call this!
 }
 
 Future<void> _initCore() async {
@@ -149,6 +156,40 @@ Future<void> _initProductModule() async {
       getAllProductsUseCase: serviceLocator<GetAllProductsUseCase>(),
       getProductByIdUseCase: serviceLocator<GetProductByIdUseCase>(),
       searchProductsUseCase: serviceLocator<SearchProductsUseCase>(),
+    ),
+  );
+}
+
+Future<void> _initCategoryModule() async {
+  // Data layer
+  serviceLocator.registerLazySingleton<CategoryRemoteDataSource>(
+    () => CategoryRemoteDataSource(apiService: serviceLocator<ApiService>()),
+  );
+
+  serviceLocator.registerLazySingleton<ICategoryRepository>(
+    () => CategoryRepositoryImpl(
+      remoteDataSource: serviceLocator<CategoryRemoteDataSource>(),
+    ),
+  );
+
+  // Domain layer
+  serviceLocator.registerLazySingleton<GetAllCategoriesUseCase>(
+    () => GetAllCategoriesUseCase(
+      repository: serviceLocator<ICategoryRepository>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<GetCategoryByIdUseCase>(
+    () => GetCategoryByIdUseCase(
+      repository: serviceLocator<ICategoryRepository>(),
+    ),
+  );
+
+  // Presentation layer
+  serviceLocator.registerFactory<CategoryViewModel>(
+    () => CategoryViewModel(
+      getAllCategoriesUseCase: serviceLocator<GetAllCategoriesUseCase>(),
+      getCategoryByIdUseCase: serviceLocator<GetCategoryByIdUseCase>(),
     ),
   );
 }

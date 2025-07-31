@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
+import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
+import 'package:jerseyhub/features/category/presentation/view/category_list_view.dart';
+import 'package:jerseyhub/features/category/presentation/viewmodel/category_viewmodel.dart';
 import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
 import 'package:jerseyhub/features/product/presentation/view/product_detail_view.dart';
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
@@ -15,6 +18,7 @@ class ProductListView extends StatefulWidget {
 
 class _ProductListViewState extends State<ProductListView> {
   final TextEditingController _searchController = TextEditingController();
+  CategoryEntity? _selectedCategory;
 
   @override
   void initState() {
@@ -35,6 +39,14 @@ class _ProductListViewState extends State<ProductListView> {
     } else {
       context.read<ProductViewModel>().add(LoadAllProductsEvent());
     }
+  }
+
+  void _onCategorySelected(CategoryEntity category) {
+    setState(() {
+      _selectedCategory = category;
+    });
+    // TODO: Implement category filtering
+    print('Selected category: ${category.name}');
   }
 
   @override
@@ -71,6 +83,17 @@ class _ProductListViewState extends State<ProductListView> {
                 fillColor: Colors.grey[100],
               ),
               onChanged: _onSearch,
+            ),
+          ),
+          // Categories
+          SizedBox(
+            height: 120,
+            child: BlocProvider(
+              create: (context) => serviceLocator<CategoryViewModel>(),
+              child: CategoryListView(
+                selectedCategoryId: _selectedCategory?.id,
+                onCategorySelected: _onCategorySelected,
+              ),
             ),
           ),
           // Products Grid

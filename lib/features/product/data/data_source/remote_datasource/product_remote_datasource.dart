@@ -376,8 +376,8 @@ class ProductRemoteDataSource implements IProductDataSource {
         size: 'M',
         price: 89.99,
         quantity: 50,
-        categoryId: '1',
-        productImage: 'assets/images/Liverpool.png',
+        categoryId: '2', // La Liga
+        productImage: 'assets/images/Real Madrid.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -388,8 +388,8 @@ class ProductRemoteDataSource implements IProductDataSource {
         size: 'L',
         price: 79.99,
         quantity: 30,
-        categoryId: '1',
-        productImage: 'assets/images/Real Madrid.png',
+        categoryId: '2', // La Liga
+        productImage: 'assets/images/Barcelona.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -400,7 +400,7 @@ class ProductRemoteDataSource implements IProductDataSource {
         size: 'S',
         price: 94.99,
         quantity: 25,
-        categoryId: '2',
+        categoryId: '1', // Premier League
         productImage: 'assets/images/Manchester United.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -412,8 +412,8 @@ class ProductRemoteDataSource implements IProductDataSource {
         size: 'XL',
         price: 84.99,
         quantity: 40,
-        categoryId: '2',
-        productImage: 'assets/images/Barcelona.png',
+        categoryId: '1', // Premier League
+        productImage: 'assets/images/Liverpool.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
