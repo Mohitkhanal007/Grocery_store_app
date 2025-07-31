@@ -72,109 +72,105 @@ class _ProductListViewState extends State<ProductListView> {
   @override
   Widget build(BuildContext context) {
     return Column(
-        children: [
-                  // Search Bar
+      children: [
+        // Search Bar
         Padding(
           padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search jerseys...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    _onSearch('');
-                  },
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.grey[100],
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search jerseys...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  _searchController.clear();
+                  _onSearch('');
+                },
               ),
-              onChanged: _onSearch,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              filled: true,
+              fillColor: Colors.grey[100],
             ),
+            onChanged: _onSearch,
           ),
-                  // Categories
+        ),
+        // Categories
         SizedBox(
           height: 120,
-            child: BlocProvider(
-              create: (context) => serviceLocator<CategoryViewModel>(),
-              child: CategoryListView(
-                selectedCategoryId: _selectedCategory?.id,
-                onCategorySelected: _onCategorySelected,
-              ),
+          child: BlocProvider(
+            create: (context) => serviceLocator<CategoryViewModel>(),
+            child: CategoryListView(
+              selectedCategoryId: _selectedCategory?.id,
+              onCategorySelected: _onCategorySelected,
             ),
           ),
-          // Products Grid
-          Expanded(
-            child: BlocBuilder<ProductViewModel, ProductState>(
-              builder: (context, state) {
-                print('ProductListView: Current state: ${state.runtimeType}');
-                if (state is ProductLoading) {
-                  print('ProductListView: Showing loading indicator');
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is ProductsLoaded) {
-                  print(
-                    'ProductListView: Products loaded: ${state.products.length}',
-                  );
-                  if (state.products.isEmpty) {
-                    print('ProductListView: No products found');
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search_off, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text(
-                            'No products found',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  return _buildProductsGrid(state.products);
-                } else if (state is ProductError) {
-                  return Center(
+        ),
+        // Products Grid
+        Expanded(
+          child: BlocBuilder<ProductViewModel, ProductState>(
+            builder: (context, state) {
+              print('ProductListView: Current state: ${state.runtimeType}');
+              if (state is ProductLoading) {
+                print('ProductListView: Showing loading indicator');
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is ProductsLoaded) {
+                print(
+                  'ProductListView: Products loaded: ${state.products.length}',
+                );
+                if (state.products.isEmpty) {
+                  print('ProductListView: No products found');
+                  return const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: Colors.red,
-                        ),
-                        const SizedBox(height: 16),
+                        Icon(Icons.search_off, size: 64, color: Colors.grey),
+                        SizedBox(height: 16),
                         Text(
-                          'Error: ${state.message}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.red,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            context.read<ProductViewModel>().add(
-                              LoadAllProductsEvent(),
-                            );
-                          },
-                          child: const Text('Retry'),
+                          'No products found',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
                         ),
                       ],
                     ),
                   );
                 }
-                return const Center(child: Text('No products available'));
-              },
-            ),
+                return _buildProductsGrid(state.products);
+              } else if (state is ProductError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Error: ${state.message}',
+                        style: const TextStyle(fontSize: 16, color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<ProductViewModel>().add(
+                            LoadAllProductsEvent(),
+                          );
+                        },
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return const Center(child: Text('No products available'));
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
