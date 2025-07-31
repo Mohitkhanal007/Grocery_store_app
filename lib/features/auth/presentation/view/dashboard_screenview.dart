@@ -11,7 +11,7 @@ class _DashboardScreenviewState extends State<DashboardScreenview> {
   int _selectedIndex = 0;
 
   List<Widget> lstBottomScreen = [
-    const Center(child: Text('Home', style: TextStyle(fontSize: 24))),
+    const Center(child: Text('', style: TextStyle(fontSize: 24))),
     const Center(child: Text('Cart', style: TextStyle(fontSize: 24))),
     const Center(child: Text('Profile', style: TextStyle(fontSize: 24))),
     const Center(child: Text('About', style: TextStyle(fontSize: 24))),

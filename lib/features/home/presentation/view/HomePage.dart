@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<String> _titles = ['Home', 'Cart', 'Notifications', 'Profile'];
+  final List<String> _titles = ['', 'Cart', 'Notifications', 'Profile'];
 
   void _onItemTapped(int index) {
     setState(() {

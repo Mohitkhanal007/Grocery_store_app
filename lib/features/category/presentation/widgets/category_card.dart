@@ -18,76 +18,58 @@ class CategoryCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-          border: isSelected
-              ? Border.all(color: Theme.of(context).primaryColor, width: 2)
-              : null,
-        ),
+        width: 90,
+        height: 120,
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Category Image
-            Expanded(
-              flex: 3,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
+            // Circular Logo Container
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected
+                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    : Colors.grey[100],
+                border: Border.all(
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[300]!,
+                  width: isSelected ? 3 : 2,
                 ),
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.grey[200]),
-                  child: _buildCategoryImage(),
-                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isSelected
+                        ? Theme.of(context).primaryColor.withOpacity(0.3)
+                        : Colors.black.withOpacity(0.1),
+                    blurRadius: isSelected ? 12 : 8,
+                    offset: const Offset(0, 4),
+                    spreadRadius: isSelected ? 2 : 0,
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: _buildCategoryImage(),
               ),
             ),
-            // Category Info
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        category.name,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : Colors.black,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    if (category.description != null)
-                      Flexible(
-                        child: Text(
-                          category.description!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isSelected
-                                ? Colors.white70
-                                : Colors.grey[600],
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                  ],
-                ),
+            const SizedBox(height: 6),
+            // Category Name
+            Text(
+              category.name,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isSelected
+                    ? Theme.of(context).primaryColor
+                    : Colors.black87,
+                letterSpacing: 0.3,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
             ),
           ],
         ),

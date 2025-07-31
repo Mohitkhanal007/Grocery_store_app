@@ -369,7 +369,7 @@ class ProductRemoteDataSource implements IProductDataSource {
   // Mock data for testing when backend is not available
   List<ProductEntity> _getMockProducts() {
     return [
-      // Premier League Products (Category ID: 1)
+      // Manchester United Products (Category ID: 2)
       ProductEntity(
         id: '1',
         team: 'Manchester United',
@@ -377,11 +377,12 @@ class ProductRemoteDataSource implements IProductDataSource {
         size: 'M',
         price: 94.99,
         quantity: 25,
-        categoryId: '1',
+        categoryId: '2',
         productImage: 'assets/images/Manchester United.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
+      // Liverpool Products (Category ID: 4)
       ProductEntity(
         id: '2',
         team: 'Liverpool',
@@ -389,7 +390,7 @@ class ProductRemoteDataSource implements IProductDataSource {
         size: 'XL',
         price: 84.99,
         quantity: 40,
-        categoryId: '1',
+        categoryId: '4',
         productImage: 'assets/images/Liverpool.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -419,7 +420,7 @@ class ProductRemoteDataSource implements IProductDataSource {
         updatedAt: DateTime.now(),
       ),
 
-      // La Liga Products (Category ID: 2)
+      // Real Madrid Products (Category ID: 3)
       ProductEntity(
         id: '5',
         team: 'Real Madrid',
@@ -427,11 +428,12 @@ class ProductRemoteDataSource implements IProductDataSource {
         size: 'M',
         price: 89.99,
         quantity: 50,
-        categoryId: '2',
+        categoryId: '3',
         productImage: 'assets/images/Real Madrid.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
+      // Barcelona Products (Category ID: 1)
       ProductEntity(
         id: '6',
         team: 'Barcelona',
@@ -439,7 +441,31 @@ class ProductRemoteDataSource implements IProductDataSource {
         size: 'L',
         price: 79.99,
         quantity: 30,
-        categoryId: '2',
+        categoryId: '1',
+        productImage: 'assets/images/Barcelona.png',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      ProductEntity(
+        id: '13',
+        team: 'Barcelona',
+        type: 'Home',
+        size: 'M',
+        price: 89.99,
+        quantity: 45,
+        categoryId: '1',
+        productImage: 'assets/images/Barcelona.png',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      ProductEntity(
+        id: '14',
+        team: 'Barcelona',
+        type: 'Third',
+        size: 'XL',
+        price: 84.99,
+        quantity: 20,
+        categoryId: '1',
         productImage: 'assets/images/Barcelona.png',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),

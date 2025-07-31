@@ -71,19 +71,11 @@ class _ProductListViewState extends State<ProductListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Jersey Hub'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-      ),
-      body: Column(
+    return Column(
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+                  // Search Bar
+        Padding(
+          padding: const EdgeInsets.all(12.0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -105,9 +97,9 @@ class _ProductListViewState extends State<ProductListView> {
               onChanged: _onSearch,
             ),
           ),
-          // Categories
-          SizedBox(
-            height: 120,
+                  // Categories
+        SizedBox(
+          height: 120,
             child: BlocProvider(
               create: (context) => serviceLocator<CategoryViewModel>(),
               child: CategoryListView(
@@ -187,41 +179,56 @@ class _ProductListViewState extends State<ProductListView> {
   }
 
   Widget _buildProductsGrid(List<ProductEntity> products) {
-    // Filter products to only show those from clubs that have logos
-    final filteredProducts = products.where((product) {
-      return _hasClubLogo(product.team);
-    }).toList();
+    List<ProductEntity> filteredProducts;
+
+    if (_selectedCategory != null) {
+      // If a category is selected, filter products by that club
+      filteredProducts = products.where((product) {
+        return _matchesSelectedCategory(product.team, _selectedCategory!.name);
+      }).toList();
+    } else {
+      // If no category selected, show all products from supported clubs
+      filteredProducts = products.where((product) {
+        return _hasClubLogo(product.team);
+      }).toList();
+    }
 
     if (filteredProducts.isEmpty) {
-      return const Center(
+      String message = _selectedCategory != null
+          ? 'No ${_selectedCategory!.name} jerseys found'
+          : 'No products from supported clubs found';
+
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
             Text(
-              'No products from supported clubs found',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+              message,
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8),
-            Text(
-              'Currently supporting: Barcelona, Manchester United, Real Madrid, Liverpool',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
+            if (_selectedCategory == null) ...[
+              const SizedBox(height: 8),
+              const Text(
+                'Currently supporting: Barcelona, Manchester United, Real Madrid, Liverpool',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ],
         ),
       );
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 0.75,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
       ),
       itemCount: filteredProducts.length,
       itemBuilder: (context, index) {
@@ -264,5 +271,27 @@ class _ProductListViewState extends State<ProductListView> {
         lowerName.contains('madrid') ||
         lowerName.contains('liverpool') ||
         lowerName.contains('lfc');
+  }
+
+  bool _matchesSelectedCategory(String productTeam, String categoryName) {
+    String lowerTeam = productTeam.toLowerCase();
+    String lowerCategory = categoryName.toLowerCase();
+
+    // Map category names to team name patterns
+    switch (lowerCategory) {
+      case 'barcelona':
+        return lowerTeam.contains('barcelona') || lowerTeam.contains('fcb');
+      case 'manchester united':
+        return lowerTeam.contains('manchester') ||
+            lowerTeam.contains('united') ||
+            lowerTeam.contains('man utd');
+      case 'real madrid':
+        return lowerTeam.contains('real madrid') ||
+            lowerTeam.contains('madrid');
+      case 'liverpool':
+        return lowerTeam.contains('liverpool') || lowerTeam.contains('lfc');
+      default:
+        return false;
+    }
   }
 }
