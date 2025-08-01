@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
@@ -298,14 +299,65 @@ class _PaymentViewState extends State<PaymentView> {
 
   Future<void> _launchPaymentUrl(String url) async {
     try {
+      print('🌐 Attempting to launch URL: $url');
       final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+      // Try different launch modes
+      bool launched = false;
+
+      // First try: External application mode
+      try {
+        print('🚀 Trying external application mode...');
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        print('✅ External application mode result: $launched');
+      } catch (e) {
+        print('❌ External application mode failed: $e');
+      }
+
+      // Second try: In-app browser mode
+      if (!launched) {
+        try {
+          print('🚀 Trying in-app browser mode...');
+          launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+          print('✅ In-app browser mode result: $launched');
+        } catch (e) {
+          print('❌ In-app browser mode failed: $e');
+        }
+      }
+
+      // Third try: Platform default mode
+      if (!launched) {
+        try {
+          print('🚀 Trying platform default mode...');
+          launched = await launchUrl(uri);
+          print('✅ Platform default mode result: $launched');
+        } catch (e) {
+          print('❌ Platform default mode failed: $e');
+        }
+      }
+
+      if (launched) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Payment page opened successfully'),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
+          ),
+        );
       } else {
-        _showErrorSnackBar('Could not launch payment page');
+        print('❌ All launch methods failed for URL: $url');
+        _showUrlDialog(url);
       }
     } catch (e) {
-      _showErrorSnackBar('Error launching payment page: $e');
+      print('💥 Error launching URL: $e');
+      _showUrlDialog(url);
     }
   }
 
@@ -322,6 +374,64 @@ class _PaymentViewState extends State<PaymentView> {
           },
         ),
       ),
+    );
+  }
+
+  void _showUrlDialog(String url) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Payment URL'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Please copy this URL and open it in your browser to complete the payment:',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: SelectableText(
+                  url,
+                  style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await Clipboard.setData(ClipboardData(text: url));
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Payment URL copied to clipboard'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  Navigator.of(context).pop();
+                  _showErrorSnackBar('Failed to copy URL: $e');
+                }
+              },
+              child: const Text('Copy URL'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
