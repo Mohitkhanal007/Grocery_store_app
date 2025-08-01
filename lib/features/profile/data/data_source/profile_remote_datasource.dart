@@ -24,10 +24,10 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   Future<Either<Failure, ProfileModel>> getProfile(String userId) async {
     try {
       print('🔍 Fetching profile for user: $userId');
-      final response = await apiService.dio.get('/users/$userId');
+      final response = await apiService.dio.get('/auth/$userId');
 
       if (response.statusCode == 200 && response.data != null) {
-        final profileModel = ProfileModel.fromJson(response.data);
+        final profileModel = ProfileModel.fromJson(response.data.data);
         print('✅ Profile fetched successfully');
         return Right(profileModel);
       } else {
@@ -51,12 +51,12 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       final profileData = ProfileModel.fromEntity(profile).toJson();
 
       final response = await apiService.dio.put(
-        '/users/${profile.id}',
+        '/auth/${profile.id}',
         data: profileData,
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        final updatedProfile = ProfileModel.fromJson(response.data);
+        final updatedProfile = ProfileModel.fromJson(response.data.data);
         print('✅ Profile updated successfully');
         return Right(updatedProfile);
       } else {
@@ -81,7 +81,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       });
 
       final response = await apiService.dio.post(
-        '/users/upload-profile-image',
+        '/auth/upload-profile-image',
         data: formData,
       );
 
@@ -110,7 +110,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       print('🔐 Changing password...');
 
       final response = await apiService.dio.post(
-        '/users/change-password',
+        '/auth/change-password',
         data: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
 
