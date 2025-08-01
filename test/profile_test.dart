@@ -12,8 +12,6 @@ void main() {
         address: '123 Test St',
         phoneNumber: '+1234567890',
         profileImage: 'https://example.com/image.jpg',
-        dateOfBirth: DateTime(1990, 1, 1),
-        gender: 'Male',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -24,7 +22,6 @@ void main() {
       expect(profile.address, '123 Test St');
       expect(profile.phoneNumber, '+1234567890');
       expect(profile.profileImage, 'https://example.com/image.jpg');
-      expect(profile.gender, 'Male');
     });
 
     test('ProfileModel should convert from JSON correctly', () {
@@ -35,8 +32,6 @@ void main() {
         'address': '123 Test St',
         'phoneNumber': '+1234567890',
         'profileImage': 'https://example.com/image.jpg',
-        'dateOfBirth': '1990-01-01T00:00:00.000Z',
-        'gender': 'Male',
         'createdAt': '2023-01-01T00:00:00.000Z',
         'updatedAt': '2023-01-01T00:00:00.000Z',
       };
@@ -49,7 +44,6 @@ void main() {
       expect(profileModel.address, '123 Test St');
       expect(profileModel.phoneNumber, '+1234567890');
       expect(profileModel.profileImage, 'https://example.com/image.jpg');
-      expect(profileModel.gender, 'Male');
     });
 
     test('ProfileModel should convert to entity correctly', () {
@@ -60,8 +54,6 @@ void main() {
         address: '123 Test St',
         phoneNumber: '+1234567890',
         profileImage: 'https://example.com/image.jpg',
-        dateOfBirth: DateTime(1990, 1, 1),
-        gender: 'Male',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -74,7 +66,6 @@ void main() {
       expect(entity.address, '123 Test St');
       expect(entity.phoneNumber, '+1234567890');
       expect(entity.profileImage, 'https://example.com/image.jpg');
-      expect(entity.gender, 'Male');
     });
 
     test('ProfileEntity copyWith should work correctly', () {

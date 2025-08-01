@@ -8,8 +8,6 @@ class ProfileModel extends Equatable {
   final String address;
   final String? phoneNumber;
   final String? profileImage;
-  final DateTime? dateOfBirth;
-  final String? gender;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -20,8 +18,6 @@ class ProfileModel extends Equatable {
     required this.address,
     this.phoneNumber,
     this.profileImage,
-    this.dateOfBirth,
-    this.gender,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -34,10 +30,6 @@ class ProfileModel extends Equatable {
       address: json['address'] ?? '',
       phoneNumber: json['phoneNumber'],
       profileImage: json['profileImage'],
-      dateOfBirth: json['dateOfBirth'] != null
-          ? DateTime.parse(json['dateOfBirth'])
-          : null,
-      gender: json['gender'],
       createdAt: DateTime.parse(
         json['createdAt'] ?? DateTime.now().toIso8601String(),
       ),
@@ -55,8 +47,6 @@ class ProfileModel extends Equatable {
       'address': address,
       'phoneNumber': phoneNumber,
       'profileImage': profileImage,
-      'dateOfBirth': dateOfBirth?.toIso8601String(),
-      'gender': gender,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -70,8 +60,6 @@ class ProfileModel extends Equatable {
       address: address,
       phoneNumber: phoneNumber,
       profileImage: profileImage,
-      dateOfBirth: dateOfBirth,
-      gender: gender,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -85,8 +73,6 @@ class ProfileModel extends Equatable {
       address: entity.address,
       phoneNumber: entity.phoneNumber,
       profileImage: entity.profileImage,
-      dateOfBirth: entity.dateOfBirth,
-      gender: entity.gender,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -100,8 +86,6 @@ class ProfileModel extends Equatable {
     address,
     phoneNumber,
     profileImage,
-    dateOfBirth,
-    gender,
     createdAt,
     updatedAt,
   ];

@@ -23,8 +23,6 @@ class _ProfileViewState extends State<ProfileView> {
   final _emailController = TextEditingController();
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
-  String? _selectedGender;
-  DateTime? _selectedDateOfBirth;
   String? _profileImageUrl;
 
   @override
@@ -166,13 +164,6 @@ class _ProfileViewState extends State<ProfileView> {
             _buildInfoRow('Email', _emailController.text),
             _buildInfoRow('Address', _addressController.text),
             _buildInfoRow('Phone', _phoneController.text),
-            _buildInfoRow('Gender', _selectedGender ?? 'Not specified'),
-            _buildInfoRow(
-              'Date of Birth',
-              _selectedDateOfBirth != null
-                  ? '${_selectedDateOfBirth!.day}/${_selectedDateOfBirth!.month}/${_selectedDateOfBirth!.year}'
-                  : 'Not specified',
-            ),
           ],
         ),
       ),
@@ -267,8 +258,6 @@ class _ProfileViewState extends State<ProfileView> {
       _emailController.text = profile.email;
       _addressController.text = profile.address;
       _phoneController.text = profile.phoneNumber ?? '';
-      _selectedGender = profile.gender;
-      _selectedDateOfBirth = profile.dateOfBirth;
       _profileImageUrl = profile.profileImage;
     });
   }
@@ -348,39 +337,6 @@ class _ProfileViewState extends State<ProfileView> {
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: _selectedGender,
-                    decoration: const InputDecoration(
-                      labelText: 'Gender',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 'Male', child: Text('Male')),
-                      DropdownMenuItem(value: 'Female', child: Text('Female')),
-                      DropdownMenuItem(value: 'Other', child: Text('Other')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedGender = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  InkWell(
-                    onTap: () => _selectDate(context),
-                    child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Date of Birth',
-                        border: OutlineInputBorder(),
-                      ),
-                      child: Text(
-                        _selectedDateOfBirth != null
-                            ? '${_selectedDateOfBirth!.day}/${_selectedDateOfBirth!.month}/${_selectedDateOfBirth!.year}'
-                            : 'Select Date',
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -397,20 +353,6 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDateOfBirth ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != _selectedDateOfBirth) {
-      setState(() {
-        _selectedDateOfBirth = picked;
-      });
-    }
-  }
-
   void _saveProfile() {
     if (_formKey.currentState!.validate()) {
       final updatedProfile = ProfileEntity(
@@ -420,8 +362,6 @@ class _ProfileViewState extends State<ProfileView> {
         address: _addressController.text,
         phoneNumber: _phoneController.text,
         profileImage: _profileImageUrl,
-        dateOfBirth: _selectedDateOfBirth,
-        gender: _selectedGender,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );

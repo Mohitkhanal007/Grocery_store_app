@@ -7,8 +7,6 @@ class ProfileEntity extends Equatable {
   final String address;
   final String? phoneNumber;
   final String? profileImage;
-  final DateTime? dateOfBirth;
-  final String? gender;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -19,8 +17,6 @@ class ProfileEntity extends Equatable {
     required this.address,
     this.phoneNumber,
     this.profileImage,
-    this.dateOfBirth,
-    this.gender,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -33,8 +29,6 @@ class ProfileEntity extends Equatable {
     address,
     phoneNumber,
     profileImage,
-    dateOfBirth,
-    gender,
     createdAt,
     updatedAt,
   ];
@@ -46,8 +40,6 @@ class ProfileEntity extends Equatable {
     String? address,
     String? phoneNumber,
     String? profileImage,
-    DateTime? dateOfBirth,
-    String? gender,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -58,8 +50,6 @@ class ProfileEntity extends Equatable {
       address: address ?? this.address,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       profileImage: profileImage ?? this.profileImage,
-      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-      gender: gender ?? this.gender,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
