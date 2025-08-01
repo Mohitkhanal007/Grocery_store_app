@@ -4,10 +4,7 @@ import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
 class OrderItemWidget extends StatelessWidget {
   final CartItemEntity item;
 
-  const OrderItemWidget({
-    super.key,
-    required this.item,
-  });
+  const OrderItemWidget({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +20,7 @@ class OrderItemWidget extends StatelessWidget {
         children: [
           _buildProductImage(),
           const SizedBox(width: 12),
-          Expanded(
-            child: _buildProductDetails(),
-          ),
+          Expanded(child: _buildProductDetails()),
           _buildPriceInfo(),
         ],
       ),
@@ -42,9 +37,9 @@ class OrderItemWidget extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: item.product.productImage != null && item.product.productImage!.isNotEmpty
+        child: item.product.productImage.isNotEmpty
             ? Image.network(
-                item.product.productImage!,
+                item.product.productImage,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return _buildPlaceholderImage();
@@ -58,11 +53,7 @@ class OrderItemWidget extends StatelessWidget {
   Widget _buildPlaceholderImage() {
     return Container(
       color: Colors.grey[300],
-      child: Icon(
-        Icons.sports_soccer,
-        color: Colors.grey[600],
-        size: 24,
-      ),
+      child: Icon(Icons.sports_soccer, color: Colors.grey[600], size: 24),
     );
   }
 
@@ -72,20 +63,14 @@ class OrderItemWidget extends StatelessWidget {
       children: [
         Text(
           item.product.team,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 4),
         Text(
           item.product.type,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
         const SizedBox(height: 4),
         Row(
@@ -108,10 +93,7 @@ class OrderItemWidget extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               'Qty: ${item.quantity}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -125,10 +107,7 @@ class OrderItemWidget extends StatelessWidget {
       children: [
         Text(
           '\$${item.product.price.toStringAsFixed(2)}',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
@@ -157,4 +136,4 @@ class OrderItemWidget extends StatelessWidget {
         return Colors.grey;
     }
   }
-} 
+}

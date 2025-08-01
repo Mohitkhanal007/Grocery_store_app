@@ -9,6 +9,8 @@ import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_mo
 import 'dart:math' as math;
 
 class SplashScreenView extends StatefulWidget {
+  const SplashScreenView({super.key});
+
   @override
   State<SplashScreenView> createState() => _SplashScreenViewState();
 }
@@ -288,7 +290,7 @@ class _SplashScreenViewState extends State<SplashScreenView>
                       // Loading Indicator
                       FadeTransition(
                         opacity: _fadeAnimation,
-                        child: Container(
+                        child: SizedBox(
                           width: 40,
                           height: 40,
                           child: CircularProgressIndicator(

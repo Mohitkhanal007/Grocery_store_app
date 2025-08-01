@@ -7,7 +7,6 @@ import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart'
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_event.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_state.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
-import 'package:jerseyhub/core/error/failure.dart';
 
 // Mock class for the use case
 class MockUserLoginUsecase extends Mock implements UserLoginUsecase {}

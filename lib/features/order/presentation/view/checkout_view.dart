@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
 import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
 import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
 import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
 import 'package:jerseyhub/features/order/presentation/widgets/order_item_widget.dart';
+import 'package:jerseyhub/features/payment/presentation/view/payment_view.dart';
+import 'package:jerseyhub/features/payment/presentation/viewmodel/payment_viewmodel.dart';
 
 class CheckoutView extends StatefulWidget {
   final CartEntity cart;
 
-  const CheckoutView({
-    super.key,
-    required this.cart,
-  });
+  const CheckoutView({super.key, required this.cart});
 
   @override
   State<CheckoutView> createState() => _CheckoutViewState();
@@ -75,9 +75,7 @@ class _CheckoutViewState extends State<CheckoutView> {
   Widget _buildOrderSummary() {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -85,13 +83,13 @@ class _CheckoutViewState extends State<CheckoutView> {
           children: [
             const Text(
               'Order Summary',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildSummaryRow('Subtotal', '\$${widget.cart.totalPrice.toStringAsFixed(2)}'),
+            _buildSummaryRow(
+              'Subtotal',
+              '\$${widget.cart.totalPrice.toStringAsFixed(2)}',
+            ),
             _buildSummaryRow('Shipping', '\$5.99'),
             const Divider(),
             _buildSummaryRow(
@@ -124,7 +122,9 @@ class _CheckoutViewState extends State<CheckoutView> {
             style: TextStyle(
               fontSize: isTotal ? 18 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? Theme.of(context).primaryColor : Colors.grey[700],
+              color: isTotal
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey[700],
             ),
           ),
         ],
@@ -135,9 +135,7 @@ class _CheckoutViewState extends State<CheckoutView> {
   Widget _buildShippingForm() {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -145,10 +143,7 @@ class _CheckoutViewState extends State<CheckoutView> {
           children: [
             const Text(
               'Shipping Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -178,7 +173,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
                 }
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                if (!RegExp(
+                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                ).hasMatch(value)) {
                   return 'Please enter a valid email';
                 }
                 return null;
@@ -225,9 +222,7 @@ class _CheckoutViewState extends State<CheckoutView> {
   Widget _buildOrderItems() {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -235,13 +230,12 @@ class _CheckoutViewState extends State<CheckoutView> {
           children: [
             const Text(
               'Order Items',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            ...widget.cart.items.map<Widget>((item) => OrderItemWidget(item: item)).toList(),
+            ...widget.cart.items.map<Widget>(
+              (item) => OrderItemWidget(item: item),
+            ),
           ],
         ),
       ),
@@ -253,7 +247,7 @@ class _CheckoutViewState extends State<CheckoutView> {
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: _placeOrder,
+        onPressed: _proceedToPayment,
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
@@ -262,35 +256,63 @@ class _CheckoutViewState extends State<CheckoutView> {
           ),
         ),
         child: const Text(
-          'Place Order',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          'Proceed to Payment',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
 
-  void _placeOrder() {
+  void _proceedToPayment() {
     if (_formKey.currentState!.validate()) {
-      final order = OrderEntity(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        items: widget.cart.items,
-        subtotal: widget.cart.totalPrice,
-        shippingCost: 5.99,
-        totalAmount: widget.cart.totalPrice + 5.99,
-        status: OrderStatus.pending,
-        customerName: _nameController.text,
-        customerEmail: _emailController.text,
-        customerPhone: _phoneController.text,
-        shippingAddress: _addressController.text,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+      final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+      final totalAmount = widget.cart.totalPrice + 5.99;
+      
+      // Navigate to payment page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => serviceLocator<PaymentViewModel>(),
+              ),
+            ],
+            child: PaymentView(
+              orderId: orderId,
+              amount: totalAmount,
+              customerName: _nameController.text,
+              customerEmail: _emailController.text,
+              onPaymentSuccess: () {
+                _placeOrder(orderId);
+              },
+              onPaymentFailure: () {
+                _showErrorSnackBar('Payment failed. Please try again.');
+              },
+            ),
+          ),
+        ),
       );
-
-      context.read<OrderViewModel>().add(CreateOrderEvent(order: order));
     }
+  }
+
+  void _placeOrder(String orderId) {
+    final order = OrderEntity(
+      id: orderId,
+      items: widget.cart.items,
+      subtotal: widget.cart.totalPrice,
+      shippingCost: 5.99,
+      totalAmount: widget.cart.totalPrice + 5.99,
+      status: OrderStatus.pending,
+      customerName: _nameController.text,
+      customerEmail: _emailController.text,
+      customerPhone: _phoneController.text,
+      shippingAddress: _addressController.text,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    context.read<OrderViewModel>().add(CreateOrderEvent(order: order));
   }
 
   void _showOrderSuccessDialog(OrderEntity order) {
@@ -308,7 +330,9 @@ class _CheckoutViewState extends State<CheckoutView> {
               const SizedBox(height: 8),
               Text('Total: \$${order.totalAmount.toStringAsFixed(2)}'),
               const SizedBox(height: 16),
-              const Text('Thank you for your order! You will receive a confirmation email shortly.'),
+              const Text(
+                'Thank you for your order! You will receive a confirmation email shortly.',
+              ),
             ],
           ),
           actions: [
@@ -340,4 +364,4 @@ class _CheckoutViewState extends State<CheckoutView> {
       ),
     );
   }
-} 
+}

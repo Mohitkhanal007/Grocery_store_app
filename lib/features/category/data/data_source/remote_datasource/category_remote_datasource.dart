@@ -1,7 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:jerseyhub/app/constant/backend_config.dart';
 import 'package:jerseyhub/core/network/api_service.dart';
-import 'package:jerseyhub/features/category/data/model/category_api_model.dart';
 import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
 import '../category_data_source.dart';
 

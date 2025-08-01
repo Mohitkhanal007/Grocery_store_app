@@ -3,20 +3,16 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  static getApplicationTheme({required bool isDarkMode}) {
+  static ThemeData getApplicationTheme({required bool isDarkMode}) {
     return ThemeData(
       useMaterial3: false,
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
 
-
       primarySwatch: Colors.blue,
-
 
       scaffoldBackgroundColor: isDarkMode ? Colors.black : Colors.grey[200],
 
-
       fontFamily: 'OpenSansRegular',
-
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -29,9 +25,7 @@ class AppTheme {
           backgroundColor: isDarkMode
               ? Colors.deepOrangeAccent[200]
               : Colors.orangeAccent[200],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         ),
       ),
 
@@ -56,9 +50,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: isDarkMode
-                ? Colors.deepOrangeAccent
-                : Colors.orangeAccent,
+            color: isDarkMode ? Colors.deepOrangeAccent : Colors.orangeAccent,
           ),
         ),
       ),
@@ -69,14 +61,12 @@ class AppTheme {
             : Colors.orangeAccent[200],
       ),
 
-
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: isDarkMode ? Colors.grey[850] : Colors.white,
         selectedItemColor: isDarkMode
             ? Colors.orangeAccent[100]
             : Colors.orangeAccent,
-        unselectedItemColor:
-        isDarkMode ? Colors.grey[400] : Colors.black54,
+        unselectedItemColor: isDarkMode ? Colors.grey[400] : Colors.black54,
         type: BottomNavigationBarType.fixed,
         elevation: 5,
       ),

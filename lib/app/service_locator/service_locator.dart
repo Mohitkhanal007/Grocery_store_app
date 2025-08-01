@@ -47,6 +47,11 @@ import '../../features/order/domain/use_case/create_order_usecase.dart';
 import '../../features/order/domain/use_case/update_order_status_usecase.dart';
 import '../../features/order/domain/use_case/delete_order_usecase.dart';
 import '../../features/order/presentation/viewmodel/order_viewmodel.dart';
+import '../../features/payment/data/data_source/payment_remote_datasource.dart';
+import '../../features/payment/data/repository/payment_repository_impl.dart';
+import '../../features/payment/domain/repository/payment_repository.dart';
+import '../../features/payment/domain/use_case/create_payment_usecase.dart';
+import '../../features/payment/presentation/viewmodel/payment_viewmodel.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -60,6 +65,7 @@ Future<void> initDependencies() async {
   await _initCategoryModule(); // Make sure to call this!
   await _initCartModule(); // Make sure to call this!
   await _initOrderModule(); // Make sure to call this!
+  await _initPaymentModule(); // Make sure to call this!
 }
 
 Future<void> _initCore() async {
@@ -305,6 +311,29 @@ Future<void> _initOrderModule() async {
       createOrderUseCase: serviceLocator<CreateOrderUseCase>(),
       updateOrderStatusUseCase: serviceLocator<UpdateOrderStatusUseCase>(),
       deleteOrderUseCase: serviceLocator<DeleteOrderUseCase>(),
+    ),
+  );
+}
+
+Future<void> _initPaymentModule() async {
+  // Data layer
+  serviceLocator.registerLazySingleton<PaymentRemoteDataSource>(
+    () => PaymentRemoteDataSourceImpl(serviceLocator<ApiService>()),
+  );
+
+  serviceLocator.registerLazySingleton<PaymentRepository>(
+    () => PaymentRepositoryImpl(serviceLocator<PaymentRemoteDataSource>()),
+  );
+
+  // Domain layer
+  serviceLocator.registerLazySingleton<CreatePaymentUseCase>(
+    () => CreatePaymentUseCase(serviceLocator<PaymentRepository>()),
+  );
+
+  // Presentation layer
+  serviceLocator.registerFactory<PaymentViewModel>(
+    () => PaymentViewModel(
+      createPaymentUseCase: serviceLocator<CreatePaymentUseCase>(),
     ),
   );
 }
