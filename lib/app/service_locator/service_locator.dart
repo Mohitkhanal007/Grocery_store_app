@@ -52,6 +52,14 @@ import '../../features/payment/data/repository/payment_repository_impl.dart';
 import '../../features/payment/domain/repository/payment_repository.dart';
 import '../../features/payment/domain/use_case/create_payment_usecase.dart';
 import '../../features/payment/presentation/viewmodel/payment_viewmodel.dart';
+import '../../features/profile/data/data_source/profile_remote_datasource.dart';
+import '../../features/profile/data/repository/profile_repository_impl.dart';
+import '../../features/profile/domain/repository/profile_repository.dart';
+import '../../features/profile/domain/use_case/change_password_usecase.dart';
+import '../../features/profile/domain/use_case/get_profile_usecase.dart';
+import '../../features/profile/domain/use_case/update_profile_usecase.dart';
+import '../../features/profile/domain/use_case/upload_profile_image_usecase.dart';
+import '../../features/profile/presentation/viewmodel/profile_viewmodel.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -65,7 +73,37 @@ Future<void> initDependencies() async {
   await _initCategoryModule(); // Make sure to call this!
   await _initCartModule(); // Make sure to call this!
   await _initOrderModule(); // Make sure to call this!
-  await _initPaymentModule(); // Make sure to call this!
+  await _initPaymentModule();
+  await _initProfileModule();
+}
+
+Future<void> _initProfileModule() async {
+  serviceLocator.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(serviceLocator<ApiService>()),
+  );
+  serviceLocator.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(serviceLocator<ProfileRemoteDataSource>()),
+  );
+  serviceLocator.registerLazySingleton<GetProfileUseCase>(
+    () => GetProfileUseCase(serviceLocator<ProfileRepository>()),
+  );
+  serviceLocator.registerLazySingleton<UpdateProfileUseCase>(
+    () => UpdateProfileUseCase(serviceLocator<ProfileRepository>()),
+  );
+  serviceLocator.registerLazySingleton<UploadProfileImageUseCase>(
+    () => UploadProfileImageUseCase(serviceLocator<ProfileRepository>()),
+  );
+  serviceLocator.registerLazySingleton<ChangePasswordUseCase>(
+    () => ChangePasswordUseCase(serviceLocator<ProfileRepository>()),
+  );
+  serviceLocator.registerFactory<ProfileViewModel>(
+    () => ProfileViewModel(
+      getProfileUseCase: serviceLocator<GetProfileUseCase>(),
+      updateProfileUseCase: serviceLocator<UpdateProfileUseCase>(),
+      uploadProfileImageUseCase: serviceLocator<UploadProfileImageUseCase>(),
+      changePasswordUseCase: serviceLocator<ChangePasswordUseCase>(),
+    ),
+  );
 }
 
 Future<void> _initCore() async {

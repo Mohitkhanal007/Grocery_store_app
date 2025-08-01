@@ -9,6 +9,8 @@ import 'package:jerseyhub/features/order/presentation/view/order_list_view.dart'
 import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
 import 'package:jerseyhub/features/product/presentation/view/product_list_view.dart';
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
+import 'package:jerseyhub/features/profile/presentation/view/profile_view.dart';
+import 'package:jerseyhub/features/profile/presentation/viewmodel/profile_viewmodel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,55 +31,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProfilePage() {
-    return BlocListener<HomeViewModel, HomeState>(
-      listener: (context, state) {
-        if (state == HomeState.loggedOut) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => LoginView()),
-          );
-        } else if (state == HomeState.logoutError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Logout failed. Please try again.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      },
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.grey,
-              child: Icon(Icons.person, size: 50, color: Colors.white),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'User Profile',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton.icon(
-              onPressed: () {
-                context.read<HomeViewModel>().logout();
-              },
-              icon: const Icon(Icons.logout),
-              label: const Text('Logout'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 15,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return BlocProvider(
+      create: (context) => serviceLocator<ProfileViewModel>(),
+      child: ProfileView(
+        userId: 'current_user_id',
+      ), // You can get this from auth service
     );
   }
 
