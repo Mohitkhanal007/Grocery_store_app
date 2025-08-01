@@ -9,14 +9,14 @@ abstract class PaymentRemoteDataSource {
   Future<Either<Failure, PaymentResponseModel>> createPayment(
     PaymentRequestEntity request,
   );
-  
+
   Future<Either<Failure, PaymentModel>> verifyPayment({
     required String orderId,
     required String amount,
     required String referenceId,
     required String signature,
   });
-  
+
   Future<Either<Failure, PaymentModel>> getPaymentStatus(String orderId);
 }
 
@@ -45,7 +45,9 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
         final paymentResponse = PaymentResponseModel.fromJson(response.data);
         return Right(paymentResponse);
       } else {
-        return const Left(RemoteDatabaseFailure(message: 'Failed to create payment'));
+        return const Left(
+          RemoteDatabaseFailure(message: 'Failed to create payment'),
+        );
       }
     } catch (e) {
       return Left(RemoteDatabaseFailure(message: e.toString()));
@@ -85,7 +87,9 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
         );
         return Right(paymentModel);
       } else {
-        return const Left(RemoteDatabaseFailure(message: 'Payment verification failed'));
+        return const Left(
+          RemoteDatabaseFailure(message: 'Payment verification failed'),
+        );
       }
     } catch (e) {
       return Left(RemoteDatabaseFailure(message: e.toString()));
@@ -95,7 +99,9 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   @override
   Future<Either<Failure, PaymentModel>> getPaymentStatus(String orderId) async {
     try {
-      final response = await apiService.dio.get('esewa/payment-status/$orderId');
+      final response = await apiService.dio.get(
+        'esewa/payment-status/$orderId',
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         // For now, return a mock payment model since backend doesn't return full payment data
@@ -108,13 +114,15 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
           transactionId: response.data['refId'],
           referenceId: response.data['refId'],
           createdAt: DateTime.now(),
-          completedAt: response.data['verifiedAt'] != null 
-              ? DateTime.parse(response.data['verifiedAt']) 
+          completedAt: response.data['verifiedAt'] != null
+              ? DateTime.parse(response.data['verifiedAt'])
               : null,
         );
         return Right(paymentModel);
       } else {
-        return const Left(RemoteDatabaseFailure(message: 'Failed to get payment status'));
+        return const Left(
+          RemoteDatabaseFailure(message: 'Failed to get payment status'),
+        );
       }
     } catch (e) {
       return Left(RemoteDatabaseFailure(message: e.toString()));
@@ -127,8 +135,6 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
         return 'esewa';
       case PaymentMethod.cashOnDelivery:
         return 'cash_on_delivery';
-      case PaymentMethod.bankTransfer:
-        return 'bank_transfer';
     }
   }
-} 
+}

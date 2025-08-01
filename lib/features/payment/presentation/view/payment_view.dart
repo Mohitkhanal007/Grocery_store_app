@@ -93,10 +93,7 @@ class _PaymentViewState extends State<PaymentView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
-          ),
+          Text(label, style: const TextStyle(fontSize: 16, color: Colors.grey)),
           Text(
             value,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -133,13 +130,6 @@ class _PaymentViewState extends State<PaymentView> {
               'Pay when you receive your order',
               Icons.money,
             ),
-            const SizedBox(height: 8),
-            _buildPaymentMethodTile(
-              PaymentMethod.bankTransfer,
-              'Bank Transfer',
-              'Transfer to our bank account',
-              Icons.account_balance,
-            ),
           ],
         ),
       ),
@@ -153,7 +143,7 @@ class _PaymentViewState extends State<PaymentView> {
     IconData icon,
   ) {
     final isSelected = _selectedMethod == method;
-    
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -164,11 +154,15 @@ class _PaymentViewState extends State<PaymentView> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? Theme.of(context).primaryColor : Colors.grey.shade300,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
-          color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
+          color: isSelected
+              ? Theme.of(context).primaryColor.withOpacity(0.1)
+              : null,
         ),
         child: Row(
           children: [
@@ -187,15 +181,14 @@ class _PaymentViewState extends State<PaymentView> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: isSelected ? Theme.of(context).primaryColor : Colors.black,
+                      color: isSelected
+                          ? Theme.of(context).primaryColor
+                          : Colors.black,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -216,7 +209,7 @@ class _PaymentViewState extends State<PaymentView> {
     return BlocBuilder<PaymentViewModel, PaymentState>(
       builder: (context, state) {
         final isLoading = state is PaymentLoading;
-        
+
         return SizedBox(
           width: double.infinity,
           height: 56,
@@ -240,7 +233,10 @@ class _PaymentViewState extends State<PaymentView> {
                   )
                 : Text(
                     _getPaymentButtonText(),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
           ),
         );
@@ -254,8 +250,6 @@ class _PaymentViewState extends State<PaymentView> {
         return 'Pay with eSewa';
       case PaymentMethod.cashOnDelivery:
         return 'Place Order (Cash on Delivery)';
-      case PaymentMethod.bankTransfer:
-        return 'Get Bank Details';
     }
   }
 
@@ -266,9 +260,6 @@ class _PaymentViewState extends State<PaymentView> {
         break;
       case PaymentMethod.cashOnDelivery:
         _processCashOnDelivery();
-        break;
-      case PaymentMethod.bankTransfer:
-        _showBankDetails();
         break;
     }
   }
@@ -288,38 +279,6 @@ class _PaymentViewState extends State<PaymentView> {
   void _processCashOnDelivery() {
     // For cash on delivery, we can directly call the success callback
     widget.onPaymentSuccess?.call();
-  }
-
-  void _showBankDetails() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Bank Transfer Details'),
-          content: const Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Bank: Example Bank'),
-              Text('Account Number: 1234567890'),
-              Text('Account Holder: JerseyHub'),
-              Text('Branch: Main Branch'),
-              SizedBox(height: 16),
-              Text(
-                'Please include your Order ID in the transfer description.',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _handlePaymentCreated(PaymentResponseEntity response) {
@@ -358,4 +317,4 @@ class _PaymentViewState extends State<PaymentView> {
       ),
     );
   }
-} 
+}

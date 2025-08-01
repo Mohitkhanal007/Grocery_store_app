@@ -37,9 +37,6 @@ class PaymentModel extends Equatable {
       case 'cash_on_delivery':
       case 'cashondelivery':
         return PaymentMethod.cashOnDelivery;
-      case 'bank_transfer':
-      case 'banktransfer':
-        return PaymentMethod.bankTransfer;
       default:
         return PaymentMethod.esewa;
     }
@@ -73,11 +70,11 @@ class PaymentModel extends Equatable {
       referenceId: json['referenceId'],
       customerName: json['customerName'],
       customerEmail: json['customerEmail'],
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
-      completedAt: json['completedAt'] != null 
-          ? DateTime.parse(json['completedAt']) 
+      completedAt: json['completedAt'] != null
+          ? DateTime.parse(json['completedAt'])
           : null,
       failureReason: json['failureReason'],
     );
@@ -119,19 +116,19 @@ class PaymentModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        orderId,
-        amount,
-        methodString,
-        statusString,
-        transactionId,
-        referenceId,
-        customerName,
-        customerEmail,
-        createdAt,
-        completedAt,
-        failureReason,
-      ];
+    id,
+    orderId,
+    amount,
+    methodString,
+    statusString,
+    transactionId,
+    referenceId,
+    customerName,
+    customerEmail,
+    createdAt,
+    completedAt,
+    failureReason,
+  ];
 }
 
 class PaymentRequestModel extends Equatable {
@@ -156,9 +153,6 @@ class PaymentRequestModel extends Equatable {
       case 'cash_on_delivery':
       case 'cashondelivery':
         return PaymentMethod.cashOnDelivery;
-      case 'bank_transfer':
-      case 'banktransfer':
-        return PaymentMethod.bankTransfer;
       default:
         return PaymentMethod.esewa;
     }
@@ -196,12 +190,12 @@ class PaymentRequestModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        orderId,
-        amount,
-        customerName,
-        customerEmail,
-        methodString,
-      ];
+    orderId,
+    amount,
+    customerName,
+    customerEmail,
+    methodString,
+  ];
 }
 
 class PaymentResponseModel extends Equatable {
@@ -251,10 +245,10 @@ class PaymentResponseModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        success,
-        paymentUrl,
-        transactionId,
-        message,
-        error,
-      ];
-} 
+    success,
+    paymentUrl,
+    transactionId,
+    message,
+    error,
+  ];
+}

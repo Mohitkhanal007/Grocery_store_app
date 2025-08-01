@@ -98,7 +98,8 @@ class PaymentError extends PaymentState {
 class PaymentViewModel extends Bloc<PaymentEvent, PaymentState> {
   final CreatePaymentUseCase createPaymentUseCase;
 
-  PaymentViewModel({required this.createPaymentUseCase}) : super(PaymentInitial()) {
+  PaymentViewModel({required this.createPaymentUseCase})
+    : super(PaymentInitial()) {
     on<CreatePaymentEvent>(_onCreatePayment);
     on<VerifyPaymentEvent>(_onVerifyPayment);
     on<GetPaymentStatusEvent>(_onGetPaymentStatus);
@@ -137,4 +138,4 @@ class PaymentViewModel extends Bloc<PaymentEvent, PaymentState> {
     // TODO: Implement get payment status use case
     emit(const PaymentError(message: 'Get payment status not implemented yet'));
   }
-} 
+}

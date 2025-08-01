@@ -6,13 +6,13 @@ abstract class PaymentRepository {
   Future<Either<Failure, PaymentResponseEntity>> createPayment(
     PaymentRequestEntity request,
   );
-  
+
   Future<Either<Failure, PaymentEntity>> verifyPayment({
     required String orderId,
     required String amount,
     required String referenceId,
     required String signature,
   });
-  
+
   Future<Either<Failure, PaymentEntity>> getPaymentStatus(String orderId);
-} 
+}

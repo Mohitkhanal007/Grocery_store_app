@@ -267,7 +267,7 @@ class _CheckoutViewState extends State<CheckoutView> {
     if (_formKey.currentState!.validate()) {
       final orderId = DateTime.now().millisecondsSinceEpoch.toString();
       final totalAmount = widget.cart.totalPrice + 5.99;
-      
+
       // Navigate to payment page
       Navigator.push(
         context,

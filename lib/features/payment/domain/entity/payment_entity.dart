@@ -1,18 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-enum PaymentStatus {
-  pending,
-  processing,
-  completed,
-  failed,
-  cancelled
-}
+enum PaymentStatus { pending, processing, completed, failed, cancelled }
 
-enum PaymentMethod {
-  esewa,
-  cashOnDelivery,
-  bankTransfer
-}
+enum PaymentMethod { esewa, cashOnDelivery }
 
 class PaymentEntity extends Equatable {
   final String id;
@@ -45,19 +35,19 @@ class PaymentEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        orderId,
-        amount,
-        method,
-        status,
-        transactionId,
-        referenceId,
-        customerName,
-        customerEmail,
-        createdAt,
-        completedAt,
-        failureReason,
-      ];
+    id,
+    orderId,
+    amount,
+    method,
+    status,
+    transactionId,
+    referenceId,
+    customerName,
+    customerEmail,
+    createdAt,
+    completedAt,
+    failureReason,
+  ];
 
   PaymentEntity copyWith({
     String? id,
@@ -107,12 +97,12 @@ class PaymentRequestEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        orderId,
-        amount,
-        customerName,
-        customerEmail,
-        method,
-      ];
+    orderId,
+    amount,
+    customerName,
+    customerEmail,
+    method,
+  ];
 }
 
 class PaymentResponseEntity extends Equatable {
@@ -132,10 +122,10 @@ class PaymentResponseEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        success,
-        paymentUrl,
-        transactionId,
-        message,
-        error,
-      ];
-} 
+    success,
+    paymentUrl,
+    transactionId,
+    message,
+    error,
+  ];
+}

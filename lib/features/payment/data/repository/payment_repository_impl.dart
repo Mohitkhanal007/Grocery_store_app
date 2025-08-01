@@ -41,11 +41,13 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, PaymentEntity>> getPaymentStatus(String orderId) async {
+  Future<Either<Failure, PaymentEntity>> getPaymentStatus(
+    String orderId,
+  ) async {
     final result = await remoteDataSource.getPaymentStatus(orderId);
     return result.fold(
       (failure) => Left(failure),
       (payment) => Right(payment.toEntity()),
     );
   }
-} 
+}

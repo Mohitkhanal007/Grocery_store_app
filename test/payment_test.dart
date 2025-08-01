@@ -118,4 +118,4 @@ void main() {
       expect(entity.customerEmail, 'john@example.com');
     });
   });
-} 
+}
