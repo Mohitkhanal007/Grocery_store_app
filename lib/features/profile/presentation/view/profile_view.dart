@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
+import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
+import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:jerseyhub/features/profile/domain/entity/profile_entity.dart';
 import 'package:jerseyhub/features/profile/domain/use_case/change_password_usecase.dart';
 import 'package:jerseyhub/features/profile/presentation/viewmodel/profile_event.dart';
@@ -488,10 +492,25 @@ class _ProfileViewState extends State<ProfileView> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
+                // Clear user session
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('isLoggedIn', false);
+                await prefs.remove('token');
+                await prefs.remove('userId');
+
                 // Navigate to login screen
-                Navigator.pushReplacementNamed(context, '/login');
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider(
+                      create: (_) => serviceLocator<LoginViewModel>(),
+                      child: const LoginView(),
+                    ),
+                  ),
+                  (route) => false, // Remove all previous routes
+                );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Logout'),
