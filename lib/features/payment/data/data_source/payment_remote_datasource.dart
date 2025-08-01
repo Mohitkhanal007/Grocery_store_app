@@ -30,6 +30,14 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     PaymentRequestEntity request,
   ) async {
     try {
+      print('🔗 Creating eSewa payment request...');
+      print(
+        '📡 API URL: ${apiService.dio.options.baseUrl}esewa/create-payment',
+      );
+      print(
+        '📦 Request data: orderId=${request.orderId}, amount=${request.amount}, customerName=${request.customerName}, customerEmail=${request.customerEmail}, method=${request.method}',
+      );
+
       final response = await apiService.dio.post(
         'esewa/create-payment',
         data: {
@@ -41,15 +49,21 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
         },
       );
 
+      print('✅ API Response Status: ${response.statusCode}');
+      print('📄 API Response Data: ${response.data}');
+
       if (response.statusCode == 200 && response.data != null) {
         final paymentResponse = PaymentResponseModel.fromJson(response.data);
+        print('🎉 Payment created successfully: ${paymentResponse.paymentUrl}');
         return Right(paymentResponse);
       } else {
+        print('❌ Payment creation failed: Invalid response');
         return const Left(
           RemoteDatabaseFailure(message: 'Failed to create payment'),
         );
       }
     } catch (e) {
+      print('💥 Payment creation error: $e');
       return Left(RemoteDatabaseFailure(message: e.toString()));
     }
   }

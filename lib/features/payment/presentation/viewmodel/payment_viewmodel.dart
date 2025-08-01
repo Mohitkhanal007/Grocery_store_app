@@ -109,13 +109,20 @@ class PaymentViewModel extends Bloc<PaymentEvent, PaymentState> {
     CreatePaymentEvent event,
     Emitter<PaymentState> emit,
   ) async {
+    print('🔄 PaymentViewModel: Starting payment creation...');
     emit(PaymentLoading());
 
     final result = await createPaymentUseCase(event.request);
 
     result.fold(
-      (failure) => emit(PaymentError(message: failure.message)),
-      (response) => emit(PaymentCreated(response: response)),
+      (failure) {
+        print('❌ PaymentViewModel: Payment failed - ${failure.message}');
+        emit(PaymentError(message: failure.message));
+      },
+      (response) {
+        print('✅ PaymentViewModel: Payment created successfully');
+        emit(PaymentCreated(response: response));
+      },
     );
   }
 

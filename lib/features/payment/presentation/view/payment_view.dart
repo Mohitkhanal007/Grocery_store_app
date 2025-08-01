@@ -265,6 +265,12 @@ class _PaymentViewState extends State<PaymentView> {
   }
 
   void _processEsewaPayment() {
+    print('💳 Processing eSewa payment...');
+    print('📋 Order ID: ${widget.orderId}');
+    print('💰 Amount: ${widget.amount}');
+    print('👤 Customer: ${widget.customerName}');
+    print('📧 Email: ${widget.customerEmail}');
+
     final request = PaymentRequestEntity(
       orderId: widget.orderId,
       amount: widget.amount,
@@ -273,6 +279,7 @@ class _PaymentViewState extends State<PaymentView> {
       method: PaymentMethod.esewa,
     );
 
+    print('🚀 Dispatching CreatePaymentEvent...');
     context.read<PaymentViewModel>().add(CreatePaymentEvent(request: request));
   }
 
