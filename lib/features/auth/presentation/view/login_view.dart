@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
 import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
+import 'package:jerseyhub/app/shared_prefs/token_shared_prefs.dart';
+import 'package:jerseyhub/core/network/api_service.dart';
 import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:jerseyhub/features/auth/presentation/view/register_view.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_event.dart';
@@ -119,6 +121,25 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
                 await userSharedPrefs.setCurrentUserEmail(
                   _usernameController.text.trim(),
                 );
+
+                // Set authentication token for API service
+                try {
+                  final tokenSharedPrefs = serviceLocator<TokenSharedPrefs>();
+                  final tokenResult = await tokenSharedPrefs.getToken();
+                  tokenResult.fold(
+                    (failure) =>
+                        print('⚠️ Could not get token: ${failure.message}'),
+                    (token) {
+                      if (token != null && token.isNotEmpty) {
+                        final apiService = serviceLocator<ApiService>();
+                        apiService.setAuthToken(token);
+                        print('🔐 Authentication token set after login');
+                      }
+                    },
+                  );
+                } catch (e) {
+                  print('⚠️ Could not set authentication token: $e');
+                }
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

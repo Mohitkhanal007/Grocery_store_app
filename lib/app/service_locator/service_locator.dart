@@ -133,7 +133,32 @@ Future<void> _initCore() async {
 
 Future<void> _initApiService() async {
   serviceLocator.registerLazySingleton<Dio>(() => Dio());
-  serviceLocator.registerLazySingleton(() => ApiService(serviceLocator<Dio>()));
+  serviceLocator.registerLazySingleton(() {
+    final apiService = ApiService(serviceLocator<Dio>());
+
+    // Try to set authentication token if available
+    _setAuthTokenIfAvailable(apiService);
+
+    return apiService;
+  });
+}
+
+Future<void> _setAuthTokenIfAvailable(ApiService apiService) async {
+  try {
+    final tokenSharedPrefs = serviceLocator<TokenSharedPrefs>();
+    final tokenResult = await tokenSharedPrefs.getToken();
+    tokenResult.fold(
+      (failure) => print('⚠️ Could not get token: ${failure.message}'),
+      (token) {
+        if (token != null && token.isNotEmpty) {
+          apiService.setAuthToken(token);
+          print('🔐 Authentication token set for API service');
+        }
+      },
+    );
+  } catch (e) {
+    print('⚠️ Could not set authentication token: $e');
+  }
 }
 
 Future<void> _initAuthModule() async {

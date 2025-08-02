@@ -9,7 +9,7 @@ class BackendConfig {
   /// For physical device: http://YOUR_COMPUTER_IP:PORT
   /// For production: https://your-domain.com
   static const String serverAddress =
-      "http://192.168.16.111:5050"; // Local Jersey backend for testing
+      "http://192.168.1.10:5050"; // Local Jersey backend for testing
 
   /// API base path (usually empty for Jersey, or "/api" if you have it configured)
   static const String apiPath = "/api";

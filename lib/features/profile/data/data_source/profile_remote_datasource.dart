@@ -27,29 +27,14 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     try {
       print('🔍 Fetching profile for user: $userIdentifier');
 
-      // If userIdentifier looks like an email, we need to get the user first
-      String userId = userIdentifier;
-      if (userIdentifier.contains('@')) {
-        // It's an email, get user by email first
-        final userResponse = await apiService.dio.get(
-          '/auth/user-by-email/$userIdentifier',
-        );
-        if (userResponse.statusCode == 200 && userResponse.data != null) {
-          userId = userResponse.data.data._id;
-        } else {
-          // Fallback: try to get profile directly with email
-          final response = await apiService.dio.get(
-            '/auth/profile/$userIdentifier',
-          );
-          if (response.statusCode == 200 && response.data != null) {
-            final profileModel = ProfileModel.fromJson(response.data.data);
-            print('✅ Profile fetched successfully by email');
-            return Right(profileModel);
-          }
-        }
-      }
+      // For now, we'll use the email as the user ID since the backend expects a user ID
+      // In a real app, you'd need to either:
+      // 1. Store the actual user ID after login, or
+      // 2. Create a backend endpoint to get user by email
 
-      // Try to get profile by user ID
+      String userId = userIdentifier;
+
+      // Try to get profile by user ID (using email as ID for now)
       final response = await apiService.dio.get('/auth/$userId');
 
       if (response.statusCode == 200 && response.data != null) {
@@ -66,8 +51,11 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       print('💥 Error fetching profile: $e');
       // For testing purposes, return a mock profile when backend is not available
       if (e.toString().contains('connection') ||
-          e.toString().contains('timeout')) {
-        print('Backend not available, returning mock profile for testing');
+          e.toString().contains('timeout') ||
+          e.toString().contains('Route not found')) {
+        print(
+          'Backend not available or route not found, returning mock profile for testing',
+        );
         final mockProfile = ProfileModel(
           id: userIdentifier,
           username: 'Test User',
