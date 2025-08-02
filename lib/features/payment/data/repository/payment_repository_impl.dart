@@ -49,4 +49,97 @@ class PaymentRepositoryImpl implements PaymentRepository {
       (payment) => Right(payment.toEntity()),
     );
   }
+
+  @override
+  Future<Either<Failure, List<PaymentEntity>>> getUserPayments(
+    String userId,
+  ) async {
+    try {
+      // This would typically call a backend endpoint
+      // For now, return empty list as placeholder
+      return const Right([]);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, PaymentEntity>> updatePaymentStatus(
+    String paymentId,
+    PaymentStatus status,
+  ) async {
+    try {
+      // This would typically call a backend endpoint
+      // For now, return a mock payment entity
+      final mockPayment = PaymentEntity(
+        id: paymentId,
+        orderId: 'order_${DateTime.now().millisecondsSinceEpoch}',
+        amount: 0.0,
+        method: PaymentMethod.esewa,
+        status: status,
+        createdAt: DateTime.now(),
+      );
+      return Right(mockPayment);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PaymentEntity>>> getPaymentHistory(
+    String userId,
+  ) async {
+    try {
+      // This would typically call a backend endpoint
+      // For now, return empty list as placeholder
+      return const Right([]);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getPaymentAnalytics(
+    String userId,
+  ) async {
+    try {
+      // This would typically call a backend endpoint
+      // For now, return mock analytics data
+      final mockAnalytics = {
+        'totalPayments': 0,
+        'totalAmount': 0.0,
+        'successfulPayments': 0,
+        'failedPayments': 0,
+        'averageAmount': 0.0,
+        'preferredMethod': 'esewa',
+      };
+      return Right(mockAnalytics);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PaymentMethod>>>
+  getAvailablePaymentMethods() async {
+    try {
+      // Return available payment methods
+      return const Right([PaymentMethod.esewa, PaymentMethod.cashOnDelivery]);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> isPaymentMethodAvailable(
+    PaymentMethod method,
+  ) async {
+    try {
+      // Check if payment method is available
+      // For now, all methods are available
+      return const Right(true);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
 }

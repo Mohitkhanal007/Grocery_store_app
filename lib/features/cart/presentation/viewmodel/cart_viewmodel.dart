@@ -18,34 +18,61 @@ abstract class CartEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadCartEvent extends CartEvent {}
+class LoadCartEvent extends CartEvent {
+  final String? userId;
+  const LoadCartEvent({this.userId});
+
+  @override
+  List<Object?> get props => [userId];
+}
 
 class AddToCartEvent extends CartEvent {
   final CartItemEntity item;
-  const AddToCartEvent({required this.item});
+  final String? userId;
+  const AddToCartEvent({required this.item, this.userId});
 
   @override
-  List<Object?> get props => [item];
+  List<Object?> get props => [item, userId];
 }
 
 class RemoveFromCartEvent extends CartEvent {
   final String itemId;
-  const RemoveFromCartEvent({required this.itemId});
+  final String? userId;
+  const RemoveFromCartEvent({required this.itemId, this.userId});
 
   @override
-  List<Object?> get props => [itemId];
+  List<Object?> get props => [itemId, userId];
 }
 
 class UpdateQuantityEvent extends CartEvent {
   final String itemId;
   final int quantity;
-  const UpdateQuantityEvent({required this.itemId, required this.quantity});
+  final String? userId;
+  const UpdateQuantityEvent({
+    required this.itemId,
+    required this.quantity,
+    this.userId,
+  });
 
   @override
-  List<Object?> get props => [itemId, quantity];
+  List<Object?> get props => [itemId, quantity, userId];
 }
 
-class ClearCartEvent extends CartEvent {}
+class ClearCartEvent extends CartEvent {
+  final String? userId;
+  const ClearCartEvent({this.userId});
+
+  @override
+  List<Object?> get props => [userId];
+}
+
+class SyncCartEvent extends CartEvent {
+  final String userId;
+  const SyncCartEvent({required this.userId});
+
+  @override
+  List<Object?> get props => [userId];
+}
 
 // States
 abstract class CartState extends Equatable {
@@ -103,6 +130,7 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     on<RemoveFromCartEvent>(_onRemoveFromCart);
     on<UpdateQuantityEvent>(_onUpdateQuantity);
     on<ClearCartEvent>(_onClearCart);
+    on<SyncCartEvent>(_onSyncCart);
   }
 
   Future<void> _onLoadCart(LoadCartEvent event, Emitter<CartState> emit) async {
@@ -222,6 +250,18 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     Emitter<CartState> emit,
   ) async {
     final result = await _clearCartUseCase();
+    result.fold(
+      (failure) => emit(CartError(message: failure.message)),
+      (cart) => emit(CartLoaded(cart: cart)),
+    );
+  }
+
+  Future<void> _onSyncCart(SyncCartEvent event, Emitter<CartState> emit) async {
+    emit(CartLoading());
+
+    // This would typically call the repository's sync method
+    // For now, just load the cart normally
+    final result = await _getCartUseCase();
     result.fold(
       (failure) => emit(CartError(message: failure.message)),
       (cart) => emit(CartLoaded(cart: cart)),

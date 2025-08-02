@@ -67,6 +67,7 @@ import '../../features/notification/domain/repository/notification_repository.da
 import '../../features/notification/domain/use_case/get_notifications_usecase.dart';
 import '../../features/notification/domain/use_case/mark_notification_read_usecase.dart';
 import '../../features/notification/domain/use_case/mark_all_notifications_read_usecase.dart';
+import '../../features/notification/domain/use_case/clear_all_notifications_usecase.dart';
 import '../../features/notification/presentation/bloc/notification_bloc.dart';
 import '../../features/cart/data/services/cart_notification_service.dart';
 
@@ -453,6 +454,11 @@ Future<void> _initNotificationModule() async {
     ),
   );
 
+  serviceLocator.registerLazySingleton<ClearAllNotificationsUseCase>(
+    () =>
+        ClearAllNotificationsUseCase(serviceLocator<INotificationRepository>()),
+  );
+
   // Presentation layer
   serviceLocator.registerFactory<NotificationBloc>(
     () => NotificationBloc(
@@ -460,6 +466,8 @@ Future<void> _initNotificationModule() async {
       getNotificationsUseCase: serviceLocator<GetNotificationsUseCase>(),
       markAsReadUseCase: serviceLocator<MarkNotificationReadUseCase>(),
       markAllAsReadUseCase: serviceLocator<MarkAllNotificationsReadUseCase>(),
+      clearAllNotificationsUseCase:
+          serviceLocator<ClearAllNotificationsUseCase>(),
     ),
   );
 }

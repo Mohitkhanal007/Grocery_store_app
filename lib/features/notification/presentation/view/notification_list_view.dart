@@ -35,6 +35,56 @@ class _NotificationListViewState extends State<NotificationListView> {
     }
   }
 
+  void _showClearAllConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Clear All Notifications',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Are you sure you want to clear all notifications? This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _clearAllNotifications();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Clear All'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _clearAllNotifications() {
+    final userId = _userSharedPrefs.getCurrentUserId();
+    if (userId != null) {
+      context.read<NotificationBloc>().add(ClearAllNotifications(userId));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All notifications cleared!'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,26 +96,44 @@ class _NotificationListViewState extends State<NotificationListView> {
         actions: [
           BlocBuilder<NotificationBloc, NotificationState>(
             builder: (context, state) {
-              if (state is NotificationsLoaded && state.unreadCount > 0) {
-                return TextButton(
-                  onPressed: () {
-                    final userId = _userSharedPrefs.getCurrentUserId();
-                    if (userId != null) {
-                      context.read<NotificationBloc>().add(
-                        MarkAllAsRead(userId),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('All notifications marked as read!'),
-                          backgroundColor: Colors.green,
+              if (state is NotificationsLoaded &&
+                  state.notifications.isNotEmpty) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (state.unreadCount > 0)
+                      TextButton(
+                        onPressed: () {
+                          final userId = _userSharedPrefs.getCurrentUserId();
+                          if (userId != null) {
+                            context.read<NotificationBloc>().add(
+                              MarkAllAsRead(userId),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'All notifications marked as read!',
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text(
+                          'Mark All Read',
+                          style: TextStyle(color: Colors.white),
                         ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    'Mark All Read',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                      ),
+                    TextButton(
+                      onPressed: () {
+                        _showClearAllConfirmation(context);
+                      },
+                      child: const Text(
+                        'Clear All',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
                 );
               }
               return const SizedBox.shrink();

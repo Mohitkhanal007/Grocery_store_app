@@ -69,4 +69,38 @@ class ProductEntity extends Equatable {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  // Convert to JSON for backend API
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'team': team,
+      'type': type,
+      'size': size,
+      'price': price,
+      'quantity': quantity,
+      'categoryId': categoryId,
+      'sellerId': sellerId,
+      'productImage': productImage,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  // Create from JSON from backend API
+  factory ProductEntity.fromJson(Map<String, dynamic> json) {
+    return ProductEntity(
+      id: json['id'],
+      team: json['team'],
+      type: json['type'],
+      size: json['size'],
+      price: json['price'].toDouble(),
+      quantity: json['quantity'],
+      categoryId: json['categoryId'],
+      sellerId: json['sellerId'],
+      productImage: json['productImage'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+    );
+  }
 }

@@ -45,6 +45,16 @@ class NotificationRepositoryImpl implements INotificationRepository {
   }
 
   @override
+  Future<Either<Failure, void>> clearAllNotifications(String userId) async {
+    try {
+      await _remoteDataSource.clearAllNotifications(userId);
+      return const Right(null);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> connectToSocket(String userId) async {
     try {
       await _remoteDataSource.connectToSocket(userId);

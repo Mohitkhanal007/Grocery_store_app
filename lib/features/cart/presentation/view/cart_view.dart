@@ -199,6 +199,44 @@ class _CartViewState extends State<CartView> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Subtotal
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Subtotal:', style: TextStyle(fontSize: 16)),
+                Text(
+                  'रू${cart.totalPrice.toStringAsFixed(2)}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Shipping
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Shipping:', style: TextStyle(fontSize: 16)),
+                Text(
+                  cart.shippingCost == 0
+                      ? 'FREE'
+                      : 'रू${cart.shippingCost.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: cart.shippingCost == 0 ? Colors.green : null,
+                    fontWeight: cart.shippingCost == 0 ? FontWeight.bold : null,
+                  ),
+                ),
+              ],
+            ),
+            if (cart.shippingCost > 0) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Free shipping on orders above रू1000',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
+            const Divider(height: 24),
+            // Total
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -207,7 +245,7 @@ class _CartViewState extends State<CartView> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'रू${cart.totalPrice.toStringAsFixed(2)}',
+                  'रू${cart.finalTotal.toStringAsFixed(2)}',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

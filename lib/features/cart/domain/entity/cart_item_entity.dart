@@ -36,4 +36,26 @@ class CartItemEntity extends Equatable {
       addedAt: addedAt ?? this.addedAt,
     );
   }
+
+  // Convert to JSON for backend API
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'product': product.toJson(),
+      'quantity': quantity,
+      'selectedSize': selectedSize,
+      'addedAt': addedAt.toIso8601String(),
+    };
+  }
+
+  // Create from JSON from backend API
+  factory CartItemEntity.fromJson(Map<String, dynamic> json) {
+    return CartItemEntity(
+      id: json['id'],
+      product: ProductEntity.fromJson(json['product']),
+      quantity: json['quantity'],
+      selectedSize: json['selectedSize'],
+      addedAt: DateTime.parse(json['addedAt']),
+    );
+  }
 }

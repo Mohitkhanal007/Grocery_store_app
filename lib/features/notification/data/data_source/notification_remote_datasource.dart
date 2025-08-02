@@ -9,6 +9,7 @@ abstract class INotificationRemoteDataSource {
   Future<List<NotificationApiModel>> getNotifications(String userId);
   Future<NotificationApiModel> markAsRead(String notificationId);
   Future<void> markAllAsRead(String userId);
+  Future<void> clearAllNotifications(String userId);
   Future<void> connectToSocket(String userId);
   Future<void> disconnectFromSocket();
   Stream<NotificationEntity> get notificationStream;
@@ -65,6 +66,21 @@ class NotificationRemoteDataSource implements INotificationRemoteDataSource {
       }
     } catch (e) {
       throw Exception('Failed to mark all notifications as read: $e');
+    }
+  }
+
+  @override
+  Future<void> clearAllNotifications(String userId) async {
+    try {
+      final response = await _dio.delete(
+        '/notifications/user/$userId/clear-all',
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to clear all notifications');
+      }
+    } catch (e) {
+      throw Exception('Failed to clear all notifications: $e');
     }
   }
 
