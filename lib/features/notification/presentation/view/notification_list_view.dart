@@ -49,14 +49,18 @@ class _NotificationListViewState extends State<NotificationListView> {
               if (state is NotificationsLoaded && state.unreadCount > 0) {
                 return TextButton(
                   onPressed: () {
-                    // Mark all as read functionality can be added here
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Mark all as read functionality coming soon!',
+                    final userId = _userSharedPrefs.getCurrentUserId();
+                    if (userId != null) {
+                      context.read<NotificationBloc>().add(
+                        MarkAllAsRead(userId),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('All notifications marked as read!'),
+                          backgroundColor: Colors.green,
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                   child: const Text(
                     'Mark All Read',

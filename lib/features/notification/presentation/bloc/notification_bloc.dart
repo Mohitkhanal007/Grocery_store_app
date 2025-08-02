@@ -6,6 +6,7 @@ import 'package:jerseyhub/features/notification/domain/entity/notification_entit
 import 'package:jerseyhub/features/notification/domain/repository/notification_repository.dart';
 import 'package:jerseyhub/features/notification/domain/use_case/get_notifications_usecase.dart';
 import 'package:jerseyhub/features/notification/domain/use_case/mark_notification_read_usecase.dart';
+import 'package:jerseyhub/features/notification/domain/use_case/mark_all_notifications_read_usecase.dart';
 
 // Events
 abstract class NotificationEvent extends Equatable {
@@ -31,6 +32,15 @@ class MarkAsRead extends NotificationEvent {
 
   @override
   List<Object?> get props => [notificationId];
+}
+
+class MarkAllAsRead extends NotificationEvent {
+  final String userId;
+
+  const MarkAllAsRead(this.userId);
+
+  @override
+  List<Object?> get props => [userId];
 }
 
 class ConnectToSocket extends NotificationEvent {
@@ -98,18 +108,22 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final INotificationRepository _repository;
   final GetNotificationsUseCase _getNotificationsUseCase;
   final MarkNotificationReadUseCase _markAsReadUseCase;
+  final MarkAllNotificationsReadUseCase _markAllAsReadUseCase;
   StreamSubscription<NotificationEntity>? _notificationSubscription;
 
   NotificationBloc({
     required INotificationRepository repository,
     required GetNotificationsUseCase getNotificationsUseCase,
     required MarkNotificationReadUseCase markAsReadUseCase,
+    required MarkAllNotificationsReadUseCase markAllAsReadUseCase,
   }) : _repository = repository,
        _getNotificationsUseCase = getNotificationsUseCase,
        _markAsReadUseCase = markAsReadUseCase,
+       _markAllAsReadUseCase = markAllAsReadUseCase,
        super(NotificationInitial()) {
     on<LoadNotifications>(_onLoadNotifications);
     on<MarkAsRead>(_onMarkAsRead);
+    on<MarkAllAsRead>(_onMarkAllAsRead);
     on<ConnectToSocket>(_onConnectToSocket);
     on<DisconnectFromSocket>(_onDisconnectFromSocket);
     on<NewNotificationReceived>(_onNewNotificationReceived);
@@ -162,6 +176,33 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
           NotificationsLoaded(
             notifications: updatedNotifications,
             unreadCount: unreadCount,
+          ),
+        );
+      }
+    });
+  }
+
+  Future<void> _onMarkAllAsRead(
+    MarkAllAsRead event,
+    Emitter<NotificationState> emit,
+  ) async {
+    final result = await _markAllAsReadUseCase(
+      MarkAllNotificationsReadParams(userId: event.userId),
+    );
+
+    result.fold((failure) => emit(NotificationError(failure.message)), (_) {
+      if (state is NotificationsLoaded) {
+        final currentState = state as NotificationsLoaded;
+        final updatedNotifications = currentState.notifications.map((
+          notification,
+        ) {
+          return notification.copyWith(read: true);
+        }).toList();
+
+        emit(
+          NotificationsLoaded(
+            notifications: updatedNotifications,
+            unreadCount: 0, // All notifications are now read
           ),
         );
       }

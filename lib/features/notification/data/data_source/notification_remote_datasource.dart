@@ -8,6 +8,7 @@ import 'package:jerseyhub/features/notification/domain/entity/notification_entit
 abstract class INotificationRemoteDataSource {
   Future<List<NotificationApiModel>> getNotifications(String userId);
   Future<NotificationApiModel> markAsRead(String notificationId);
+  Future<void> markAllAsRead(String userId);
   Future<void> connectToSocket(String userId);
   Future<void> disconnectFromSocket();
   Stream<NotificationEntity> get notificationStream;
@@ -49,6 +50,21 @@ class NotificationRemoteDataSource implements INotificationRemoteDataSource {
       }
     } catch (e) {
       throw Exception('Failed to mark notification as read: $e');
+    }
+  }
+
+  @override
+  Future<void> markAllAsRead(String userId) async {
+    try {
+      final response = await _dio.put(
+        '/notifications/user/$userId/mark-all-read',
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to mark all notifications as read');
+      }
+    } catch (e) {
+      throw Exception('Failed to mark all notifications as read: $e');
     }
   }
 
