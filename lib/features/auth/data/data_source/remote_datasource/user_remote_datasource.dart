@@ -63,10 +63,15 @@ class UserRemoteDataSource implements IUserDataSource {
   @override
   Future<LoginResult> loginUser(String email, String password) async {
     try {
+      print('🔐 UserRemoteDataSource: Making login request to backend...');
+
       final response = await _apiService.dio.post(
         ApiEndpoints.loginUser,
         data: {"email": email.toString(), "password": password.toString()},
       );
+
+      print('🔐 UserRemoteDataSource: Response status: ${response.statusCode}');
+      print('🔐 UserRemoteDataSource: Response data: ${response.data}');
 
       if (BackendConfig.successStatusCodes.contains(response.statusCode)) {
         final responseData = response.data;
@@ -76,13 +81,21 @@ class UserRemoteDataSource implements IUserDataSource {
           UserEntity? user;
 
           // Extract token
-          if (responseData.containsKey('token')) {
-            token = responseData['token'];
+          if (responseData.containsKey('token') &&
+              responseData['token'] != null) {
+            token = responseData['token'].toString();
+            print(
+              '🔐 UserRemoteDataSource: Found token: ${token.substring(0, 10)}...',
+            );
           } else {
             // Fallback to other token field names
             for (String fieldName in BackendConfig.tokenFieldNames) {
-              if (responseData.containsKey(fieldName)) {
-                token = responseData[fieldName];
+              if (responseData.containsKey(fieldName) &&
+                  responseData[fieldName] != null) {
+                token = responseData[fieldName].toString();
+                print(
+                  '🔐 UserRemoteDataSource: Found token in $fieldName: ${token.substring(0, 10)}...',
+                );
                 break;
               }
             }
@@ -92,18 +105,40 @@ class UserRemoteDataSource implements IUserDataSource {
           if (responseData.containsKey('data') &&
               responseData['data'] != null) {
             final userData = responseData['data'] as Map<String, dynamic>;
-            final userApiModel = UserApiModel.fromJson(userData);
-            user = userApiModel.toEntity();
+            print('🔐 UserRemoteDataSource: User data: $userData');
+
+            try {
+              final userApiModel = UserApiModel.fromJson(userData);
+              user = userApiModel.toEntity();
+              print('🔐 UserRemoteDataSource: Parsed user: ${user.username}');
+            } catch (e) {
+              print('❌ UserRemoteDataSource: Failed to parse user data: $e');
+              throw Exception('Failed to parse user data: $e');
+            }
+          } else {
+            print('❌ UserRemoteDataSource: No user data found in response');
           }
 
           if (token != null && user != null) {
             _apiService.setAuthToken(token);
+            print('✅ UserRemoteDataSource: Login successful');
             return LoginResult(token: token, user: user);
+          } else {
+            print('❌ UserRemoteDataSource: Missing token or user data');
+            print('Token: $token');
+            print('User: $user');
+            throw Exception('Token or user data not found in response');
           }
+        } else {
+          print(
+            '❌ UserRemoteDataSource: Response data is not a Map: ${responseData.runtimeType}',
+          );
+          throw Exception('Invalid response format');
         }
-
-        throw Exception('Token or user data not found in response');
       } else {
+        print(
+          '❌ UserRemoteDataSource: Login failed with status: ${response.statusCode}',
+        );
         throw Exception('Login failed: ${response.statusMessage}');
       }
     } on DioException catch (e) {

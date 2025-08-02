@@ -10,7 +10,6 @@ UserApiModel _$UserApiModelFromJson(Map<String, dynamic> json) => UserApiModel(
       id: json['_id'] as String?,
       email: json['email'] as String,
       username: json['username'] as String,
-      password: json['password'] as String,
       address: json['address'] as String,
     );
 

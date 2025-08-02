@@ -45,35 +45,69 @@ class UserLoginUsecase implements UsecaseWithParams<LoginResult, LoginParams> {
   @override
   Future<Either<Failure, LoginResult>> call(LoginParams params) async {
     try {
+      print(
+        '🔐 UserLoginUsecase: Calling repository login for email: ${params.email}',
+      );
+
       final result = await _userRepository.loginUser(
         params.email,
         params.password,
       );
 
-      return result.fold((failure) => Left(failure), (loginResult) async {
-        // Save token to shared preferences
-        final saveTokenResult = await _tokenSharedPrefs.saveToken(
-          loginResult.token,
-        );
-        return saveTokenResult.fold((failure) => Left(failure), (_) async {
-          // Set login status to true
-          await _sharedPreferences.setBool('isLoggedIn', true);
-
-          // Store the actual user ID from the response
-          if (loginResult.user.id != null) {
-            await _sharedPreferences.setString('userId', loginResult.user.id!);
-          }
-
-          // Also store email for backward compatibility
-          await _sharedPreferences.setString(
-            'userEmail',
-            loginResult.user.email,
+      return result.fold(
+        (failure) {
+          print(
+            '❌ UserLoginUsecase: Repository returned failure - ${failure.message}',
+          );
+          return Left(failure);
+        },
+        (loginResult) async {
+          print(
+            '✅ UserLoginUsecase: Repository returned success - Token: ${loginResult.token.substring(0, 10)}..., User: ${loginResult.user.username}',
           );
 
-          return Right(loginResult);
-        });
-      });
+          // Save token to shared preferences
+          final saveTokenResult = await _tokenSharedPrefs.saveToken(
+            loginResult.token,
+          );
+          return saveTokenResult.fold(
+            (failure) {
+              print(
+                '❌ UserLoginUsecase: Failed to save token - ${failure.message}',
+              );
+              return Left(failure);
+            },
+            (_) async {
+              // Set login status to true
+              await _sharedPreferences.setBool('isLoggedIn', true);
+
+              // Store the actual user ID from the response
+              if (loginResult.user.id != null) {
+                await _sharedPreferences.setString(
+                  'userId',
+                  loginResult.user.id!,
+                );
+                print(
+                  '✅ UserLoginUsecase: Saved user ID: ${loginResult.user.id}',
+                );
+              }
+
+              // Also store email for backward compatibility
+              await _sharedPreferences.setString(
+                'userEmail',
+                loginResult.user.email,
+              );
+              print(
+                '✅ UserLoginUsecase: Saved user email: ${loginResult.user.email}',
+              );
+
+              return Right(loginResult);
+            },
+          );
+        },
+      );
     } catch (e) {
+      print('❌ UserLoginUsecase: Exception occurred - $e');
       return Left(RemoteDatabaseFailure(message: e.toString()));
     }
   }

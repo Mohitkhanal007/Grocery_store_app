@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -67,11 +68,45 @@ class _ProfileViewState extends State<ProfileView> {
           } else if (state is ProfileUpdated) {
             _populateFields(state.profile);
             _showSuccessSnackBar('Profile updated successfully');
+            // Refresh the profile to ensure we have the latest data
+            context.read<ProfileViewModel>().add(
+              GetProfileEvent(widget.userId),
+            );
           } else if (state is ProfileImageUploaded) {
             setState(() {
               _profileImageUrl = state.imageUrl;
             });
             _showSuccessSnackBar('Profile image uploaded successfully');
+
+            // Update the profile with the new image URL
+            final currentState = context.read<ProfileViewModel>().state;
+            ProfileEntity? currentProfile;
+
+            if (currentState is ProfileLoaded) {
+              currentProfile = currentState.profile;
+            } else if (currentState is ProfileUpdated) {
+              currentProfile = currentState.profile;
+            }
+
+            if (currentProfile != null) {
+              final updatedProfile = ProfileEntity(
+                id: currentProfile.id,
+                email: currentProfile.email,
+                username: currentProfile.username,
+                address: currentProfile.address,
+                phoneNumber: currentProfile.phoneNumber,
+                profileImage: state.imageUrl,
+                createdAt: currentProfile.createdAt,
+                updatedAt: DateTime.now(),
+              );
+
+              print(
+                '🔄 Updating profile with new image URL: ${state.imageUrl}',
+              );
+              context.read<ProfileViewModel>().add(
+                UpdateProfileEvent(updatedProfile),
+              );
+            }
           } else if (state is PasswordChanged) {
             _showSuccessSnackBar('Password changed successfully');
           } else if (state is ProfileError) {
@@ -111,13 +146,11 @@ class _ProfileViewState extends State<ProfileView> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundImage: _profileImageUrl != null
-                    ? NetworkImage(_profileImageUrl!)
-                    : null,
-                backgroundColor: Colors.grey.shade300,
-                child: _profileImageUrl == null
-                    ? const Icon(Icons.person, size: 60, color: Colors.grey)
-                    : null,
+                backgroundImage: _getProfileImage(),
+                backgroundColor: _hasUploadedImage()
+                    ? Colors.green.shade100
+                    : Colors.grey.shade300,
+                child: _getProfileImageChild(),
               ),
               Positioned(
                 bottom: 0,
@@ -266,11 +299,92 @@ class _ProfileViewState extends State<ProfileView> {
     });
   }
 
+  ImageProvider? _getProfileImage() {
+    if (_profileImageUrl == null || _profileImageUrl!.isEmpty) {
+      return null;
+    }
+
+    // Check if it's a network URL
+    if (_profileImageUrl!.startsWith('http://') ||
+        _profileImageUrl!.startsWith('https://')) {
+      return NetworkImage(_profileImageUrl!);
+    }
+
+    // Check if it's a local file path (including Windows paths)
+    if (_profileImageUrl!.startsWith('/') ||
+        _profileImageUrl!.contains('\\') ||
+        _profileImageUrl!.startsWith('C:') ||
+        _profileImageUrl!.startsWith('D:') ||
+        _profileImageUrl!.startsWith('E:')) {
+      try {
+        final file = File(_profileImageUrl!);
+        if (file.existsSync()) {
+          print('📸 Loading local image: $_profileImageUrl');
+          return FileImage(file);
+        } else {
+          print('📸 File does not exist: $_profileImageUrl');
+          return null;
+        }
+      } catch (e) {
+        print('📸 Error loading local image: $e');
+        return null;
+      }
+    }
+
+    // For simulated images, create a placeholder image
+    if (_profileImageUrl!.contains('simulated_profile_image_')) {
+      print('📸 Using placeholder for simulated image: $_profileImageUrl');
+      // Return null to show the default person icon for simulated images
+      return null;
+    }
+
+    // For other cases, return null to show default icon
+    print('📸 Profile image URL format not recognized: $_profileImageUrl');
+    return null;
+  }
+
+  bool _hasUploadedImage() {
+    return _profileImageUrl != null && _profileImageUrl!.isNotEmpty;
+  }
+
+  Widget? _getProfileImageChild() {
+    if (_profileImageUrl == null || _profileImageUrl!.isEmpty) {
+      return const Icon(Icons.person, size: 60, color: Colors.grey);
+    }
+
+    // If we have a valid image provider, show the image
+    if (_getProfileImage() != null) {
+      return null; // Let the backgroundImage handle it
+    }
+
+    // For simulated images, show a checkmark
+    if (_profileImageUrl!.contains('simulated_profile_image_')) {
+      return const Icon(Icons.check_circle, size: 60, color: Colors.green);
+    }
+
+    // For local files that couldn't be loaded, show an error icon
+    if (_profileImageUrl!.contains('\\') ||
+        _profileImageUrl!.startsWith('C:') ||
+        _profileImageUrl!.startsWith('D:') ||
+        _profileImageUrl!.startsWith('E:')) {
+      return const Icon(Icons.error, size: 60, color: Colors.orange);
+    }
+
+    // Default fallback
+    return const Icon(Icons.person, size: 60, color: Colors.grey);
+  }
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
+      // Immediately show the selected image
+      setState(() {
+        _profileImageUrl = image.path;
+      });
+
+      // Then upload it
       context.read<ProfileViewModel>().add(UploadProfileImageEvent(image.path));
     }
   }
@@ -359,6 +473,16 @@ class _ProfileViewState extends State<ProfileView> {
 
   void _saveProfile() {
     if (_formKey.currentState!.validate()) {
+      // Get the current profile state to preserve original data
+      final currentState = context.read<ProfileViewModel>().state;
+      ProfileEntity? currentProfile;
+
+      if (currentState is ProfileLoaded) {
+        currentProfile = currentState.profile;
+      } else if (currentState is ProfileUpdated) {
+        currentProfile = currentState.profile;
+      }
+
       final updatedProfile = ProfileEntity(
         id: widget.userId,
         email: _emailController.text,
@@ -366,10 +490,13 @@ class _ProfileViewState extends State<ProfileView> {
         address: _addressController.text,
         phoneNumber: _phoneController.text,
         profileImage: _profileImageUrl,
-        createdAt: DateTime.now(),
+        createdAt: currentProfile?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
+      print(
+        '🔄 Saving profile update: ${updatedProfile.username}, ${updatedProfile.email}',
+      );
       context.read<ProfileViewModel>().add(UpdateProfileEvent(updatedProfile));
       Navigator.of(context).pop();
     }

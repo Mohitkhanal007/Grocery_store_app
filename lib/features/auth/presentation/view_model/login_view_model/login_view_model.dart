@@ -21,19 +21,27 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
   ) async {
     emit(state.copyWith(isLoading: true, isSuccess: false, errorMessage: ''));
 
+    print('🔐 LoginViewModel: Attempting login for email: ${event.email}');
+
     final result = await _userLoginUsecase(
       LoginParams(email: event.email, password: event.password),
     );
 
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          isLoading: false,
-          isSuccess: false,
-          errorMessage: 'Invalid credentials. Please try again.',
-        ),
-      ),
+      (failure) {
+        print('❌ LoginViewModel: Login failed - ${failure.message}');
+        emit(
+          state.copyWith(
+            isLoading: false,
+            isSuccess: false,
+            errorMessage: 'Invalid credentials. Please try again.',
+          ),
+        );
+      },
       (loginResult) async {
+        print(
+          '✅ LoginViewModel: Login successful - Token: ${loginResult.token.substring(0, 10)}..., User: ${loginResult.user.username}',
+        );
         // LoginResult contains both token and user data
         // The token and user data are already saved in the use case
         emit(state.copyWith(isLoading: false, isSuccess: true));

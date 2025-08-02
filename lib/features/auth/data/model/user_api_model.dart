@@ -10,15 +10,55 @@ class UserApiModel extends Equatable {
   final String? id;
   final String email;
   final String username;
+  @JsonKey(
+    includeFromJson: false,
+    includeToJson: true,
+  ) // Include password in toJson (for registration) but exclude from fromJson (for login responses)
   final String password;
   final String address;
+  @JsonKey(
+    includeFromJson: false,
+    includeToJson: false,
+  ) // Ignore additional fields
+  final String? phoneNumber;
+  @JsonKey(
+    includeFromJson: false,
+    includeToJson: false,
+  ) // Ignore additional fields
+  final String? profileImage;
+  @JsonKey(
+    includeFromJson: false,
+    includeToJson: false,
+  ) // Ignore additional fields
+  final String? role;
+  @JsonKey(
+    includeFromJson: false,
+    includeToJson: false,
+  ) // Ignore additional fields
+  final String? createdAt;
+  @JsonKey(
+    includeFromJson: false,
+    includeToJson: false,
+  ) // Ignore additional fields
+  final String? updatedAt;
+  @JsonKey(
+    includeFromJson: false,
+    includeToJson: false,
+  ) // Ignore additional fields
+  final int? version;
 
   const UserApiModel({
     this.id,
     required this.email,
     required this.username,
-    required this.password,
+    this.password = '', // Default empty string since it's excluded from JSON
     required this.address,
+    this.phoneNumber,
+    this.profileImage,
+    this.role,
+    this.createdAt,
+    this.updatedAt,
+    this.version,
   });
 
   /// JSON -> Model
