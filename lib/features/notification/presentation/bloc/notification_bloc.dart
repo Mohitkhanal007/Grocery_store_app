@@ -199,6 +199,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     NewNotificationReceived event,
     Emitter<NotificationState> emit,
   ) {
+    print(
+      '🔔 NotificationBloc: New notification received: ${event.notification.message}',
+    );
+    print('🔔 NotificationBloc: Current state: ${state.runtimeType}');
+
     if (state is NotificationsLoaded) {
       final currentState = state as NotificationsLoaded;
       final updatedNotifications = [
@@ -207,11 +212,20 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       ];
       final unreadCount = updatedNotifications.where((n) => !n.read).length;
 
+      print('🔔 NotificationBloc: Updated unread count: $unreadCount');
+      print(
+        '🔔 NotificationBloc: Total notifications: ${updatedNotifications.length}',
+      );
+
       emit(
         NotificationsLoaded(
           notifications: updatedNotifications,
           unreadCount: unreadCount,
         ),
+      );
+    } else {
+      print(
+        '🔔 NotificationBloc: State is not NotificationsLoaded, current state: ${state.runtimeType}',
       );
     }
   }

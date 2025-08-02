@@ -2,9 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/features/notification/presentation/bloc/notification_bloc.dart';
 import 'package:jerseyhub/features/notification/presentation/widgets/notification_tile.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
 
-class NotificationListView extends StatelessWidget {
+class NotificationListView extends StatefulWidget {
   const NotificationListView({super.key});
+
+  @override
+  State<NotificationListView> createState() => _NotificationListViewState();
+}
+
+class _NotificationListViewState extends State<NotificationListView> {
+  late final UserSharedPrefs _userSharedPrefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _userSharedPrefs = serviceLocator<UserSharedPrefs>();
+    _loadNotifications();
+  }
+
+  void _loadNotifications() {
+    final userId = _userSharedPrefs.getCurrentUserId();
+    print('🔍 NotificationListView: Current user ID: $userId');
+
+    if (userId != null) {
+      print('🔍 NotificationListView: Loading notifications for user: $userId');
+      context.read<NotificationBloc>().add(LoadNotifications(userId));
+      context.read<NotificationBloc>().add(ConnectToSocket(userId));
+    } else {
+      print('❌ NotificationListView: No user ID found!');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,10 +100,7 @@ class NotificationListView extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       // Retry loading notifications
-                      final userId = 'current_user_id'; // Get from auth
-                      context.read<NotificationBloc>().add(
-                        LoadNotifications(userId),
-                      );
+                      _loadNotifications();
                     },
                     child: const Text('Retry'),
                   ),
@@ -118,8 +144,7 @@ class NotificationListView extends StatelessWidget {
 
             return RefreshIndicator(
               onRefresh: () async {
-                final userId = 'current_user_id'; // Get from auth
-                context.read<NotificationBloc>().add(LoadNotifications(userId));
+                _loadNotifications();
               },
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 8),

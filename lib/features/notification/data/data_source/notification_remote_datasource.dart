@@ -75,8 +75,10 @@ class NotificationRemoteDataSource implements INotificationRemoteDataSource {
 
       // Listen for notifications
       _socket!.on('notification', (data) {
+        print('🔌 Socket: Received notification data: $data');
         try {
           final notification = NotificationApiModel.fromJson(data).toEntity();
+          print('🔌 Socket: Parsed notification: ${notification.message}');
           _notificationController.add(notification);
         } catch (e) {
           print('❌ Error parsing notification: $e');

@@ -19,12 +19,15 @@ class CartNotificationService {
   }) async {
     try {
       final userId = _userSharedPrefs.getCurrentUserId();
+      print('🔍 CartNotificationService: Current user ID: $userId');
+
       if (userId == null) {
         print('❌ CartNotificationService: No user ID found');
         return;
       }
 
-      await _dio.post(
+      print('🔍 CartNotificationService: Sending notification to backend...');
+      final response = await _dio.post(
         '${BackendConfig.baseUrl}cart/add-notification',
         data: {
           'userId': userId,
@@ -32,7 +35,10 @@ class CartNotificationService {
           'quantity': quantity,
         },
       );
-      print('✅ CartNotificationService: Add to cart notification sent');
+      print(
+        '✅ CartNotificationService: Add to cart notification sent successfully',
+      );
+      print('🔍 CartNotificationService: Backend response: ${response.data}');
     } catch (e) {
       print(
         '❌ CartNotificationService: Failed to send add to cart notification: $e',
