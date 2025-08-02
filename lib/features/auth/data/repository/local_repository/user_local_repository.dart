@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../../core/error/failure.dart';
 import '../../../domain/entity/user_entity.dart';
 import '../../../domain/repository/user_repository.dart';
+import '../../../domain/use_case/user_login_usecase.dart';
 import '../../data_source/user_data_source.dart';
 
 class UserLocalRepository implements IUserRepository {
@@ -22,13 +23,13 @@ class UserLocalRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, String>> loginUser(
+  Future<Either<Failure, LoginResult>> loginUser(
     String email,
     String password,
   ) async {
     try {
-      final token = await _dataSource.loginUser(email, password);
-      return Right(token);
+      final loginResult = await _dataSource.loginUser(email, password);
+      return Right(loginResult);
     } catch (e) {
       return Left(LocalDatabaseFailure(message: e.toString()));
     }

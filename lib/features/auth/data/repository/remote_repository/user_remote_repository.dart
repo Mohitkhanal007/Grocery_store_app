@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:jerseyhub/core/error/failure.dart';
 import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
 import '../../../domain/repository/user_repository.dart';
+import '../../../domain/use_case/user_login_usecase.dart';
 import '../../data_source/remote_datasource/user_remote_datasource.dart';
 
 class UserRemoteRepository implements IUserRepository {
@@ -22,13 +23,13 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, String>> loginUser(
+  Future<Either<Failure, LoginResult>> loginUser(
     String email,
     String password,
   ) async {
     try {
-      final token = await _remoteDataSource.loginUser(email, password);
-      return Right(token);
+      final loginResult = await _remoteDataSource.loginUser(email, password);
+      return Right(loginResult);
     } catch (e) {
       return Left(RemoteDatabaseFailure(message: e.toString()));
     }

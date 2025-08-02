@@ -33,8 +33,9 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
           errorMessage: 'Invalid credentials. Please try again.',
         ),
       ),
-      (token) async {
-        // You can save token or do side-effects here if needed.
+      (loginResult) async {
+        // LoginResult contains both token and user data
+        // The token and user data are already saved in the use case
         emit(state.copyWith(isLoading: false, isSuccess: true));
       },
     );

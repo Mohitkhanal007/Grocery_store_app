@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:jerseyhub/app/shared_prefs/token_shared_prefs.dart';
 import 'package:jerseyhub/app/use_case/usecase.dart';
 import 'package:jerseyhub/core/error/failure.dart';
+import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
 import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +19,17 @@ class LoginParams extends Equatable {
   List<Object?> get props => [email, password];
 }
 
-class UserLoginUsecase implements UsecaseWithParams<String, LoginParams> {
+class LoginResult extends Equatable {
+  final String token;
+  final UserEntity user;
+
+  const LoginResult({required this.token, required this.user});
+
+  @override
+  List<Object?> get props => [token, user];
+}
+
+class UserLoginUsecase implements UsecaseWithParams<LoginResult, LoginParams> {
   final IUserRepository _userRepository;
   final TokenSharedPrefs _tokenSharedPrefs;
   final SharedPreferences _sharedPreferences;
@@ -32,26 +43,34 @@ class UserLoginUsecase implements UsecaseWithParams<String, LoginParams> {
        _sharedPreferences = sharedPreferences;
 
   @override
-  Future<Either<Failure, String>> call(LoginParams params) async {
+  Future<Either<Failure, LoginResult>> call(LoginParams params) async {
     try {
       final result = await _userRepository.loginUser(
         params.email,
         params.password,
       );
 
-      return result.fold((failure) => Left(failure), (token) async {
+      return result.fold((failure) => Left(failure), (loginResult) async {
         // Save token to shared preferences
-        final saveTokenResult = await _tokenSharedPrefs.saveToken(token);
+        final saveTokenResult = await _tokenSharedPrefs.saveToken(
+          loginResult.token,
+        );
         return saveTokenResult.fold((failure) => Left(failure), (_) async {
           // Set login status to true
           await _sharedPreferences.setBool('isLoggedIn', true);
 
-          // Extract and store user ID from token or response
-          // For now, we'll use a simple approach - store the email as user identifier
-          // In a real app, you'd decode the JWT token to get the user ID
-          await _sharedPreferences.setString('userEmail', params.email);
+          // Store the actual user ID from the response
+          if (loginResult.user.id != null) {
+            await _sharedPreferences.setString('userId', loginResult.user.id!);
+          }
 
-          return Right(token);
+          // Also store email for backward compatibility
+          await _sharedPreferences.setString(
+            'userEmail',
+            loginResult.user.email,
+          );
+
+          return Right(loginResult);
         });
       });
     } catch (e) {

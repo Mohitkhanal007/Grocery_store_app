@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
+import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
 import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
 import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:jerseyhub/core/error/failure.dart';
@@ -25,6 +26,18 @@ void main() {
 
   const tParams = LoginParams(email: tEmail, password: tPassword);
 
+  // Create test LoginResult
+  final tLoginResult = LoginResult(
+    token: tToken,
+    user: const UserEntity(
+      id: 'test_user_id',
+      username: 'Test User',
+      email: tEmail,
+      password: '',
+      address: 'Test Address',
+    ),
+  );
+
   setUp(() {
     mockUserRepository = MockUserRepository();
     mockTokenSharedPrefs = MockTokenSharedPrefs();
@@ -38,11 +51,11 @@ void main() {
     registerFallbackValue(const LoginParams.initial());
   });
 
-  test('returns token on successful login', () async {
+  test('returns LoginResult on successful login', () async {
     // Arrange
     when(
       () => mockUserRepository.loginUser(any(), any()),
-    ).thenAnswer((_) async => const Right(tToken));
+    ).thenAnswer((_) async => Right(tLoginResult));
 
     when(
       () => mockTokenSharedPrefs.saveToken(any()),
@@ -52,14 +65,24 @@ void main() {
       () => mockSharedPreferences.setBool(any(), any()),
     ).thenAnswer((_) async => true);
 
+    when(
+      () => mockSharedPreferences.setString(any(), any()),
+    ).thenAnswer((_) async => true);
+
     // Act
     final result = await userLoginUsecase(tParams);
 
     // Assert
-    expect(result, const Right(tToken));
+    expect(result, Right(tLoginResult));
     verify(() => mockUserRepository.loginUser(tEmail, tPassword)).called(1);
     verify(() => mockTokenSharedPrefs.saveToken(tToken)).called(1);
     verify(() => mockSharedPreferences.setBool('isLoggedIn', true)).called(1);
+    verify(
+      () => mockSharedPreferences.setString('userId', 'test_user_id'),
+    ).called(1);
+    verify(
+      () => mockSharedPreferences.setString('userEmail', tEmail),
+    ).called(1);
     verifyNoMoreInteractions(mockUserRepository);
     verifyNoMoreInteractions(mockTokenSharedPrefs);
     verifyNoMoreInteractions(mockSharedPreferences);
@@ -92,7 +115,7 @@ void main() {
 
     when(
       () => mockUserRepository.loginUser(any(), any()),
-    ).thenAnswer((_) async => const Right(tToken));
+    ).thenAnswer((_) async => Right(tLoginResult));
 
     when(
       () => mockTokenSharedPrefs.saveToken(any()),

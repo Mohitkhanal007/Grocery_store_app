@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
 import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_event.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_state.dart';
@@ -20,6 +21,18 @@ void main() {
 
   const testEmail = 'test@example.com';
   const testPassword = 'password123';
+
+  // Create test LoginResult
+  final testLoginResult = LoginResult(
+    token: 'token123',
+    user: const UserEntity(
+      id: 'test_user_id',
+      username: 'Test User',
+      email: 'test@example.com',
+      password: '',
+      address: 'Test Address',
+    ),
+  );
 
   setUpAll(() {
     registerFallbackValue(FakeLoginParams());
@@ -39,7 +52,7 @@ void main() {
     build: () {
       when(
         () => mockUsecase.call(any()),
-      ).thenAnswer((_) async => const Right('token123'));
+      ).thenAnswer((_) async => Right(testLoginResult));
       return loginBloc;
     },
     act: (bloc) => bloc.add(

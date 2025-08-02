@@ -27,14 +27,10 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     try {
       print('🔍 Fetching profile for user: $userIdentifier');
 
-      // For now, we'll use the email as the user ID since the backend expects a user ID
-      // In a real app, you'd need to either:
-      // 1. Store the actual user ID after login, or
-      // 2. Create a backend endpoint to get user by email
-
+      // Use the actual user ID from the identifier
       String userId = userIdentifier;
 
-      // Try to get profile by user ID (using email as ID for now)
+      // Try to get profile by user ID
       final response = await apiService.dio.get('/auth/$userId');
 
       if (response.statusCode == 200 && response.data != null) {

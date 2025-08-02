@@ -117,11 +117,6 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
           return BlocListener<LoginViewModel, LoginState>(
             listener: (context, state) async {
               if (state.isSuccess) {
-                final userSharedPrefs = serviceLocator<UserSharedPrefs>();
-                await userSharedPrefs.setCurrentUserEmail(
-                  _usernameController.text.trim(),
-                );
-
                 // Set authentication token for API service
                 try {
                   final tokenSharedPrefs = serviceLocator<TokenSharedPrefs>();

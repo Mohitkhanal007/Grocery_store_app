@@ -15,9 +15,14 @@ class UserSharedPrefs {
     await _sharedPreferences.setString('userEmail', email);
   }
 
-  // Get current user ID (for now, we'll use email as identifier)
+  // Get current user ID
   String? getCurrentUserId() {
-    return _sharedPreferences.getString('userEmail');
+    return _sharedPreferences.getString('userId');
+  }
+
+  // Set current user ID
+  Future<void> setCurrentUserId(String userId) async {
+    await _sharedPreferences.setString('userId', userId);
   }
 
   // Clear user data on logout

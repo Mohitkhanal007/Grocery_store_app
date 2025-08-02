@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
+import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
 import '../../../../../app/constant/api_endpoints.dart';
 import '../../../../../app/constant/backend_config.dart';
 import '../../../../../core/network/api_service.dart';
@@ -60,7 +61,7 @@ class UserRemoteDataSource implements IUserDataSource {
   }
 
   @override
-  Future<String> loginUser(String email, String password) async {
+  Future<LoginResult> loginUser(String email, String password) async {
     try {
       final response = await _apiService.dio.post(
         ApiEndpoints.loginUser,
@@ -68,35 +69,57 @@ class UserRemoteDataSource implements IUserDataSource {
       );
 
       if (BackendConfig.successStatusCodes.contains(response.statusCode)) {
-        // Handle softconnect's response format: {token: "...", data: {...}}
         final responseData = response.data;
 
         if (responseData is Map<String, dynamic>) {
-          // First try softconnect format
+          String? token;
+          UserEntity? user;
+
+          // Extract token
           if (responseData.containsKey('token')) {
-            final token = responseData['token'];
-            _apiService.setAuthToken(token);
-            return token;
+            token = responseData['token'];
+          } else {
+            // Fallback to other token field names
+            for (String fieldName in BackendConfig.tokenFieldNames) {
+              if (responseData.containsKey(fieldName)) {
+                token = responseData[fieldName];
+                break;
+              }
+            }
           }
 
-          // Fallback to other token field names
-          for (String fieldName in BackendConfig.tokenFieldNames) {
-            if (responseData.containsKey(fieldName)) {
-              final token = responseData[fieldName];
-              _apiService.setAuthToken(token);
-              return token;
-            }
+          // Extract user data
+          if (responseData.containsKey('data') &&
+              responseData['data'] != null) {
+            final userData = responseData['data'] as Map<String, dynamic>;
+            final userApiModel = UserApiModel.fromJson(userData);
+            user = userApiModel.toEntity();
+          }
+
+          if (token != null && user != null) {
+            _apiService.setAuthToken(token);
+            return LoginResult(token: token, user: user);
           }
         }
 
-        throw Exception('Token not found in response');
+        throw Exception('Token or user data not found in response');
       } else {
         throw Exception('Login failed: ${response.statusMessage}');
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout) {
         print('Backend not available, simulating successful login for testing');
-        return 'simulated_token_${DateTime.now().millisecondsSinceEpoch}';
+        final simulatedUser = UserEntity(
+          id: 'simulated_user_id',
+          username: 'Test User',
+          email: email,
+          password: '',
+          address: 'Test Address',
+        );
+        return LoginResult(
+          token: 'simulated_token_${DateTime.now().millisecondsSinceEpoch}',
+          user: simulatedUser,
+        );
       } else {
         throw Exception('Failed to login user: ${e.message}');
       }

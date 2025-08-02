@@ -2,6 +2,7 @@ import 'package:jerseyhub/core/network/hive_service.dart';
 import 'package:jerseyhub/features/auth/data/data_source/user_data_source.dart';
 import 'package:jerseyhub/features/auth/data/model/user_hive_model.dart';
 import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
+import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
 
 class UserLocalDatasource implements IUserDataSource {
   final HiveService _hiveService;
@@ -10,11 +11,23 @@ class UserLocalDatasource implements IUserDataSource {
     : _hiveService = hiveService;
 
   @override
-  Future<String> loginUser(String email, String password) async {
+  Future<LoginResult> loginUser(String email, String password) async {
     try {
       final userData = await _hiveService.login(email, password);
       if (userData != null) {
-        return "Login successful";
+        // Create a LoginResult with mock data for local storage
+        final user = UserEntity(
+          id: 'local_user_id',
+          username: userData.username,
+          email: userData.email,
+          password: '',
+          address: userData.address,
+        );
+
+        return LoginResult(
+          token: 'local_token_${DateTime.now().millisecondsSinceEpoch}',
+          user: user,
+        );
       } else {
         throw Exception("Invalid email or password");
       }
