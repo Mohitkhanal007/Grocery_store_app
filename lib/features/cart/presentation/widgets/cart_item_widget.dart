@@ -218,6 +218,25 @@ class CartItemWidget extends StatelessWidget {
   }
 
   void _removeItem(BuildContext context) {
+    print(
+      '🗑️ CartItemWidget: Remove button pressed for item ID: ${cartItem.id}',
+    );
+    print(
+      '🗑️ CartItemWidget: Item details - Team: ${cartItem.product.team}, Size: ${cartItem.selectedSize}',
+    );
+
+    // Capture the CartViewModel before showing dialog
+    final cartViewModel = context.read<CartViewModel>();
+
+    // Show a quick snackbar to confirm button press
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Removing ${cartItem.product.team}...'),
+        duration: const Duration(seconds: 1),
+        backgroundColor: Colors.orange,
+      ),
+    );
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -233,10 +252,12 @@ class CartItemWidget extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                context.read<CartViewModel>().add(
-                  RemoveFromCartEvent(itemId: cartItem.id),
+                print(
+                  '🗑️ CartItemWidget: User confirmed removal for item ID: ${cartItem.id}',
                 );
+                Navigator.of(context).pop();
+                // Use the captured CartViewModel instead of context.read
+                cartViewModel.add(RemoveFromCartEvent(itemId: cartItem.id));
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Remove'),

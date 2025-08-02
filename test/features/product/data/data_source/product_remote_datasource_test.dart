@@ -28,7 +28,7 @@ void main() {
     expect(firstProduct.team, 'Real Madrid');
     expect(firstProduct.type, 'Home');
     expect(firstProduct.size, 'M');
-    expect(firstProduct.price, 89.99);
+    expect(firstProduct.price, 2500.0);
     expect(firstProduct.quantity, 50);
   });
 

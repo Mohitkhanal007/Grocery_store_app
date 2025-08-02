@@ -25,7 +25,7 @@ void main() {
         team: 'Real Madrid',
         type: 'Home',
         size: 'M',
-        price: 89.99,
+        price: 2500.0,
         quantity: 50,
         categoryId: '1',
         productImage: 'assets/images/Liverpool.png',

@@ -5,6 +5,7 @@ import 'package:jerseyhub/features/cart/presentation/widgets/cart_item_widget.da
 import 'package:jerseyhub/features/order/presentation/view/checkout_view.dart';
 import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
+import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
 
 class CartView extends StatefulWidget {
   const CartView({super.key});
@@ -22,42 +23,94 @@ class _CartViewState extends State<CartView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shopping Cart'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        actions: [
-          BlocBuilder<CartViewModel, CartState>(
-            builder: (context, state) {
-              if (state is CartLoaded && state.cart.isNotEmpty) {
-                return IconButton(
-                  onPressed: () => _showClearCartDialog(context),
-                  icon: const Icon(Icons.delete_sweep),
-                  tooltip: 'Clear Cart',
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
-      ),
-      body: BlocBuilder<CartViewModel, CartState>(
-        builder: (context, state) {
-          if (state is CartLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is CartLoaded) {
-            if (state.cart.isEmpty) {
-              return _buildEmptyCart();
-            }
-            return _buildCartContent(state.cart);
-          } else if (state is CartError) {
-            return _buildErrorState(state.message);
-          }
-          return const Center(child: Text('No cart data'));
-        },
+    return BlocListener<CartViewModel, CartState>(
+      listener: (context, state) {
+        if (state is CartError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${state.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else if (state is CartLoaded) {
+          print(
+            '🛒 CartView: Cart updated with ${state.cart.items.length} items',
+          );
+          state.cart.items.forEach((item) {
+            print(
+              '🛒 CartView: Item - ${item.product.team} (${item.selectedSize}) - रू${item.product.price}',
+            );
+          });
+        }
+      },
+      child: Scaffold(
+        body: Column(
+          children: [
+            // Custom header with clear cart button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: Theme.of(context).primaryColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Shopping Cart',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  BlocBuilder<CartViewModel, CartState>(
+                    builder: (context, state) {
+                      if (state is CartLoaded && state.cart.isNotEmpty) {
+                        return Row(
+                          children: [
+                            IconButton(
+                              onPressed: () => _showClearCartDialog(context),
+                              icon: const Icon(
+                                Icons.delete_sweep,
+                                color: Colors.white,
+                              ),
+                              tooltip: 'Clear Cart',
+                            ),
+                            IconButton(
+                              onPressed: () => _showRefreshCartDialog(context),
+                              icon: const Icon(
+                                Icons.refresh,
+                                color: Colors.white,
+                              ),
+                              tooltip: 'Refresh Cart',
+                            ),
+                          ],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            // Cart content
+            Expanded(
+              child: BlocBuilder<CartViewModel, CartState>(
+                builder: (context, state) {
+                  if (state is CartLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is CartLoaded) {
+                    if (state.cart.isEmpty) {
+                      return _buildEmptyCart();
+                    }
+                    return _buildCartContent(state.cart);
+                  } else if (state is CartError) {
+                    return _buildErrorState(state.message);
+                  }
+                  return const Center(child: Text('No cart data'));
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -110,7 +163,7 @@ class _CartViewState extends State<CartView> {
     );
   }
 
-  Widget _buildCartContent(cart) {
+  Widget _buildCartContent(CartEntity cart) {
     return Column(
       children: [
         Expanded(
@@ -128,7 +181,7 @@ class _CartViewState extends State<CartView> {
     );
   }
 
-  Widget _buildCartSummary(cart) {
+  Widget _buildCartSummary(CartEntity cart) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -243,6 +296,42 @@ class _CartViewState extends State<CartView> {
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Clear'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showRefreshCartDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Refresh Cart'),
+          content: const Text(
+            'This will clear your cart and reload with updated prices. Continue?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<CartViewModel>().add(ClearCartEvent());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Cart refreshed! Add items again to see updated prices.',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.blue),
+              child: const Text('Refresh'),
             ),
           ],
         );

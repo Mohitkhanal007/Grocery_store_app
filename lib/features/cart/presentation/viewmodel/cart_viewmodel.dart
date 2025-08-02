@@ -124,12 +124,23 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     RemoveFromCartEvent event,
     Emitter<CartState> emit,
   ) async {
+    print(
+      '🔄 CartViewModel: Processing RemoveFromCartEvent for item ID: ${event.itemId}',
+    );
     final result = await _removeFromCartUseCase(
       RemoveFromCartParams(itemId: event.itemId),
     );
     result.fold(
-      (failure) => emit(CartError(message: failure.message)),
-      (cart) => emit(CartLoaded(cart: cart)),
+      (failure) {
+        print('❌ CartViewModel: Remove from cart failed: ${failure.message}');
+        emit(CartError(message: failure.message));
+      },
+      (cart) {
+        print(
+          '✅ CartViewModel: Remove from cart successful. Cart now has ${cart.items.length} items',
+        );
+        emit(CartLoaded(cart: cart));
+      },
     );
   }
 

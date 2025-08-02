@@ -67,8 +67,22 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
 
   @override
   Future<CartEntity> removeFromCart(String itemId) async {
+    print('🛒 CartLocalDataSource: Attempting to remove item with ID: $itemId');
     final cart = await getCart();
+    print(
+      '🛒 CartLocalDataSource: Current cart has ${cart.items.length} items',
+    );
+    print(
+      '🛒 CartLocalDataSource: Current item IDs: ${cart.items.map((item) => item.id).toList()}',
+    );
+
     final updatedItems = cart.items.where((item) => item.id != itemId).toList();
+    print(
+      '🛒 CartLocalDataSource: After filtering, cart has ${updatedItems.length} items',
+    );
+    print(
+      '🛒 CartLocalDataSource: Removed items: ${cart.items.where((item) => item.id == itemId).length}',
+    );
 
     final updatedCart = cart.copyWith(
       items: updatedItems,
@@ -76,6 +90,7 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
     );
 
     await _saveCart(updatedCart);
+    print('🛒 CartLocalDataSource: Cart saved successfully');
     return updatedCart;
   }
 

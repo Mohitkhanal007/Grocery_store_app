@@ -20,34 +20,50 @@ class _OrderListViewState extends State<OrderListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Orders'),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: BlocBuilder<OrderViewModel, OrderState>(
-        builder: (context, state) {
-          if (state is OrderLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is OrdersLoaded) {
-            if (state.orders.isEmpty) {
-              return _buildEmptyOrders();
-            }
-            return _buildOrdersList(state.orders);
-          } else if (state is OrderError) {
-            return _buildErrorState(state.message);
-          } else if (state is OrderDeleted) {
-            // Reload orders after deletion
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.read<OrderViewModel>().add(LoadAllOrdersEvent());
-            });
-            return const Center(child: CircularProgressIndicator());
-          }
-          return const Center(child: Text('No orders found'));
-        },
+      body: Column(
+        children: [
+          // Custom header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Theme.of(context).primaryColor,
+            child: const Row(
+              children: [
+                Text(
+                  'My Orders',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Orders content
+          Expanded(
+            child: BlocBuilder<OrderViewModel, OrderState>(
+              builder: (context, state) {
+                if (state is OrderLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is OrdersLoaded) {
+                  if (state.orders.isEmpty) {
+                    return _buildEmptyOrders();
+                  }
+                  return _buildOrdersList(state.orders);
+                } else if (state is OrderError) {
+                  return _buildErrorState(state.message);
+                } else if (state is OrderDeleted) {
+                  // Reload orders after deletion
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.read<OrderViewModel>().add(LoadAllOrdersEvent());
+                  });
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return const Center(child: Text('No orders found'));
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -57,11 +73,7 @@ class _OrderListViewState extends State<OrderListView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_bag_outlined,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.shopping_bag_outlined, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'No Orders Yet',
@@ -74,10 +86,7 @@ class _OrderListViewState extends State<OrderListView> {
           const SizedBox(height: 8),
           Text(
             'Your order history will appear here',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[500],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[500]),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -120,11 +129,7 @@ class _OrderListViewState extends State<OrderListView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: Colors.red[300],
-          ),
+          Icon(Icons.error_outline, size: 80, color: Colors.red[300]),
           const SizedBox(height: 16),
           Text(
             'Error Loading Orders',
@@ -137,10 +142,7 @@ class _OrderListViewState extends State<OrderListView> {
           const SizedBox(height: 8),
           Text(
             message,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -159,4 +161,4 @@ class _OrderListViewState extends State<OrderListView> {
       ),
     );
   }
-} 
+}

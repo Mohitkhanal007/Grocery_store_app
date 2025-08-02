@@ -20,13 +20,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  late final CartViewModel _cartViewModel;
 
-  final List<String> _titles = ['', 'Cart', 'Orders', 'Profile'];
+  final List<String> _titles = ['', '', '', 'Profile'];
+
+  @override
+  void initState() {
+    super.initState();
+    _cartViewModel = serviceLocator<CartViewModel>();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+
+    // Refresh cart when cart tab is selected
+    if (index == 1) {
+      _cartViewModel.add(LoadCartEvent());
+    }
   }
 
   Widget _buildProfilePage() {
@@ -46,10 +58,7 @@ class _HomePageState extends State<HomePage> {
         create: (context) => serviceLocator<ProductViewModel>(),
         child: const ProductListView(),
       ),
-      BlocProvider(
-        create: (context) => serviceLocator<CartViewModel>(),
-        child: const CartView(),
-      ),
+      BlocProvider.value(value: _cartViewModel, child: const CartView()),
       BlocProvider(
         create: (context) => serviceLocator<OrderViewModel>(),
         child: const OrderListView(),
