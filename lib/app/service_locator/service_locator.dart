@@ -61,6 +61,12 @@ import '../../features/profile/domain/use_case/get_profile_usecase.dart';
 import '../../features/profile/domain/use_case/update_profile_usecase.dart';
 import '../../features/profile/domain/use_case/upload_profile_image_usecase.dart';
 import '../../features/profile/presentation/viewmodel/profile_viewmodel.dart';
+import '../../features/notification/data/data_source/notification_remote_datasource.dart';
+import '../../features/notification/data/repository/notification_repository_impl.dart';
+import '../../features/notification/domain/repository/notification_repository.dart';
+import '../../features/notification/domain/use_case/get_notifications_usecase.dart';
+import '../../features/notification/domain/use_case/mark_notification_read_usecase.dart';
+import '../../features/notification/presentation/bloc/notification_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -76,6 +82,7 @@ Future<void> initDependencies() async {
   await _initOrderModule(); // Make sure to call this!
   await _initPaymentModule();
   await _initProfileModule();
+  await _initNotificationModule();
 }
 
 Future<void> _initProfileModule() async {
@@ -403,6 +410,38 @@ Future<void> _initPaymentModule() async {
   serviceLocator.registerFactory<PaymentViewModel>(
     () => PaymentViewModel(
       createPaymentUseCase: serviceLocator<CreatePaymentUseCase>(),
+    ),
+  );
+}
+
+Future<void> _initNotificationModule() async {
+  // Data layer
+  serviceLocator.registerLazySingleton<INotificationRemoteDataSource>(
+    () => NotificationRemoteDataSource(serviceLocator<Dio>()),
+  );
+
+  serviceLocator.registerLazySingleton<INotificationRepository>(
+    () => NotificationRepositoryImpl(
+      serviceLocator<INotificationRemoteDataSource>(),
+    ),
+  );
+
+  // Domain layer
+  serviceLocator.registerLazySingleton<GetNotificationsUseCase>(
+    () => GetNotificationsUseCase(serviceLocator<INotificationRepository>()),
+  );
+
+  serviceLocator.registerLazySingleton<MarkNotificationReadUseCase>(
+    () =>
+        MarkNotificationReadUseCase(serviceLocator<INotificationRepository>()),
+  );
+
+  // Presentation layer
+  serviceLocator.registerFactory<NotificationBloc>(
+    () => NotificationBloc(
+      repository: serviceLocator<INotificationRepository>(),
+      getNotificationsUseCase: serviceLocator<GetNotificationsUseCase>(),
+      markAsReadUseCase: serviceLocator<MarkNotificationReadUseCase>(),
     ),
   );
 }

@@ -10,6 +10,9 @@ import 'package:jerseyhub/features/product/presentation/view/product_list_view.d
 import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
 import 'package:jerseyhub/features/profile/presentation/view/profile_view.dart';
 import 'package:jerseyhub/features/profile/presentation/viewmodel/profile_viewmodel.dart';
+import 'package:jerseyhub/features/notification/presentation/view/notification_list_view.dart';
+import 'package:jerseyhub/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:jerseyhub/features/notification/presentation/widgets/notification_badge.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   late final CartViewModel _cartViewModel;
 
-  final List<String> _titles = ['', '', '', 'Profile'];
+  final List<String> _titles = ['', '', '', '', 'Profile'];
 
   @override
   void initState() {
@@ -38,6 +41,15 @@ class _HomePageState extends State<HomePage> {
     // Refresh cart when cart tab is selected
     if (index == 1) {
       _cartViewModel.add(LoadCartEvent());
+    }
+
+    // Connect to notification socket when notifications tab is selected
+    if (index == 3) {
+      final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+      final userId = userSharedPrefs.getCurrentUserId() ?? 'unknown_user';
+      final notificationBloc = serviceLocator<NotificationBloc>();
+      notificationBloc.add(ConnectToSocket(userId));
+      notificationBloc.add(LoadNotifications(userId));
     }
   }
 
@@ -63,6 +75,10 @@ class _HomePageState extends State<HomePage> {
         create: (context) => serviceLocator<OrderViewModel>(),
         child: const OrderListView(),
       ),
+      BlocProvider(
+        create: (context) => serviceLocator<NotificationBloc>(),
+        child: const NotificationListView(),
+      ),
       _buildProfilePage(),
     ];
 
@@ -78,17 +94,43 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Cart',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag),
             label: 'Orders',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: Stack(
+              children: [
+                const Icon(Icons.notifications),
+                BlocBuilder<NotificationBloc, NotificationState>(
+                  builder: (context, state) {
+                    if (state is NotificationsLoaded && state.unreadCount > 0) {
+                      return Positioned(
+                        right: 0,
+                        top: 0,
+                        child: NotificationBadge(
+                          count: state.unreadCount,
+                          size: 16,
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
+            ),
+            label: 'Notifications',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );
