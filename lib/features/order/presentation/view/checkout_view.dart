@@ -284,6 +284,7 @@ class _CheckoutViewState extends State<CheckoutView> {
               customerName: _nameController.text,
               customerEmail: _emailController.text,
               onPaymentSuccess: () {
+                // This will be called when payment is successful
                 _placeOrder(orderId);
               },
               onPaymentFailure: () {
@@ -292,7 +293,13 @@ class _CheckoutViewState extends State<CheckoutView> {
             ),
           ),
         ),
-      );
+      ).then((result) {
+        // When payment screen is popped, check if payment was successful
+        // For eSewa, we assume success if the screen is popped normally
+        if (result == true) {
+          _placeOrder(orderId);
+        }
+      });
     }
   }
 
@@ -328,7 +335,7 @@ class _CheckoutViewState extends State<CheckoutView> {
             children: [
               Text('Order #${order.id.substring(0, 8)}'),
               const SizedBox(height: 8),
-              Text('Total: \$${order.totalAmount.toStringAsFixed(2)}'),
+              Text('Total: रू${order.totalAmount.toStringAsFixed(2)}'),
               const SizedBox(height: 16),
               const Text(
                 'Thank you for your order! You will receive a confirmation email shortly.',

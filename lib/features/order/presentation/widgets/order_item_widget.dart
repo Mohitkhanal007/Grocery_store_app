@@ -37,31 +37,49 @@ class OrderItemWidget extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: item.product.productImage.isNotEmpty
-            ? Image.network(
-                item.product.productImage,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: Colors.grey[300],
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                            : null,
-                        strokeWidth: 2,
-                      ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildPlaceholderImage();
-                },
-              )
-            : _buildPlaceholderImage(),
+        child: _getProductImage(),
       ),
+    );
+  }
+
+  Widget _getProductImage() {
+    if (item.product.productImage.isEmpty) {
+      return _buildPlaceholderImage();
+    }
+
+    // Handle asset images
+    if (item.product.productImage.startsWith('assets/')) {
+      return Image.asset(
+        item.product.productImage,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholderImage();
+        },
+      );
+    }
+
+    // Handle network images
+    return Image.network(
+      item.product.productImage,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          color: Colors.grey[300],
+          child: Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                  : null,
+              strokeWidth: 2,
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return _buildPlaceholderImage();
+      },
     );
   }
 

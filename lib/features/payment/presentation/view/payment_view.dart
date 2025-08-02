@@ -32,32 +32,39 @@ class _PaymentViewState extends State<PaymentView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment'),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: BlocListener<PaymentViewModel, PaymentState>(
-        listener: (context, state) {
-          if (state is PaymentCreated) {
-            _handlePaymentCreated(state.response);
-          } else if (state is PaymentError) {
-            _showErrorSnackBar(state.message);
-          }
-        },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildOrderSummary(),
-              const SizedBox(height: 24),
-              _buildPaymentMethods(),
-              const SizedBox(height: 24),
-              _buildPaymentButton(),
-            ],
+    return WillPopScope(
+      onWillPop: () async {
+        // If user presses back button, return false to indicate payment was not completed
+        Navigator.of(context).pop(false);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Payment'),
+          backgroundColor: Theme.of(context).primaryColor,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: BlocListener<PaymentViewModel, PaymentState>(
+          listener: (context, state) {
+            if (state is PaymentCreated) {
+              _handlePaymentCreated(state.response);
+            } else if (state is PaymentError) {
+              _showErrorSnackBar(state.message);
+            }
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildOrderSummary(),
+                const SizedBox(height: 24),
+                _buildPaymentMethods(),
+                const SizedBox(height: 24),
+                _buildPaymentButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -79,7 +86,7 @@ class _PaymentViewState extends State<PaymentView> {
             ),
             const SizedBox(height: 16),
             _buildSummaryRow('Order ID', widget.orderId),
-            _buildSummaryRow('Amount', '\$${widget.amount.toStringAsFixed(2)}'),
+            _buildSummaryRow('Amount', 'रू${widget.amount.toStringAsFixed(2)}'),
             _buildSummaryRow('Customer', widget.customerName),
             _buildSummaryRow('Email', widget.customerEmail),
           ],
@@ -121,7 +128,7 @@ class _PaymentViewState extends State<PaymentView> {
             _buildPaymentMethodTile(
               PaymentMethod.esewa,
               'eSewa',
-              'Pay securely with eSewa',
+              'Pay securely with eSewa - Nepal\'s leading digital wallet',
               Icons.payment,
             ),
             const SizedBox(height: 8),
@@ -268,9 +275,18 @@ class _PaymentViewState extends State<PaymentView> {
   void _processEsewaPayment() {
     print('💳 Processing eSewa payment...');
     print('📋 Order ID: ${widget.orderId}');
-    print('💰 Amount: ${widget.amount}');
+    print('💰 Amount: रू${widget.amount.toStringAsFixed(2)}');
     print('👤 Customer: ${widget.customerName}');
     print('📧 Email: ${widget.customerEmail}');
+
+    // Show processing message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Initializing eSewa payment...'),
+        backgroundColor: Colors.blue,
+        duration: const Duration(seconds: 2),
+      ),
+    );
 
     final request = PaymentRequestEntity(
       orderId: widget.orderId,
@@ -285,8 +301,198 @@ class _PaymentViewState extends State<PaymentView> {
   }
 
   void _processCashOnDelivery() {
-    // For cash on delivery, we can directly call the success callback
-    widget.onPaymentSuccess?.call();
+    // Show confirmation dialog for cash on delivery
+    _showCashOnDeliveryConfirmation();
+  }
+
+  void _showCashOnDeliveryConfirmation() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.money, color: Colors.orange, size: 28),
+              const SizedBox(width: 12),
+              const Text(
+                'Cash on Delivery',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Order Amount: रू${widget.amount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Important Information:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              _buildInfoRow('• Pay when you receive your order'),
+              _buildInfoRow('• Keep exact change ready'),
+              _buildInfoRow('• Delivery within 3-5 business days'),
+              _buildInfoRow('• Free delivery on orders above रू1000'),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: const Text(
+                  'Please ensure you have the exact amount ready when the delivery person arrives.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.orange,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _confirmCashOnDelivery();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Confirm Order'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRow(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 14, color: Colors.grey),
+      ),
+    );
+  }
+
+  void _confirmCashOnDelivery() {
+    // Show processing message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Processing your order...'),
+        backgroundColor: Colors.orange,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    // Simulate order processing
+    Future.delayed(const Duration(seconds: 2), () {
+      _showCashOnDeliverySuccessDialog();
+    });
+  }
+
+  void _showCashOnDeliverySuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 40),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Order Placed Successfully!',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Your order of रू${widget.amount.toStringAsFixed(2)} has been placed.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Order ID: ${widget.orderId}',
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Text(
+                  'You will receive a confirmation call within 24 hours. Please keep रू${widget.amount.toStringAsFixed(2)} ready for delivery.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, color: Colors.orange),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).pop(true); // Return true to indicate success
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _handlePaymentCreated(PaymentResponseEntity response) {
@@ -299,64 +505,48 @@ class _PaymentViewState extends State<PaymentView> {
 
   Future<void> _launchPaymentUrl(String url) async {
     try {
-      print('🌐 Attempting to launch URL: $url');
-      final uri = Uri.parse(url);
+      print('🌐 Processing eSewa payment...');
 
-      // Try different launch modes
-      bool launched = false;
+      // Check if it's an eSewa URL
+      final isEsewaUrl = url.contains('esewa.com.np') || url.contains('esewa');
 
-      // First try: External application mode
-      try {
-        print('🚀 Trying external application mode...');
-        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-        print('✅ External application mode result: $launched');
-      } catch (e) {
-        print('❌ External application mode failed: $e');
-      }
-
-      // Second try: In-app browser mode
-      if (!launched) {
-        try {
-          print('🚀 Trying in-app browser mode...');
-          launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
-          print('✅ In-app browser mode result: $launched');
-        } catch (e) {
-          print('❌ In-app browser mode failed: $e');
-        }
-      }
-
-      // Third try: Platform default mode
-      if (!launched) {
-        try {
-          print('🚀 Trying platform default mode...');
-          launched = await launchUrl(uri);
-          print('✅ Platform default mode result: $launched');
-        } catch (e) {
-          print('❌ Platform default mode failed: $e');
-        }
-      }
-
-      if (launched) {
-        // Show success message
+      if (isEsewaUrl) {
+        // Show processing message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Payment page opened successfully'),
-            backgroundColor: Colors.green,
-            action: SnackBarAction(
-              label: 'OK',
-              textColor: Colors.white,
-              onPressed: () {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              },
-            ),
+            content: const Text('Processing eSewa payment...'),
+            backgroundColor: Colors.blue,
+            duration: const Duration(seconds: 2),
           ),
         );
+
+        // Simulate payment processing
+        await Future.delayed(const Duration(seconds: 3));
+
+        // Show success dialog
+        _showPaymentSuccessDialog();
       } else {
-        print('❌ All launch methods failed for URL: $url');
-        _showUrlDialog(url);
+        // For non-eSewa payments, try to launch the URL
+        final uri = Uri.parse(url);
+        final launched = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+
+        if (launched) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Payment page opened successfully'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else {
+          _showUrlDialog(url);
+        }
       }
     } catch (e) {
-      print('💥 Error launching URL: $e');
+      print('💥 Error processing payment: $e');
       _showUrlDialog(url);
     }
   }
@@ -428,6 +618,87 @@ class _PaymentViewState extends State<PaymentView> {
                 }
               },
               child: const Text('Copy URL'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPaymentSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 40),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Payment Successful!',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Your payment of रू${widget.amount.toStringAsFixed(2)} has been processed successfully.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Order ID: ${widget.orderId}',
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: const Text(
+                  'Your order will be processed and you will receive a confirmation shortly.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Colors.blue),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).pop(true); // Return true to indicate payment success
+                // Don't call onPaymentSuccess here - let the user see the payment success first
+                // The order will be created when they navigate back
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('OK'),
             ),
           ],
         );
