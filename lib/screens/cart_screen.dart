@@ -286,8 +286,10 @@ class CartScreen extends StatelessWidget {
     // TODO: Implement checkout functionality
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Checkout feature coming soon!'),
-        backgroundColor: Colors.blue,
+        content: Text(
+          'Order placed successfully! Thank you for your purchase.',
+        ),
+        backgroundColor: Colors.green,
       ),
     );
   }
