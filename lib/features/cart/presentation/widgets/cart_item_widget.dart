@@ -88,7 +88,7 @@ class CartItemWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '\$${cartItem.product.price.toStringAsFixed(2)}',
+                    'रू${cartItem.product.price.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

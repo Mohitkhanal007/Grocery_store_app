@@ -5,18 +5,13 @@ import 'package:jerseyhub/features/order/presentation/view/order_detail_view.dar
 class OrderCardWidget extends StatelessWidget {
   final OrderEntity order;
 
-  const OrderCardWidget({
-    super.key,
-    required this.order,
-  });
+  const OrderCardWidget({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -48,36 +43,22 @@ class OrderCardWidget extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
+                  Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 8),
                   Text(
                     _formatDate(order.createdAt),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(
-                    Icons.shopping_bag,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
+                  Icon(Icons.shopping_bag, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 8),
                   Text(
                     '${order.itemCount} items',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -94,7 +75,7 @@ class OrderCardWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '\$${order.totalAmount.toStringAsFixed(2)}',
+                    'रू${order.totalAmount.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -168,4 +149,4 @@ class OrderCardWidget extends StatelessWidget {
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-} 
+}

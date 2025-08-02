@@ -41,6 +41,21 @@ class OrderItemWidget extends StatelessWidget {
             ? Image.network(
                 item.product.productImage,
                 fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    color: Colors.grey[300],
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                            : null,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  );
+                },
                 errorBuilder: (context, error, stackTrace) {
                   return _buildPlaceholderImage();
                 },
@@ -53,7 +68,22 @@ class OrderItemWidget extends StatelessWidget {
   Widget _buildPlaceholderImage() {
     return Container(
       color: Colors.grey[300],
-      child: Icon(Icons.sports_soccer, color: Colors.grey[600], size: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.sports_soccer, color: Colors.grey[600], size: 20),
+          const SizedBox(height: 2),
+          Text(
+            item.product.team.split(' ').first,
+            style: TextStyle(
+              fontSize: 8,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -106,12 +136,12 @@ class OrderItemWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          '\$${item.product.price.toStringAsFixed(2)}',
+          'रू${item.product.price.toStringAsFixed(2)}',
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
-          'Total: \$${item.totalPrice.toStringAsFixed(2)}',
+          'Total: रू${item.totalPrice.toStringAsFixed(2)}',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,

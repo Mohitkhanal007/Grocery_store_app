@@ -33,8 +33,32 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   void initState() {
     super.initState();
+    // Load saved profile image URL from SharedPreferences
+    _loadSavedProfileImage();
     // Load profile data when view initializes
     context.read<ProfileViewModel>().add(GetProfileEvent(widget.userId));
+  }
+
+  void _loadSavedProfileImage() {
+    final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+    final savedImageUrl = userSharedPrefs.getProfileImageUrl();
+    if (savedImageUrl != null && savedImageUrl.isNotEmpty) {
+      setState(() {
+        _profileImageUrl = savedImageUrl;
+      });
+      print('📸 Loaded saved profile image URL: $savedImageUrl');
+
+      // Check if it's a local file path
+      if (savedImageUrl.contains('\\') ||
+          savedImageUrl.startsWith('C:') ||
+          savedImageUrl.startsWith('D:') ||
+          savedImageUrl.startsWith('E:') ||
+          savedImageUrl.startsWith('/')) {
+        print('📸 This is a LOCAL file path - should be preserved!');
+      }
+    } else {
+      print('📸 No saved image URL found in SharedPreferences');
+    }
   }
 
   @override
@@ -49,18 +73,6 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => _showEditDialog(),
-          ),
-        ],
-      ),
       body: BlocListener<ProfileViewModel, ProfileState>(
         listener: (context, state) {
           if (state is ProfileLoaded) {
@@ -73,9 +85,17 @@ class _ProfileViewState extends State<ProfileView> {
               GetProfileEvent(widget.userId),
             );
           } else if (state is ProfileImageUploaded) {
-            setState(() {
-              _profileImageUrl = state.imageUrl;
-            });
+            // Save the image URL to SharedPreferences for persistence
+            final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+            userSharedPrefs.setProfileImageUrl(state.imageUrl);
+
+            // Don't update the image URL if it's a simulated response
+            // Keep the local file path for immediate display
+            if (!state.imageUrl.contains('simulated_profile_image_')) {
+              setState(() {
+                _profileImageUrl = state.imageUrl;
+              });
+            }
             _showSuccessSnackBar('Profile image uploaded successfully');
 
             // Update the profile with the new image URL
@@ -295,7 +315,35 @@ class _ProfileViewState extends State<ProfileView> {
       _emailController.text = profile.email;
       _addressController.text = profile.address;
       _phoneController.text = profile.phoneNumber ?? '';
-      _profileImageUrl = profile.profileImage;
+
+      // NEVER let backend overwrite local image paths - this is the key fix
+      final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+      final savedImageUrl = userSharedPrefs.getProfileImageUrl();
+
+      // If we have ANY saved image URL, use it and ignore backend completely
+      if (savedImageUrl != null && savedImageUrl.isNotEmpty) {
+        _profileImageUrl = savedImageUrl;
+        print('📸 USING SAVED IMAGE URL (ignoring backend): $savedImageUrl');
+
+        // Check if it's a local file path
+        if (savedImageUrl.contains('\\') ||
+            savedImageUrl.startsWith('C:') ||
+            savedImageUrl.startsWith('D:') ||
+            savedImageUrl.startsWith('E:') ||
+            savedImageUrl.startsWith('/')) {
+          print('📸 This is a LOCAL file path - will show actual image!');
+        }
+        return; // Exit early - don't let backend overwrite anything
+      }
+
+      // Only use backend if we have no saved URL at all
+      if (profile.profileImage != null && profile.profileImage!.isNotEmpty) {
+        _profileImageUrl = profile.profileImage;
+        userSharedPrefs.setProfileImageUrl(profile.profileImage!);
+        print(
+          '📸 Using image from backend (no saved URL): ${profile.profileImage}',
+        );
+      }
     });
   }
 
@@ -331,10 +379,11 @@ class _ProfileViewState extends State<ProfileView> {
       }
     }
 
-    // For simulated images, create a placeholder image
+    // For simulated images, return null to show checkmark
     if (_profileImageUrl!.contains('simulated_profile_image_')) {
-      print('📸 Using placeholder for simulated image: $_profileImageUrl');
-      // Return null to show the default person icon for simulated images
+      print(
+        '📸 Simulated image detected, showing checkmark: $_profileImageUrl',
+      );
       return null;
     }
 
@@ -357,17 +406,17 @@ class _ProfileViewState extends State<ProfileView> {
       return null; // Let the backgroundImage handle it
     }
 
-    // For simulated images, show a checkmark
-    if (_profileImageUrl!.contains('simulated_profile_image_')) {
-      return const Icon(Icons.check_circle, size: 60, color: Colors.green);
-    }
-
     // For local files that couldn't be loaded, show an error icon
     if (_profileImageUrl!.contains('\\') ||
         _profileImageUrl!.startsWith('C:') ||
         _profileImageUrl!.startsWith('D:') ||
         _profileImageUrl!.startsWith('E:')) {
       return const Icon(Icons.error, size: 60, color: Colors.orange);
+    }
+
+    // For simulated images, show a checkmark (only if no local file path)
+    if (_profileImageUrl!.contains('simulated_profile_image_')) {
+      return const Icon(Icons.check_circle, size: 60, color: Colors.green);
     }
 
     // Default fallback
@@ -379,10 +428,14 @@ class _ProfileViewState extends State<ProfileView> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
+      print('📸 Selected image path: ${image.path}');
+
       // Immediately show the selected image
       setState(() {
         _profileImageUrl = image.path;
       });
+
+      print('📸 Set profile image URL to: $_profileImageUrl');
 
       // Then upload it
       context.read<ProfileViewModel>().add(UploadProfileImageEvent(image.path));

@@ -95,7 +95,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
               : 'test@example.com',
           address: 'Test Address',
           phoneNumber: '+1234567890',
-          profileImage: null,
+          profileImage:
+              'simulated_profile_image_${DateTime.now().millisecondsSinceEpoch}.jpg',
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );

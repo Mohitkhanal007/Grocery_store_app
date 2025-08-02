@@ -88,13 +88,13 @@ class _CheckoutViewState extends State<CheckoutView> {
             const SizedBox(height: 16),
             _buildSummaryRow(
               'Subtotal',
-              '\$${widget.cart.totalPrice.toStringAsFixed(2)}',
+              'रू${widget.cart.totalPrice.toStringAsFixed(2)}',
             ),
-            _buildSummaryRow('Shipping', '\$5.99'),
+            _buildSummaryRow('Shipping', 'रू5.99'),
             const Divider(),
             _buildSummaryRow(
               'Total',
-              '\$${(widget.cart.totalPrice + 5.99).toStringAsFixed(2)}',
+              'रू${(widget.cart.totalPrice + 5.99).toStringAsFixed(2)}',
               isTotal: true,
             ),
           ],

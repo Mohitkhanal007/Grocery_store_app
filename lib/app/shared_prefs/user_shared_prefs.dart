@@ -29,6 +29,17 @@ class UserSharedPrefs {
   Future<void> clearUserData() async {
     await _sharedPreferences.remove('userEmail');
     await _sharedPreferences.setBool('isLoggedIn', false);
+    // Note: We don't clear userId or profileImage to persist user data
+  }
+
+  // Get profile image URL
+  String? getProfileImageUrl() {
+    return _sharedPreferences.getString('profileImageUrl');
+  }
+
+  // Set profile image URL
+  Future<void> setProfileImageUrl(String imageUrl) async {
+    await _sharedPreferences.setString('profileImageUrl', imageUrl);
   }
 
   // Check if user is logged in

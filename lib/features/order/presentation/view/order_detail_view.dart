@@ -6,10 +6,7 @@ import 'package:jerseyhub/features/order/presentation/widgets/order_item_widget.
 class OrderDetailView extends StatefulWidget {
   final String orderId;
 
-  const OrderDetailView({
-    super.key,
-    required this.orderId,
-  });
+  const OrderDetailView({super.key, required this.orderId});
 
   @override
   State<OrderDetailView> createState() => _OrderDetailViewState();
@@ -19,7 +16,9 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   @override
   void initState() {
     super.initState();
-    context.read<OrderViewModel>().add(LoadOrderByIdEvent(orderId: widget.orderId));
+    context.read<OrderViewModel>().add(
+      LoadOrderByIdEvent(orderId: widget.orderId),
+    );
   }
 
   @override
@@ -34,9 +33,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
       body: BlocBuilder<OrderViewModel, OrderState>(
         builder: (context, state) {
           if (state is OrderLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           } else if (state is OrderLoaded) {
             return _buildOrderDetail(state.order);
           } else if (state is OrderError) {
@@ -71,9 +68,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   Widget _buildOrderHeader(dynamic order) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -95,18 +90,11 @@ class _OrderDetailViewState extends State<OrderDetailView> {
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 16,
-                  color: Colors.grey[600],
-                ),
+                Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
                 const SizedBox(width: 8),
                 Text(
                   'Ordered on ${_formatDate(order.createdAt)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -119,9 +107,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   Widget _buildOrderItems(dynamic order) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -129,13 +115,12 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           children: [
             const Text(
               'Order Items',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            ...order.items.map<Widget>((item) => OrderItemWidget(item: item)).toList(),
+            ...order.items
+                .map<Widget>((item) => OrderItemWidget(item: item))
+                .toList(),
           ],
         ),
       ),
@@ -145,9 +130,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   Widget _buildOrderSummary(dynamic order) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -155,18 +138,21 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           children: [
             const Text(
               'Order Summary',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildSummaryRow('Subtotal', '\$${order.subtotal.toStringAsFixed(2)}'),
-            _buildSummaryRow('Shipping', '\$${order.shippingCost.toStringAsFixed(2)}'),
+            _buildSummaryRow(
+              'Subtotal',
+              'रू${order.subtotal.toStringAsFixed(2)}',
+            ),
+            _buildSummaryRow(
+              'Shipping',
+              'रू${order.shippingCost.toStringAsFixed(2)}',
+            ),
             const Divider(),
             _buildSummaryRow(
               'Total',
-              '\$${order.totalAmount.toStringAsFixed(2)}',
+              'रू${order.totalAmount.toStringAsFixed(2)}',
               isTotal: true,
             ),
           ],
@@ -178,9 +164,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   Widget _buildCustomerInfo(dynamic order) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -188,10 +172,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           children: [
             const Text(
               'Customer Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildInfoRow('Name', order.customerName),
@@ -206,9 +187,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   Widget _buildShippingInfo(dynamic order) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -216,10 +195,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           children: [
             const Text(
               'Shipping Information',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildInfoRow('Address', order.shippingAddress),
@@ -250,7 +226,9 @@ class _OrderDetailViewState extends State<OrderDetailView> {
             style: TextStyle(
               fontSize: isTotal ? 18 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? Theme.of(context).primaryColor : Colors.grey[700],
+              color: isTotal
+                  ? Theme.of(context).primaryColor
+                  : Colors.grey[700],
             ),
           ),
         ],
@@ -278,10 +256,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
           ),
         ],
@@ -353,11 +328,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: Colors.red[300],
-          ),
+          Icon(Icons.error_outline, size: 80, color: Colors.red[300]),
           const SizedBox(height: 16),
           Text(
             'Error Loading Order',
@@ -370,16 +341,15 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           const SizedBox(height: 8),
           Text(
             message,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              context.read<OrderViewModel>().add(LoadOrderByIdEvent(orderId: widget.orderId));
+              context.read<OrderViewModel>().add(
+                LoadOrderByIdEvent(orderId: widget.orderId),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).primaryColor,
@@ -396,4 +366,4 @@ class _OrderDetailViewState extends State<OrderDetailView> {
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-} 
+}

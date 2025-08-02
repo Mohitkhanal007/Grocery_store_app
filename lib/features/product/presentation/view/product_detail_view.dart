@@ -191,7 +191,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           Row(
             children: [
               Text(
-                '\$${product.price.toStringAsFixed(2)}',
+                'रू${product.price.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,

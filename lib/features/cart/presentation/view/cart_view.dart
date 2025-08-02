@@ -154,7 +154,7 @@ class _CartViewState extends State<CartView> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '\$${cart.totalPrice.toStringAsFixed(2)}',
+                  'रू${cart.totalPrice.toStringAsFixed(2)}',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
