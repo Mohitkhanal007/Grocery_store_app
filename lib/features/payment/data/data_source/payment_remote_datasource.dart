@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
 import 'package:jerseyhub/core/error/failure.dart';
 import 'package:jerseyhub/core/network/api_service.dart';
 import 'package:jerseyhub/features/payment/data/model/payment_model.dart';

@@ -85,16 +85,13 @@ class ProductViewModel extends Bloc<ProductEvent, ProductState> {
     LoadAllProductsEvent event,
     Emitter<ProductState> emit,
   ) async {
-    print('ProductViewModel: Loading all products...');
     emit(ProductLoading());
     final result = await _getAllProductsUseCase();
     result.fold(
       (failure) {
-        print('ProductViewModel: Error loading products: ${failure.message}');
         emit(ProductError(message: failure.message));
       },
       (products) {
-        print('ProductViewModel: Loaded ${products.length} products');
         emit(ProductsLoaded(products: products));
       },
     );
@@ -104,24 +101,15 @@ class ProductViewModel extends Bloc<ProductEvent, ProductState> {
     LoadProductsByCategoryEvent event,
     Emitter<ProductState> emit,
   ) async {
-    print(
-      'ProductViewModel: Loading products for category: ${event.categoryId}',
-    );
     emit(ProductLoading());
     final result = await _getProductsByCategoryUseCase(
       GetProductsByCategoryParams(categoryId: event.categoryId),
     );
     result.fold(
       (failure) {
-        print(
-          'ProductViewModel: Error loading products by category: ${failure.message}',
-        );
         emit(ProductError(message: failure.message));
       },
       (products) {
-        print(
-          'ProductViewModel: Loaded ${products.length} products for category ${event.categoryId}',
-        );
         emit(ProductsLoaded(products: products));
       },
     );
@@ -159,35 +147,25 @@ class ProductViewModel extends Bloc<ProductEvent, ProductState> {
     UpdateProductSizeEvent event,
     Emitter<ProductState> emit,
   ) async {
-    print('ProductViewModel: Updating product size to ${event.newSize}');
-
     // Get the current product state
     final currentState = state;
     ProductEntity? currentProduct;
 
     if (currentState is ProductLoaded) {
       currentProduct = currentState.product;
-      print('ProductViewModel: Current state is ProductLoaded');
     } else if (currentState is ProductUpdated) {
       currentProduct = currentState.product;
-      print('ProductViewModel: Current state is ProductUpdated');
-    } else {
-      print('ProductViewModel: Current state is ${currentState.runtimeType}');
     }
 
     if (currentProduct != null) {
-      print('ProductViewModel: Current product size is ${currentProduct.size}');
       // Create updated product with new size
       final updatedProduct = currentProduct.copyWith(
         size: event.newSize,
         updatedAt: DateTime.now(),
       );
 
-      print('ProductViewModel: Updated product size to ${updatedProduct.size}');
       // Emit the updated product
       emit(ProductUpdated(product: updatedProduct));
-    } else {
-      print('ProductViewModel: No current product found');
     }
   }
 }

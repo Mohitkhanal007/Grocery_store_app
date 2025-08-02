@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
 import 'package:jerseyhub/features/cart/presentation/view/cart_view.dart';
 import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
-import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
 import 'package:jerseyhub/features/order/presentation/view/order_list_view.dart';
 import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
 import 'package:jerseyhub/features/product/presentation/view/product_list_view.dart';
@@ -31,11 +30,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProfilePage() {
+    final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+    final userId = userSharedPrefs.getCurrentUserId() ?? 'unknown_user';
+
     return BlocProvider(
       create: (context) => serviceLocator<ProfileViewModel>(),
-      child: ProfileView(
-        userId: 'current_user_id',
-      ), // You can get this from auth service
+      child: ProfileView(userId: userId),
     );
   }
 

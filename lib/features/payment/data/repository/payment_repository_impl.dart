@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:jerseyhub/core/error/failure.dart';
 import 'package:jerseyhub/features/payment/data/data_source/payment_remote_datasource.dart';
-import 'package:jerseyhub/features/payment/data/model/payment_model.dart';
 import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
 import 'package:jerseyhub/features/payment/domain/repository/payment_repository.dart';
 

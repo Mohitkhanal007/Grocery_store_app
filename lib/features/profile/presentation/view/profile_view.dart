@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
 import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:jerseyhub/features/profile/domain/entity/profile_entity.dart';
@@ -495,10 +495,8 @@ class _ProfileViewState extends State<ProfileView> {
               onPressed: () async {
                 Navigator.of(context).pop();
                 // Clear user session
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('isLoggedIn', false);
-                await prefs.remove('token');
-                await prefs.remove('userId');
+                final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+                await userSharedPrefs.clearUserData();
 
                 // Navigate to login screen
                 Navigator.pushAndRemoveUntil(

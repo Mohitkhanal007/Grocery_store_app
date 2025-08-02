@@ -31,7 +31,7 @@ class CategoryCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                     : Colors.grey[100],
                 border: Border.all(
                   color: isSelected
@@ -42,8 +42,8 @@ class CategoryCard extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: isSelected
-                        ? Theme.of(context).primaryColor.withOpacity(0.3)
-                        : Colors.black.withOpacity(0.1),
+                        ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
+                        : Colors.black.withValues(alpha: 0.1),
                     blurRadius: isSelected ? 12 : 8,
                     offset: const Offset(0, 4),
                     spreadRadius: isSelected ? 2 : 0,

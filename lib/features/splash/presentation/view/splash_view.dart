@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
 import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
-import 'package:jerseyhub/features/home/presentation/view/HomePage.dart';
+import 'package:jerseyhub/features/home/presentation/view/home_page.dart';
 import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
 import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
 import 'dart:math' as math;

@@ -45,6 +45,12 @@ class UserLoginUsecase implements UsecaseWithParams<String, LoginParams> {
         return saveTokenResult.fold((failure) => Left(failure), (_) async {
           // Set login status to true
           await _sharedPreferences.setBool('isLoggedIn', true);
+
+          // Extract and store user ID from token or response
+          // For now, we'll use a simple approach - store the email as user identifier
+          // In a real app, you'd decode the JWT token to get the user ID
+          await _sharedPreferences.setString('userEmail', params.email);
+
           return Right(token);
         });
       });

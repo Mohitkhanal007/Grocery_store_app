@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:jerseyhub/app/shared_prefs/token_shared_prefs.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
 import 'package:jerseyhub/core/network/hive_service.dart';
 import 'package:jerseyhub/features/auth/data/data_source/local_datasource/user_local_datasource.dart';
 import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
@@ -122,6 +123,11 @@ Future<void> _initCore() async {
     () => TokenSharedPrefs(
       sharedPreferences: serviceLocator<SharedPreferences>(),
     ),
+  );
+
+  // Register UserSharedPrefs
+  serviceLocator.registerLazySingleton<UserSharedPrefs>(
+    () => UserSharedPrefs(serviceLocator<SharedPreferences>()),
   );
 }
 

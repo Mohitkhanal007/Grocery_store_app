@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
 import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
 import 'package:jerseyhub/features/auth/presentation/view/register_view.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_event.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_state.dart';
 import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
-import 'package:jerseyhub/features/home/presentation/view/HomePage.dart';
+import 'package:jerseyhub/features/home/presentation/view/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginView extends StatefulWidget {
@@ -114,8 +115,10 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
           return BlocListener<LoginViewModel, LoginState>(
             listener: (context, state) async {
               if (state.isSuccess) {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('isLoggedIn', true);
+                final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+                await userSharedPrefs.setCurrentUserEmail(
+                  _usernameController.text.trim(),
+                );
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
