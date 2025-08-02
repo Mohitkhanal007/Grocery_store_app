@@ -65,6 +65,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationBloc = serviceLocator<NotificationBloc>();
+
     final List<Widget> pages = [
       BlocProvider(
         create: (context) => serviceLocator<ProductViewModel>(),
@@ -75,63 +77,71 @@ class _HomePageState extends State<HomePage> {
         create: (context) => serviceLocator<OrderViewModel>(),
         child: const OrderListView(),
       ),
-      BlocProvider(
-        create: (context) => serviceLocator<NotificationBloc>(),
+      BlocProvider.value(
+        value: notificationBloc,
         child: const NotificationListView(),
       ),
       _buildProfilePage(),
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-      body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Orders',
-          ),
-          BottomNavigationBarItem(
-            icon: Stack(
-              children: [
-                const Icon(Icons.notifications),
-                BlocBuilder<NotificationBloc, NotificationState>(
-                  builder: (context, state) {
-                    if (state is NotificationsLoaded && state.unreadCount > 0) {
-                      return Positioned(
-                        right: 0,
-                        top: 0,
-                        child: NotificationBadge(
-                          count: state.unreadCount,
-                          size: 16,
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ],
+    return BlocProvider.value(
+      value: notificationBloc,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_titles[_selectedIndex]),
+          backgroundColor: Theme.of(context).primaryColor,
+        ),
+        body: pages[_selectedIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: Theme.of(context).primaryColor,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
             ),
-            label: 'Notifications',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: 'Cart',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_bag),
+              label: 'Orders',
+            ),
+            BottomNavigationBarItem(
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.notifications),
+                  BlocBuilder<NotificationBloc, NotificationState>(
+                    builder: (context, state) {
+                      if (state is NotificationsLoaded &&
+                          state.unreadCount > 0) {
+                        return Positioned(
+                          right: -8,
+                          top: -8,
+                          child: NotificationBadge(
+                            count: state.unreadCount,
+                            size: 16,
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
+              label: 'Notifications',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
