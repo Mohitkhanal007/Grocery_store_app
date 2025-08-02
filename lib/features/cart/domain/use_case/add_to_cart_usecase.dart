@@ -6,8 +6,9 @@ import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
 import 'package:jerseyhub/features/cart/domain/repository/cart_repository.dart';
 
 class AddToCartParams {
+  final String userId;
   final CartItemEntity item;
-  AddToCartParams({required this.item});
+  AddToCartParams({required this.userId, required this.item});
 }
 
 class AddToCartUseCase
@@ -18,6 +19,6 @@ class AddToCartUseCase
 
   @override
   Future<Either<Failure, CartEntity>> call(AddToCartParams params) async {
-    return await repository.addToCart(params.item);
+    return await repository.addToCart(params.userId, params.item);
   }
 }

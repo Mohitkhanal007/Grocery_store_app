@@ -9,6 +9,7 @@ import 'package:jerseyhub/features/cart/domain/use_case/remove_from_cart_usecase
 import 'package:jerseyhub/features/cart/domain/use_case/update_quantity_usecase.dart';
 import 'package:jerseyhub/features/cart/domain/use_case/clear_cart_usecase.dart';
 import 'package:jerseyhub/features/cart/data/services/cart_notification_service.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
 
 // Events
 abstract class CartEvent extends Equatable {
@@ -110,6 +111,7 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
   final UpdateQuantityUseCase _updateQuantityUseCase;
   final ClearCartUseCase _clearCartUseCase;
   final CartNotificationService _cartNotificationService;
+  final UserSharedPrefs _userSharedPrefs;
 
   CartViewModel({
     required GetCartUseCase getCartUseCase,
@@ -118,12 +120,14 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     required UpdateQuantityUseCase updateQuantityUseCase,
     required ClearCartUseCase clearCartUseCase,
     required CartNotificationService cartNotificationService,
+    required UserSharedPrefs userSharedPrefs,
   }) : _getCartUseCase = getCartUseCase,
        _addToCartUseCase = addToCartUseCase,
        _removeFromCartUseCase = removeFromCartUseCase,
        _updateQuantityUseCase = updateQuantityUseCase,
        _clearCartUseCase = clearCartUseCase,
        _cartNotificationService = cartNotificationService,
+       _userSharedPrefs = userSharedPrefs,
        super(CartInitial()) {
     on<LoadCartEvent>(_onLoadCart);
     on<AddToCartEvent>(_onAddToCart);
@@ -133,9 +137,14 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     on<SyncCartEvent>(_onSyncCart);
   }
 
+  String _getUserId(String? eventUserId) {
+    return eventUserId ?? _userSharedPrefs.getCurrentUserId() ?? 'unknown_user';
+  }
+
   Future<void> _onLoadCart(LoadCartEvent event, Emitter<CartState> emit) async {
     emit(CartLoading());
-    final result = await _getCartUseCase();
+    final userId = _getUserId(event.userId);
+    final result = await _getCartUseCase(GetCartParams(userId: userId));
     result.fold(
       (failure) => emit(CartError(message: failure.message)),
       (cart) => emit(CartLoaded(cart: cart)),
@@ -146,7 +155,10 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     AddToCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    final result = await _addToCartUseCase(AddToCartParams(item: event.item));
+    final userId = _getUserId(event.userId);
+    final result = await _addToCartUseCase(
+      AddToCartParams(userId: userId, item: event.item),
+    );
     result.fold((failure) => emit(CartError(message: failure.message)), (cart) {
       // Send notification after successfully adding to cart
       _cartNotificationService.sendAddToCartNotification(
@@ -165,8 +177,12 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
       '🔄 CartViewModel: Processing RemoveFromCartEvent for item ID: ${event.itemId}',
     );
 
+    final userId = _getUserId(event.userId);
+
     // First get the current cart to find the item details
-    final currentCartResult = await _getCartUseCase();
+    final currentCartResult = await _getCartUseCase(
+      GetCartParams(userId: userId),
+    );
     CartItemEntity? itemToRemove;
 
     currentCartResult.fold(
@@ -209,7 +225,7 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     }
 
     final result = await _removeFromCartUseCase(
-      RemoveFromCartParams(itemId: event.itemId),
+      RemoveFromCartParams(userId: userId, itemId: event.itemId),
     );
     result.fold(
       (failure) {
@@ -236,8 +252,13 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     UpdateQuantityEvent event,
     Emitter<CartState> emit,
   ) async {
+    final userId = _getUserId(event.userId);
     final result = await _updateQuantityUseCase(
-      UpdateQuantityParams(itemId: event.itemId, quantity: event.quantity),
+      UpdateQuantityParams(
+        userId: userId,
+        itemId: event.itemId,
+        quantity: event.quantity,
+      ),
     );
     result.fold(
       (failure) => emit(CartError(message: failure.message)),
@@ -249,7 +270,8 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     ClearCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    final result = await _clearCartUseCase();
+    final userId = _getUserId(event.userId);
+    final result = await _clearCartUseCase(ClearCartParams(userId: userId));
     result.fold(
       (failure) => emit(CartError(message: failure.message)),
       (cart) => emit(CartLoaded(cart: cart)),
@@ -261,7 +283,7 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
 
     // This would typically call the repository's sync method
     // For now, just load the cart normally
-    final result = await _getCartUseCase();
+    final result = await _getCartUseCase(GetCartParams(userId: event.userId));
     result.fold(
       (failure) => emit(CartError(message: failure.message)),
       (cart) => emit(CartLoaded(cart: cart)),

@@ -6,6 +6,7 @@ import 'package:jerseyhub/features/order/domain/use_case/get_order_by_id_usecase
 import 'package:jerseyhub/features/order/domain/use_case/create_order_usecase.dart';
 import 'package:jerseyhub/features/order/domain/use_case/update_order_status_usecase.dart';
 import 'package:jerseyhub/features/order/domain/use_case/delete_order_usecase.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
 
 // Events
 abstract class OrderEvent extends Equatable {
@@ -15,7 +16,13 @@ abstract class OrderEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadAllOrdersEvent extends OrderEvent {}
+class LoadAllOrdersEvent extends OrderEvent {
+  final String? userId;
+  const LoadAllOrdersEvent({this.userId});
+
+  @override
+  List<Object?> get props => [userId];
+}
 
 class LoadOrderByIdEvent extends OrderEvent {
   final String orderId;
@@ -117,6 +124,7 @@ class OrderViewModel extends Bloc<OrderEvent, OrderState> {
   final CreateOrderUseCase createOrderUseCase;
   final UpdateOrderStatusUseCase updateOrderStatusUseCase;
   final DeleteOrderUseCase deleteOrderUseCase;
+  final UserSharedPrefs _userSharedPrefs;
 
   OrderViewModel({
     required this.getAllOrdersUseCase,
@@ -124,7 +132,9 @@ class OrderViewModel extends Bloc<OrderEvent, OrderState> {
     required this.createOrderUseCase,
     required this.updateOrderStatusUseCase,
     required this.deleteOrderUseCase,
-  }) : super(OrderInitial()) {
+    required UserSharedPrefs userSharedPrefs,
+  }) : _userSharedPrefs = userSharedPrefs,
+       super(OrderInitial()) {
     on<LoadAllOrdersEvent>(_onLoadAllOrders);
     on<LoadOrderByIdEvent>(_onLoadOrderById);
     on<CreateOrderEvent>(_onCreateOrder);
@@ -132,15 +142,30 @@ class OrderViewModel extends Bloc<OrderEvent, OrderState> {
     on<DeleteOrderEvent>(_onDeleteOrder);
   }
 
+  String _getUserId(String? eventUserId) {
+    return eventUserId ?? _userSharedPrefs.getCurrentUserId() ?? 'unknown_user';
+  }
+
   Future<void> _onLoadAllOrders(
     LoadAllOrdersEvent event,
     Emitter<OrderState> emit,
   ) async {
     emit(OrderLoading());
-    final result = await getAllOrdersUseCase();
+    final userId = _getUserId(event.userId);
+    print('🔍 OrderViewModel: Loading orders for userId: $userId');
+
+    final result = await getAllOrdersUseCase(
+      GetAllOrdersParams(userId: userId),
+    );
     result.fold(
-      (failure) => emit(OrderError(message: failure.message)),
-      (orders) => emit(OrdersLoaded(orders: orders)),
+      (failure) {
+        print('❌ OrderViewModel: Failed to load orders: ${failure.message}');
+        emit(OrderError(message: failure.message));
+      },
+      (orders) {
+        print('✅ OrderViewModel: Successfully loaded ${orders.length} orders');
+        emit(OrdersLoaded(orders: orders));
+      },
     );
   }
 
@@ -149,7 +174,9 @@ class OrderViewModel extends Bloc<OrderEvent, OrderState> {
     Emitter<OrderState> emit,
   ) async {
     emit(OrderLoading());
-    final result = await getOrderByIdUseCase(GetOrderByIdParams(orderId: event.orderId));
+    final result = await getOrderByIdUseCase(
+      GetOrderByIdParams(orderId: event.orderId),
+    );
     result.fold(
       (failure) => emit(OrderError(message: failure.message)),
       (order) => emit(OrderLoaded(order: order)),
@@ -161,7 +188,9 @@ class OrderViewModel extends Bloc<OrderEvent, OrderState> {
     Emitter<OrderState> emit,
   ) async {
     emit(OrderLoading());
-    final result = await createOrderUseCase(CreateOrderParams(order: event.order));
+    final result = await createOrderUseCase(
+      CreateOrderParams(order: event.order),
+    );
     result.fold(
       (failure) => emit(OrderError(message: failure.message)),
       (order) => emit(OrderCreated(order: order)),
@@ -187,10 +216,12 @@ class OrderViewModel extends Bloc<OrderEvent, OrderState> {
     Emitter<OrderState> emit,
   ) async {
     emit(OrderLoading());
-    final result = await deleteOrderUseCase(DeleteOrderParams(orderId: event.orderId));
+    final result = await deleteOrderUseCase(
+      DeleteOrderParams(orderId: event.orderId),
+    );
     result.fold(
       (failure) => emit(OrderError(message: failure.message)),
       (_) => emit(OrderDeleted(orderId: event.orderId)),
     );
   }
-} 
+}

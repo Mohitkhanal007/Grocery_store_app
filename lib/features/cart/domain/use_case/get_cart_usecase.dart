@@ -4,13 +4,18 @@ import 'package:jerseyhub/app/use_case/usecase.dart';
 import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
 import 'package:jerseyhub/features/cart/domain/repository/cart_repository.dart';
 
-class GetCartUseCase implements UsecaseWithoutParams<CartEntity> {
+class GetCartParams {
+  final String userId;
+  GetCartParams({required this.userId});
+}
+
+class GetCartUseCase implements UsecaseWithParams<CartEntity, GetCartParams> {
   final CartRepository repository;
 
   GetCartUseCase(this.repository);
 
   @override
-  Future<Either<Failure, CartEntity>> call() async {
-    return await repository.getCart();
+  Future<Either<Failure, CartEntity>> call(GetCartParams params) async {
+    return await repository.getCart(params.userId);
   }
 }

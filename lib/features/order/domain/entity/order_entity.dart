@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
 
 enum OrderStatus {
   pending,
@@ -12,6 +13,7 @@ enum OrderStatus {
 
 class OrderEntity extends Equatable {
   final String id;
+  final String? userId; // Add user ID for backend association
   final List<CartItemEntity> items;
   final double subtotal;
   final double shippingCost;
@@ -27,6 +29,7 @@ class OrderEntity extends Equatable {
 
   const OrderEntity({
     required this.id,
+    this.userId,
     required this.items,
     required this.subtotal,
     required this.shippingCost,
@@ -45,6 +48,7 @@ class OrderEntity extends Equatable {
 
   OrderEntity copyWith({
     String? id,
+    String? userId,
     List<CartItemEntity>? items,
     double? subtotal,
     double? shippingCost,
@@ -60,6 +64,7 @@ class OrderEntity extends Equatable {
   }) {
     return OrderEntity(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       items: items ?? this.items,
       subtotal: subtotal ?? this.subtotal,
       shippingCost: shippingCost ?? this.shippingCost,
@@ -75,20 +80,138 @@ class OrderEntity extends Equatable {
     );
   }
 
+  // Convert to JSON for backend API
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'products': items
+          .map(
+            (item) => {
+              'name': item.product.team,
+              'quantity': item.quantity,
+              'price': item.product.price,
+              'productImage': item.product.productImage,
+            },
+          )
+          .toList(),
+      'total': totalAmount,
+      'status': _getStatusString(status),
+      'customerName': customerName,
+      'customerEmail': customerEmail,
+      'customerPhone': customerPhone,
+      'shippingAddress': shippingAddress,
+      'trackingNumber': trackingNumber,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  // Create from JSON from backend API
+  factory OrderEntity.fromJson(Map<String, dynamic> json) {
+    // Convert backend products to cart items
+    List<CartItemEntity> cartItems = [];
+    if (json['products'] != null) {
+      cartItems = (json['products'] as List).map((productJson) {
+        // Create a minimal ProductEntity for the cart item
+        final product = ProductEntity(
+          id: productJson['_id'] ?? '',
+          team: productJson['name'] ?? '',
+          type: '',
+          size: '',
+          price: (productJson['price'] ?? 0.0).toDouble(),
+          quantity: productJson['quantity'] ?? 0,
+          categoryId: '',
+          sellerId: null,
+          productImage: productJson['productImage'] ?? '',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        return CartItemEntity(
+          id: productJson['_id'] ?? '',
+          product: product,
+          quantity: productJson['quantity'] ?? 0,
+          selectedSize: '',
+          addedAt: DateTime.now(),
+        );
+      }).toList();
+    }
+
+    return OrderEntity(
+      id: json['_id'] ?? json['id'] ?? '',
+      userId: json['userId'],
+      items: cartItems,
+      subtotal: (json['total'] ?? 0.0).toDouble(),
+      shippingCost: 0.0, // Backend doesn't store shipping cost separately
+      totalAmount: (json['total'] ?? 0.0).toDouble(),
+      status: _getStatusFromString(json['status'] ?? 'pending'),
+      customerName: json['customerName'] ?? '',
+      customerEmail: json['customerEmail'] ?? '',
+      customerPhone: json['customerPhone'] ?? '',
+      shippingAddress: json['shippingAddress'] ?? '',
+      trackingNumber: json['trackingNumber'],
+      createdAt: json['date'] != null
+          ? DateTime.parse(json['date'])
+          : DateTime.now(),
+      updatedAt: json['date'] != null
+          ? DateTime.parse(json['date'])
+          : DateTime.now(),
+    );
+  }
+
+  // Helper methods for JSON conversion
+  static String _getStatusString(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.pending:
+        return 'pending';
+      case OrderStatus.confirmed:
+        return 'confirmed';
+      case OrderStatus.processing:
+        return 'processing';
+      case OrderStatus.shipped:
+        return 'shipped';
+      case OrderStatus.delivered:
+        return 'delivered';
+      case OrderStatus.cancelled:
+        return 'cancelled';
+    }
+  }
+
+  static OrderStatus _getStatusFromString(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return OrderStatus.pending;
+      case 'confirmed':
+        return OrderStatus.confirmed;
+      case 'processing':
+        return OrderStatus.processing;
+      case 'shipped':
+        return OrderStatus.shipped;
+      case 'delivered':
+        return OrderStatus.delivered;
+      case 'cancelled':
+        return OrderStatus.cancelled;
+      default:
+        return OrderStatus.pending;
+    }
+  }
+
   @override
   List<Object?> get props => [
-        id,
-        items,
-        subtotal,
-        shippingCost,
-        totalAmount,
-        status,
-        customerName,
-        customerEmail,
-        customerPhone,
-        shippingAddress,
-        trackingNumber,
-        createdAt,
-        updatedAt,
-      ];
-} 
+    id,
+    userId,
+    items,
+    subtotal,
+    shippingCost,
+    totalAmount,
+    status,
+    customerName,
+    customerEmail,
+    customerPhone,
+    shippingAddress,
+    trackingNumber,
+    createdAt,
+    updatedAt,
+  ];
+}

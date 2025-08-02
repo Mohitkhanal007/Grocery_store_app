@@ -5,8 +5,9 @@ import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
 import 'package:jerseyhub/features/cart/domain/repository/cart_repository.dart';
 
 class RemoveFromCartParams {
+  final String userId;
   final String itemId;
-  RemoveFromCartParams({required this.itemId});
+  RemoveFromCartParams({required this.userId, required this.itemId});
 }
 
 class RemoveFromCartUseCase
@@ -17,6 +18,6 @@ class RemoveFromCartUseCase
 
   @override
   Future<Either<Failure, CartEntity>> call(RemoveFromCartParams params) async {
-    return await repository.removeFromCart(params.itemId);
+    return await repository.removeFromCart(params.userId, params.itemId);
   }
 }

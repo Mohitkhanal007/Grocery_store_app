@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/app/service_locator/service_locator.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
 import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
 import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
 import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
@@ -23,6 +24,13 @@ class _CheckoutViewState extends State<CheckoutView> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
+  late final UserSharedPrefs _userSharedPrefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _userSharedPrefs = serviceLocator<UserSharedPrefs>();
+  }
 
   @override
   void dispose() {
@@ -304,8 +312,11 @@ class _CheckoutViewState extends State<CheckoutView> {
   }
 
   void _placeOrder(String orderId) {
+    final userId = _userSharedPrefs.getCurrentUserId();
+
     final order = OrderEntity(
       id: orderId,
+      userId: userId,
       items: widget.cart.items,
       subtotal: widget.cart.totalPrice,
       shippingCost: 5.99,
@@ -319,6 +330,7 @@ class _CheckoutViewState extends State<CheckoutView> {
       updatedAt: DateTime.now(),
     );
 
+    print('🔗 Creating order with userId: $userId');
     context.read<OrderViewModel>().add(CreateOrderEvent(order: order));
   }
 

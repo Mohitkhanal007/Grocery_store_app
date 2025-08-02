@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
 import 'package:jerseyhub/features/order/presentation/widgets/order_card_widget.dart';
+import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
 
 class OrderListView extends StatefulWidget {
   final VoidCallback? onShopNowPressed;
@@ -13,10 +15,28 @@ class OrderListView extends StatefulWidget {
 }
 
 class _OrderListViewState extends State<OrderListView> {
+  late final UserSharedPrefs _userSharedPrefs;
+
   @override
   void initState() {
     super.initState();
-    context.read<OrderViewModel>().add(LoadAllOrdersEvent());
+    _userSharedPrefs = serviceLocator<UserSharedPrefs>();
+    _loadOrders();
+  }
+
+  void _loadOrders() {
+    final userId = _userSharedPrefs.getCurrentUserId();
+    print('🔍 OrderListView: Loading orders for user ID: $userId');
+
+    if (userId != null) {
+      print(
+        '🔍 OrderListView: Dispatching LoadAllOrdersEvent with userId: $userId',
+      );
+      context.read<OrderViewModel>().add(LoadAllOrdersEvent(userId: userId));
+    } else {
+      print('❌ OrderListView: No user ID found!');
+      context.read<OrderViewModel>().add(LoadAllOrdersEvent());
+    }
   }
 
   @override
@@ -43,26 +63,44 @@ class _OrderListViewState extends State<OrderListView> {
           ),
           // Orders content
           Expanded(
-            child: BlocBuilder<OrderViewModel, OrderState>(
-              builder: (context, state) {
-                if (state is OrderLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is OrdersLoaded) {
-                  if (state.orders.isEmpty) {
-                    return _buildEmptyOrders();
-                  }
-                  return _buildOrdersList(state.orders);
-                } else if (state is OrderError) {
-                  return _buildErrorState(state.message);
-                } else if (state is OrderDeleted) {
-                  // Reload orders after deletion
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.read<OrderViewModel>().add(LoadAllOrdersEvent());
+            child: BlocListener<OrderViewModel, OrderState>(
+              listener: (context, state) {
+                if (state is OrdersLoaded) {
+                  print(
+                    '🔍 OrderListView: Orders loaded successfully. Count: ${state.orders.length}',
+                  );
+                  state.orders.forEach((order) {
+                    print(
+                      '🔍 OrderListView: Order ID: ${order.id}, Status: ${order.status}, Total: ${order.totalAmount}',
+                    );
                   });
-                  return const Center(child: CircularProgressIndicator());
+                } else if (state is OrderError) {
+                  print(
+                    '❌ OrderListView: Error loading orders: ${state.message}',
+                  );
                 }
-                return const Center(child: Text('No orders found'));
               },
+              child: BlocBuilder<OrderViewModel, OrderState>(
+                builder: (context, state) {
+                  if (state is OrderLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is OrdersLoaded) {
+                    if (state.orders.isEmpty) {
+                      return _buildEmptyOrders();
+                    }
+                    return _buildOrdersList(state.orders);
+                  } else if (state is OrderError) {
+                    return _buildErrorState(state.message);
+                  } else if (state is OrderDeleted) {
+                    // Reload orders after deletion
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _loadOrders();
+                    });
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return const Center(child: Text('No orders found'));
+                },
+              ),
             ),
           ),
         ],
@@ -111,7 +149,7 @@ class _OrderListViewState extends State<OrderListView> {
   Widget _buildOrdersList(List<dynamic> orders) {
     return RefreshIndicator(
       onRefresh: () async {
-        context.read<OrderViewModel>().add(LoadAllOrdersEvent());
+        _loadOrders();
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -154,7 +192,7 @@ class _OrderListViewState extends State<OrderListView> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              context.read<OrderViewModel>().add(LoadAllOrdersEvent());
+              _loadOrders();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).primaryColor,

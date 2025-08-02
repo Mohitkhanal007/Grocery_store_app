@@ -31,6 +31,7 @@ import '../../core/network/api_service.dart';
 import '../../features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
 import '../../features/auth/data/repository/remote_repository/user_remote_repository.dart';
 import '../../features/cart/data/data_source/local_datasource/cart_local_datasource.dart';
+import '../../features/cart/data/data_source/remote_datasource/cart_remote_datasource.dart';
 import '../../features/cart/data/repository/cart_repository_impl.dart';
 import '../../features/cart/domain/repository/cart_repository.dart';
 import '../../features/cart/domain/use_case/add_to_cart_usecase.dart';
@@ -40,6 +41,7 @@ import '../../features/cart/domain/use_case/remove_from_cart_usecase.dart';
 import '../../features/cart/domain/use_case/update_quantity_usecase.dart';
 import '../../features/cart/presentation/viewmodel/cart_viewmodel.dart';
 import '../../features/order/data/data_source/local_datasource/order_local_datasource.dart';
+import '../../features/order/data/data_source/remote_datasource/order_remote_datasource.dart';
 import '../../features/order/data/repository/order_repository_impl.dart';
 import '../../features/order/domain/repository/order_repository.dart';
 import '../../features/order/domain/use_case/get_all_orders_usecase.dart';
@@ -314,8 +316,15 @@ Future<void> _initCartModule() async {
     () => CartLocalDataSourceImpl(),
   );
 
+  serviceLocator.registerLazySingleton<CartRemoteDataSource>(
+    () => CartRemoteDataSourceImpl(serviceLocator<ApiService>().dio),
+  );
+
   serviceLocator.registerLazySingleton<CartRepository>(
-    () => CartRepositoryImpl(serviceLocator<CartLocalDataSource>()),
+    () => CartRepositoryImpl(
+      serviceLocator<CartLocalDataSource>(),
+      serviceLocator<CartRemoteDataSource>(),
+    ),
   );
 
   // Cart notification service
@@ -356,6 +365,7 @@ Future<void> _initCartModule() async {
       updateQuantityUseCase: serviceLocator<UpdateQuantityUseCase>(),
       clearCartUseCase: serviceLocator<ClearCartUseCase>(),
       cartNotificationService: serviceLocator<CartNotificationService>(),
+      userSharedPrefs: serviceLocator<UserSharedPrefs>(),
     ),
   );
 }
@@ -366,8 +376,15 @@ Future<void> _initOrderModule() async {
     () => OrderLocalDataSourceImpl(),
   );
 
+  serviceLocator.registerLazySingleton<OrderRemoteDataSource>(
+    () => OrderRemoteDataSourceImpl(serviceLocator<ApiService>().dio),
+  );
+
   serviceLocator.registerLazySingleton<OrderRepository>(
-    () => OrderRepositoryImpl(serviceLocator<OrderLocalDataSource>()),
+    () => OrderRepositoryImpl(
+      serviceLocator<OrderLocalDataSource>(),
+      serviceLocator<OrderRemoteDataSource>(),
+    ),
   );
 
   // Domain layer
@@ -399,6 +416,7 @@ Future<void> _initOrderModule() async {
       createOrderUseCase: serviceLocator<CreateOrderUseCase>(),
       updateOrderStatusUseCase: serviceLocator<UpdateOrderStatusUseCase>(),
       deleteOrderUseCase: serviceLocator<DeleteOrderUseCase>(),
+      userSharedPrefs: serviceLocator<UserSharedPrefs>(),
     ),
   );
 }
