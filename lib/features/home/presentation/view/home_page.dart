@@ -75,7 +75,13 @@ class _HomePageState extends State<HomePage> {
       BlocProvider.value(value: _cartViewModel, child: const CartView()),
       BlocProvider(
         create: (context) => serviceLocator<OrderViewModel>(),
-        child: const OrderListView(),
+        child: OrderListView(
+          onShopNowPressed: () {
+            setState(() {
+              _selectedIndex = 0; // Switch to home/products tab
+            });
+          },
+        ),
       ),
       BlocProvider.value(
         value: notificationBloc,
@@ -92,6 +98,52 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Theme.of(context).primaryColor,
         ),
         body: pages[_selectedIndex],
+        floatingActionButton: _selectedIndex != 3
+            ? BlocBuilder<NotificationBloc, NotificationState>(
+                builder: (context, state) {
+                  if (state is NotificationsLoaded && state.unreadCount > 0) {
+                    return FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedIndex = 3; // Switch to notifications tab
+                        });
+                      },
+                      backgroundColor: Colors.red,
+                      child: Stack(
+                        children: [
+                          const Icon(Icons.notifications, color: Colors.white),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 20,
+                                minHeight: 20,
+                              ),
+                              child: Text(
+                                '${state.unreadCount}',
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              )
+            : null,
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
@@ -111,29 +163,8 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(Icons.shopping_bag),
               label: 'Orders',
             ),
-            BottomNavigationBarItem(
-              icon: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Icons.notifications),
-                  BlocBuilder<NotificationBloc, NotificationState>(
-                    builder: (context, state) {
-                      if (state is NotificationsLoaded &&
-                          state.unreadCount > 0) {
-                        return Positioned(
-                          right: -8,
-                          top: -8,
-                          child: NotificationBadge(
-                            count: state.unreadCount,
-                            size: 16,
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ],
-              ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.notifications),
               label: 'Notifications',
             ),
             const BottomNavigationBarItem(

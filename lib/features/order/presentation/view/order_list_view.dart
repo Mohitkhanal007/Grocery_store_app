@@ -4,7 +4,9 @@ import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.
 import 'package:jerseyhub/features/order/presentation/widgets/order_card_widget.dart';
 
 class OrderListView extends StatefulWidget {
-  const OrderListView({super.key});
+  final VoidCallback? onShopNowPressed;
+
+  const OrderListView({super.key, this.onShopNowPressed});
 
   @override
   State<OrderListView> createState() => _OrderListViewState();
@@ -91,14 +93,15 @@ class _OrderListViewState extends State<OrderListView> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
+              // Call the callback to switch to home/products tab
+              widget.onShopNowPressed?.call();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
             ),
-            child: const Text('Start Shopping'),
+            child: const Text('Shop Now'),
           ),
         ],
       ),
@@ -117,7 +120,10 @@ class _OrderListViewState extends State<OrderListView> {
           final order = orders[index];
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: OrderCardWidget(order: order),
+            child: OrderCardWidget(
+              order: order,
+              orderViewModel: context.read<OrderViewModel>(),
+            ),
           );
         },
       ),

@@ -2,11 +2,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
 import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
 import 'package:jerseyhub/features/cart/domain/use_case/get_cart_usecase.dart';
 import 'package:jerseyhub/features/cart/domain/use_case/add_to_cart_usecase.dart';
 import 'package:jerseyhub/features/cart/domain/use_case/remove_from_cart_usecase.dart';
 import 'package:jerseyhub/features/cart/domain/use_case/update_quantity_usecase.dart';
 import 'package:jerseyhub/features/cart/domain/use_case/clear_cart_usecase.dart';
+import 'package:jerseyhub/features/cart/data/services/cart_notification_service.dart';
 
 // Events
 abstract class CartEvent extends Equatable {
@@ -80,6 +82,7 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
   final RemoveFromCartUseCase _removeFromCartUseCase;
   final UpdateQuantityUseCase _updateQuantityUseCase;
   final ClearCartUseCase _clearCartUseCase;
+  final CartNotificationService _cartNotificationService;
 
   CartViewModel({
     required GetCartUseCase getCartUseCase,
@@ -87,11 +90,13 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     required RemoveFromCartUseCase removeFromCartUseCase,
     required UpdateQuantityUseCase updateQuantityUseCase,
     required ClearCartUseCase clearCartUseCase,
+    required CartNotificationService cartNotificationService,
   }) : _getCartUseCase = getCartUseCase,
        _addToCartUseCase = addToCartUseCase,
        _removeFromCartUseCase = removeFromCartUseCase,
        _updateQuantityUseCase = updateQuantityUseCase,
        _clearCartUseCase = clearCartUseCase,
+       _cartNotificationService = cartNotificationService,
        super(CartInitial()) {
     on<LoadCartEvent>(_onLoadCart);
     on<AddToCartEvent>(_onAddToCart);
@@ -114,10 +119,14 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     Emitter<CartState> emit,
   ) async {
     final result = await _addToCartUseCase(AddToCartParams(item: event.item));
-    result.fold(
-      (failure) => emit(CartError(message: failure.message)),
-      (cart) => emit(CartLoaded(cart: cart)),
-    );
+    result.fold((failure) => emit(CartError(message: failure.message)), (cart) {
+      // Send notification after successfully adding to cart
+      _cartNotificationService.sendAddToCartNotification(
+        productName: event.item.product.team,
+        quantity: event.item.quantity,
+      );
+      emit(CartLoaded(cart: cart));
+    });
   }
 
   Future<void> _onRemoveFromCart(
@@ -127,6 +136,50 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     print(
       '🔄 CartViewModel: Processing RemoveFromCartEvent for item ID: ${event.itemId}',
     );
+
+    // First get the current cart to find the item details
+    final currentCartResult = await _getCartUseCase();
+    CartItemEntity? itemToRemove;
+
+    currentCartResult.fold(
+      (failure) {
+        print(
+          '❌ CartViewModel: Failed to get current cart: ${failure.message}',
+        );
+        emit(CartError(message: failure.message));
+        return;
+      },
+      (cart) {
+        itemToRemove = cart.items.firstWhere(
+          (item) => item.id == event.itemId,
+          orElse: () => CartItemEntity(
+            id: '',
+            product: ProductEntity(
+              id: '',
+              team: 'Unknown Product',
+              type: '',
+              size: '',
+              price: 0.0,
+              quantity: 0,
+              categoryId: '',
+              sellerId: '',
+              productImage: '',
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+            quantity: 1,
+            selectedSize: '',
+            addedAt: DateTime.now(),
+          ),
+        );
+      },
+    );
+
+    if (itemToRemove == null) {
+      emit(CartError(message: 'Item not found in cart'));
+      return;
+    }
+
     final result = await _removeFromCartUseCase(
       RemoveFromCartParams(itemId: event.itemId),
     );
@@ -139,6 +192,13 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
         print(
           '✅ CartViewModel: Remove from cart successful. Cart now has ${cart.items.length} items',
         );
+
+        // Send notification after successfully removing from cart
+        _cartNotificationService.sendRemoveFromCartNotification(
+          productName: itemToRemove!.product.team,
+          quantity: itemToRemove!.quantity,
+        );
+
         emit(CartLoaded(cart: cart));
       },
     );

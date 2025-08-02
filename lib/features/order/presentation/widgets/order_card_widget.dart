@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jerseyhub/app/service_locator/service_locator.dart';
 import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
 import 'package:jerseyhub/features/order/presentation/view/order_detail_view.dart';
+import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
 
 class OrderCardWidget extends StatelessWidget {
   final OrderEntity order;
+  final OrderViewModel orderViewModel;
 
-  const OrderCardWidget({super.key, required this.order});
+  const OrderCardWidget({
+    super.key,
+    required this.order,
+    required this.orderViewModel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +25,10 @@ class OrderCardWidget extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => OrderDetailView(orderId: order.id),
+              builder: (context) => BlocProvider(
+                create: (context) => serviceLocator<OrderViewModel>(),
+                child: OrderDetailView(orderId: order.id),
+              ),
             ),
           );
         },
@@ -37,7 +48,13 @@ class OrderCardWidget extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  _buildStatusChip(order.status),
+                  Row(
+                    children: [
+                      _buildStatusChip(order.status),
+                      const SizedBox(width: 8),
+                      _buildDeleteButton(context),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -148,5 +165,71 @@ class OrderCardWidget extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Widget _buildDeleteButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showDeleteConfirmation(context),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.red[50],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(Icons.delete_outline, size: 20, color: Colors.red[600]),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Delete Order',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Are you sure you want to delete order #${order.id.substring(0, 8)}? This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteOrder(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteOrder(BuildContext context) {
+    orderViewModel.add(DeleteOrderEvent(orderId: order.id));
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Order #${order.id.substring(0, 8)} deleted successfully',
+        ),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 }

@@ -67,6 +67,7 @@ import '../../features/notification/domain/repository/notification_repository.da
 import '../../features/notification/domain/use_case/get_notifications_usecase.dart';
 import '../../features/notification/domain/use_case/mark_notification_read_usecase.dart';
 import '../../features/notification/presentation/bloc/notification_bloc.dart';
+import '../../features/cart/data/services/cart_notification_service.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -315,6 +316,14 @@ Future<void> _initCartModule() async {
     () => CartRepositoryImpl(serviceLocator<CartLocalDataSource>()),
   );
 
+  // Cart notification service
+  serviceLocator.registerLazySingleton<CartNotificationService>(
+    () => CartNotificationService(
+      dio: serviceLocator<ApiService>().dio,
+      userSharedPrefs: serviceLocator<UserSharedPrefs>(),
+    ),
+  );
+
   // Domain layer
   serviceLocator.registerLazySingleton<GetCartUseCase>(
     () => GetCartUseCase(serviceLocator<CartRepository>()),
@@ -344,6 +353,7 @@ Future<void> _initCartModule() async {
       removeFromCartUseCase: serviceLocator<RemoveFromCartUseCase>(),
       updateQuantityUseCase: serviceLocator<UpdateQuantityUseCase>(),
       clearCartUseCase: serviceLocator<ClearCartUseCase>(),
+      cartNotificationService: serviceLocator<CartNotificationService>(),
     ),
   );
 }
