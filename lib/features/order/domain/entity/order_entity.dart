@@ -97,10 +97,13 @@ class OrderEntity extends Equatable {
           .toList(),
       'total': totalAmount,
       'status': _getStatusString(status),
-      'customerName': customerName,
-      'customerEmail': customerEmail,
-      'customerPhone': customerPhone,
-      'shippingAddress': shippingAddress,
+      'customerInfo': {
+        'name': customerName,
+        'email': customerEmail,
+        'phone': customerPhone,
+        'address': shippingAddress,
+      },
+      'paymentMethod': 'esewa', // Default payment method
       'trackingNumber': trackingNumber,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -138,6 +141,27 @@ class OrderEntity extends Equatable {
       }).toList();
     }
 
+    // Handle customer info from the new backend schema
+    String customerName = '';
+    String customerEmail = '';
+    String customerPhone = '';
+    String shippingAddress = '';
+
+    // Check if customerInfo object exists (new schema)
+    if (json['customerInfo'] != null) {
+      final customerInfo = json['customerInfo'] as Map<String, dynamic>;
+      customerName = customerInfo['name'] ?? '';
+      customerEmail = customerInfo['email'] ?? '';
+      customerPhone = customerInfo['phone'] ?? '';
+      shippingAddress = customerInfo['address'] ?? '';
+    } else {
+      // Fallback to old schema (direct fields)
+      customerName = json['customerName'] ?? '';
+      customerEmail = json['customerEmail'] ?? '';
+      customerPhone = json['customerPhone'] ?? '';
+      shippingAddress = json['shippingAddress'] ?? '';
+    }
+
     return OrderEntity(
       id: json['_id'] ?? json['id'] ?? '',
       userId: json['userId'],
@@ -146,17 +170,19 @@ class OrderEntity extends Equatable {
       shippingCost: 0.0, // Backend doesn't store shipping cost separately
       totalAmount: (json['total'] ?? 0.0).toDouble(),
       status: _getStatusFromString(json['status'] ?? 'pending'),
-      customerName: json['customerName'] ?? '',
-      customerEmail: json['customerEmail'] ?? '',
-      customerPhone: json['customerPhone'] ?? '',
-      shippingAddress: json['shippingAddress'] ?? '',
+      customerName: customerName,
+      customerEmail: customerEmail,
+      customerPhone: customerPhone,
+      shippingAddress: shippingAddress,
       trackingNumber: json['trackingNumber'],
       createdAt: json['date'] != null
           ? DateTime.parse(json['date'])
           : DateTime.now(),
-      updatedAt: json['date'] != null
-          ? DateTime.parse(json['date'])
-          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : (json['date'] != null
+                ? DateTime.parse(json['date'])
+                : DateTime.now()),
     );
   }
 
