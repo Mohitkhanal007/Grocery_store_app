@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
-import 'package:jerseyhub/features/product/domain/use_case/get_all_products_usecase.dart';
-import 'package:jerseyhub/features/product/domain/use_case/get_product_by_id_usecase.dart';
-import 'package:jerseyhub/features/product/domain/use_case/get_products_by_category_usecase.dart';
-import 'package:jerseyhub/features/product/domain/use_case/search_products_usecase.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/product/domain/use_case/get_all_products_usecase.dart';
+import 'package:grocerystore/features/product/domain/use_case/get_product_by_id_usecase.dart';
+import 'package:grocerystore/features/product/domain/use_case/get_products_by_category_usecase.dart';
+import 'package:grocerystore/features/product/domain/use_case/search_products_usecase.dart';
 
 // Events
 abstract class ProductEvent {}

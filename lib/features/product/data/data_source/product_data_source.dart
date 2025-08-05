@@ -1,4 +1,4 @@
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
 
 abstract interface class IProductDataSource {
   /// Get all products

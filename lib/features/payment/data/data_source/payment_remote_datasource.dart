@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/core/network/api_service.dart';
-import 'package:jerseyhub/features/payment/data/model/payment_model.dart';
-import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/core/network/api_service.dart';
+import 'package:grocerystore/features/payment/data/model/payment_model.dart';
+import 'package:grocerystore/features/payment/domain/entity/payment_entity.dart';
 
 abstract class PaymentRemoteDataSource {
   Future<Either<Failure, PaymentResponseModel>> createPayment(
@@ -107,9 +107,9 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       'txAmt': '0',
       'tAmt': request.amount.toString(),
       'pid': request.orderId,
-      'scd': 'JERSEYHUB',
-      'su': 'jerseyhub://payment/success',
-      'fu': 'jerseyhub://payment/failure',
+      'scd': 'GROCERYSTORE',
+      'su': 'grocerystore://payment/success',
+      'fu': 'grocerystore://payment/failure',
     };
 
     final queryString = params.entries
@@ -200,6 +200,8 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
         return 'esewa';
       case PaymentMethod.cashOnDelivery:
         return 'cash_on_delivery';
+      case PaymentMethod.creditCard:
+        return 'credit_card';
     }
   }
 }

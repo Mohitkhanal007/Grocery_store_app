@@ -2,16 +2,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/app/shared_prefs/user_shared_prefs.dart';
+import 'package:grocerystore/features/auth/presentation/view/login_view.dart';
+import 'package:grocerystore/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:grocerystore/features/profile/domain/entity/profile_entity.dart';
+import 'package:grocerystore/features/profile/presentation/viewmodel/profile_event.dart';
+import 'package:grocerystore/features/profile/presentation/viewmodel/profile_state.dart';
+import 'package:grocerystore/features/profile/presentation/viewmodel/profile_viewmodel.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
-import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
-import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
-import 'package:jerseyhub/features/profile/domain/entity/profile_entity.dart';
-import 'package:jerseyhub/features/profile/domain/use_case/change_password_usecase.dart';
-import 'package:jerseyhub/features/profile/presentation/viewmodel/profile_event.dart';
-import 'package:jerseyhub/features/profile/presentation/viewmodel/profile_state.dart';
-import 'package:jerseyhub/features/profile/presentation/viewmodel/profile_viewmodel.dart';
 
 class ProfileView extends StatefulWidget {
   final String userId;
@@ -37,6 +37,42 @@ class _ProfileViewState extends State<ProfileView> {
     _loadSavedProfileImage();
     // Load profile data when view initializes
     context.read<ProfileViewModel>().add(GetProfileEvent(widget.userId));
+    // Load actual user data from SharedPreferences
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final userEmail = userSharedPrefs.getCurrentUserEmail();
+
+    if (userEmail != null && userEmail.isNotEmpty) {
+      setState(() {
+        _emailController.text = userEmail;
+
+        // Try to get username from SharedPreferences first
+        final savedUsername = sharedPreferences.getString('userUsername');
+        if (savedUsername != null && savedUsername.isNotEmpty) {
+          _nameController.text = savedUsername;
+        } else {
+          // Extract username from email (everything before @)
+          final username = userEmail.split('@')[0];
+          _nameController.text = username;
+        }
+
+        // Try to get address from SharedPreferences
+        final savedAddress = sharedPreferences.getString('userAddress');
+        if (savedAddress != null && savedAddress.isNotEmpty) {
+          _addressController.text = savedAddress;
+        } else {
+          // Set dummy address
+          _addressController.text = '123 Grocery Street, Food City, FC 12345';
+        }
+
+        // Set dummy phone number
+        _phoneController.text = '+1 (555) 123-4567';
+      });
+    }
   }
 
   void _loadSavedProfileImage() {
@@ -127,8 +163,6 @@ class _ProfileViewState extends State<ProfileView> {
                 UpdateProfileEvent(updatedProfile),
               );
             }
-          } else if (state is PasswordChanged) {
-            _showSuccessSnackBar('Password changed successfully');
           } else if (state is ProfileError) {
             _showErrorSnackBar(state.message);
           }
@@ -266,21 +300,6 @@ class _ProfileViewState extends State<ProfileView> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => _showChangePasswordDialog(),
-            icon: const Icon(Icons.lock),
-            label: const Text('Change Password'),
-            style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -555,78 +574,6 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
-  void _showChangePasswordDialog() {
-    final currentPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Change Password'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: currentPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'Current Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: newPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'New Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: confirmPasswordController,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm New Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (newPasswordController.text ==
-                        confirmPasswordController.text &&
-                    newPasswordController.text.isNotEmpty) {
-                  context.read<ProfileViewModel>().add(
-                    ChangePasswordEvent(
-                      ChangePasswordParams(
-                        currentPassword: currentPasswordController.text,
-                        newPassword: newPasswordController.text,
-                      ),
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                } else {
-                  _showErrorSnackBar('Passwords do not match');
-                }
-              },
-              child: const Text('Change Password'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -674,6 +621,11 @@ class _ProfileViewState extends State<ProfileView> {
             ElevatedButton(
               onPressed: () async {
                 Navigator.of(context).pop();
+
+                // Clear cart first
+                final cartViewModel = serviceLocator<CartViewModel>();
+                cartViewModel.add(ClearCartEvent());
+
                 // Clear user session
                 final userSharedPrefs = serviceLocator<UserSharedPrefs>();
                 await userSharedPrefs.clearUserData();

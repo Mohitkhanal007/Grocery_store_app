@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/order/domain/entity/order_entity.dart';
 
 abstract class OrderRemoteDataSource {
   Future<Either<Failure, List<OrderEntity>>> getAllOrders(String userId);
@@ -34,9 +34,17 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
       if (response.statusCode == 200) {
         final List<dynamic> ordersData = response.data;
-        final orders = ordersData
-            .map((orderData) => OrderEntity.fromJson(orderData))
-            .toList();
+        print('📄 OrderRemoteDataSource: Raw orders data: $ordersData');
+
+        final orders = ordersData.map((orderData) {
+          try {
+            print('🔍 OrderRemoteDataSource: Parsing order: $orderData');
+            return OrderEntity.fromJson(orderData);
+          } catch (e) {
+            print('💥 OrderRemoteDataSource: Error parsing order: $e');
+            rethrow;
+          }
+        }).toList();
         print(
           '🎉 OrderRemoteDataSource: Successfully parsed ${orders.length} orders',
         );

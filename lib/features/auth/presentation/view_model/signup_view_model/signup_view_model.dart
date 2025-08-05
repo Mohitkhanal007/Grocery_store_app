@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/core/common/snackbar/my_snakebar.dart';
-import 'package:jerseyhub/features/auth/domain/use_case/user_register_usecase.dart';
-import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
-import 'package:jerseyhub/features/auth/presentation/view_model/signup_view_model/signup_event.dart';
-import 'package:jerseyhub/features/auth/presentation/view_model/signup_view_model/signup_state.dart';
+import 'package:grocerystore/core/common/snackbar/my_snakebar.dart';
+import 'package:grocerystore/features/auth/domain/use_case/user_register_usecase.dart';
+import 'package:grocerystore/features/auth/presentation/view/login_view.dart';
+import 'package:grocerystore/features/auth/presentation/view_model/signup_view_model/signup_event.dart';
+import 'package:grocerystore/features/auth/presentation/view_model/signup_view_model/signup_state.dart';
 
 class RegisterViewModel extends Bloc<RegisterEvent, RegisterState> {
   final UserRegisterUsecase _registerUsecase;

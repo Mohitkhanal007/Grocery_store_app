@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:jerseyhub/core/network/api_service.dart';
-import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
+import 'package:grocerystore/core/network/api_service.dart';
+import 'package:grocerystore/features/category/domain/entity/category_entity.dart';
 import '../category_data_source.dart';
 
 class CategoryRemoteDataSource implements ICategoryDataSource {
@@ -122,33 +122,37 @@ class CategoryRemoteDataSource implements ICategoryDataSource {
     return [
       CategoryEntity(
         id: '1',
-        name: 'Barcelona',
-        description: 'Official Barcelona jerseys',
-        imageUrl: null,
+        name: 'Dairy',
+        description: 'Fresh dairy products including milk, eggs, and yogurt',
+        imageUrl:
+            'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
       CategoryEntity(
         id: '2',
-        name: 'Manchester United',
-        description: 'Official Manchester United jerseys',
-        imageUrl: null,
+        name: 'Vegetables',
+        description: 'Fresh vegetables and greens',
+        imageUrl:
+            'https://images.unsplash.com/photo-1576045052395-18053fdc9b3f?w=400&h=400&fit=crop',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
       CategoryEntity(
         id: '3',
-        name: 'Real Madrid',
-        description: 'Official Real Madrid jerseys',
-        imageUrl: null,
+        name: 'Fruits',
+        description: 'Fresh fruits and berries',
+        imageUrl:
+            'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&h=400&fit=crop',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
       CategoryEntity(
         id: '4',
-        name: 'Liverpool',
-        description: 'Official Liverpool jerseys',
-        imageUrl: null,
+        name: 'Pantry & Snacks',
+        description: 'Pantry essentials and snack items',
+        imageUrl:
+            'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=400&fit=crop',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),

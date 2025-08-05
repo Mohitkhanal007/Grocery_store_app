@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/notification/data/data_source/notification_remote_datasource.dart';
-import 'package:jerseyhub/features/notification/domain/entity/notification_entity.dart';
-import 'package:jerseyhub/features/notification/domain/repository/notification_repository.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/notification/data/data_source/notification_remote_datasource.dart';
+import 'package:grocerystore/features/notification/domain/entity/notification_entity.dart';
+import 'package:grocerystore/features/notification/domain/repository/notification_repository.dart';
 
 class NotificationRepositoryImpl implements INotificationRepository {
   final INotificationRemoteDataSource _remoteDataSource;

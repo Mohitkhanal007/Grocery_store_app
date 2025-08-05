@@ -2,14 +2,255 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
-import 'package:jerseyhub/features/payment/presentation/viewmodel/payment_viewmodel.dart';
+import 'package:grocerystore/features/payment/domain/entity/payment_entity.dart';
+import 'package:grocerystore/features/payment/presentation/viewmodel/payment_viewmodel.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/app/shared_prefs/user_shared_prefs.dart';
+import 'package:grocerystore/features/home/presentation/view/home_page.dart';
+import 'package:grocerystore/features/home/presentation/viewmodel/homepage_viewmodel.dart';
+import 'package:grocerystore/features/order/domain/entity/order_entity.dart';
+import 'package:grocerystore/features/order/presentation/viewmodel/order_viewmodel.dart';
+import 'package:grocerystore/core/theme/theme_manager.dart';
+import 'package:grocerystore/features/auth/presentation/view/login_view.dart';
+import 'package:grocerystore/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:grocerystore/features/profile/presentation/viewmodel/profile_viewmodel.dart';
+import 'package:grocerystore/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:grocerystore/features/order/presentation/view/order_list_view.dart';
+import 'package:grocerystore/features/profile/presentation/view/profile_view.dart';
+import 'package:grocerystore/features/cart/presentation/view/cart_view.dart';
+import 'package:grocerystore/features/product/presentation/view/product_list_view.dart';
+import 'package:grocerystore/features/product/presentation/viewmodel/product_viewmodel.dart';
+import 'package:dio/dio.dart';
+import 'package:grocerystore/app/constant/backend_config.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/order/data/data_source/local_datasource/order_local_datasource.dart';
+
+// Custom HomePage that starts with orders tab selected
+class HomePageWithOrdersTab extends StatefulWidget {
+  const HomePageWithOrdersTab({super.key});
+
+  @override
+  State<HomePageWithOrdersTab> createState() => _HomePageWithOrdersTabState();
+}
+
+class _HomePageWithOrdersTabState extends State<HomePageWithOrdersTab> {
+  int _selectedIndex = 2; // Start with orders tab (index 2)
+  late final CartViewModel _cartViewModel;
+  late final ThemeManager _themeManager;
+
+  final List<String> _titles = ['GroceryStore', 'Cart', 'Orders', 'Profile'];
+
+  @override
+  void initState() {
+    super.initState();
+    _cartViewModel = serviceLocator<CartViewModel>();
+    _themeManager = ThemeManager();
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  Widget _buildProfilePage() {
+    final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+    final userId = userSharedPrefs.getCurrentUserId();
+
+    if (userId == null || userId.isEmpty || userId == 'unknown_user') {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person, size: 80, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'Please log in to view your profile',
+              style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => serviceLocator<LoginViewModel>(),
+                      child: const LoginView(),
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+              ),
+              child: const Text('Go to Login'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return BlocProvider(
+      create: (context) => serviceLocator<ProfileViewModel>(),
+      child: ProfileView(userId: userId),
+    );
+  }
+
+  Widget _buildProtectedTab(Widget child, String tabName) {
+    final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+    final userId = userSharedPrefs.getCurrentUserId();
+
+    if (userId == null || userId.isEmpty || userId == 'unknown_user') {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              tabName == 'Orders' ? Icons.shopping_bag : Icons.notifications,
+              size: 80,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Please log in to view your $tabName',
+              style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => serviceLocator<LoginViewModel>(),
+                      child: const LoginView(),
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+              ),
+              child: const Text('Go to Login'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return child;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final notificationBloc = serviceLocator<NotificationBloc>();
+
+    final List<Widget> pages = [
+      BlocProvider(
+        create: (context) => serviceLocator<ProductViewModel>(),
+        child: ProductListView(
+          onNavigateToCart: () {
+            setState(() {
+              _selectedIndex = 1; // Switch to cart tab
+            });
+          },
+        ),
+      ),
+      BlocProvider.value(
+        value: _cartViewModel,
+        child: CartView(
+          onShopNowPressed: () {
+            setState(() {
+              _selectedIndex = 0; // Switch to home/products tab
+            });
+          },
+        ),
+      ),
+      BlocProvider(
+        create: (context) => serviceLocator<OrderViewModel>(),
+        child: OrderListView(
+          onShopNowPressed: () {
+            setState(() {
+              _selectedIndex = 0; // Switch to home/products tab
+            });
+          },
+        ),
+      ),
+      _buildProfilePage(),
+    ];
+
+    return BlocProvider.value(
+      value: notificationBloc,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_titles[_selectedIndex]),
+          backgroundColor: Theme.of(context).primaryColor,
+          actions: [
+            ListenableBuilder(
+              listenable: _themeManager,
+              builder: (context, child) {
+                return Container(
+                  margin: const EdgeInsets.only(right: 16),
+                  child: Icon(
+                    _themeManager.isDarkMode
+                        ? Icons.dark_mode
+                        : Icons.light_mode,
+                    color: Colors.white,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        body: pages[_selectedIndex],
+        floatingActionButton: null,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: Theme.of(context).primaryColor,
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.store),
+              label: 'Store',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: 'Cart',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_bag),
+              label: 'Orders',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class PaymentView extends StatefulWidget {
   final String orderId;
   final double amount;
   final String customerName;
   final String customerEmail;
+  final List<CartItemEntity> cartItems; // Add cart items parameter
   final VoidCallback? onPaymentSuccess;
   final VoidCallback? onPaymentFailure;
 
@@ -19,6 +260,7 @@ class PaymentView extends StatefulWidget {
     required this.amount,
     required this.customerName,
     required this.customerEmail,
+    required this.cartItems, // Add cart items parameter
     this.onPaymentSuccess,
     this.onPaymentFailure,
   });
@@ -28,7 +270,18 @@ class PaymentView extends StatefulWidget {
 }
 
 class _PaymentViewState extends State<PaymentView> {
-  PaymentMethod _selectedMethod = PaymentMethod.esewa;
+  PaymentMethod? _selectedMethod;
+
+  @override
+  void initState() {
+    super.initState();
+    print(
+      '🔍 PaymentView: Initialized with ${widget.cartItems.length} cart items',
+    );
+    print(
+      '🔍 PaymentView: Cart items received: ${widget.cartItems.map((item) => '${item.product.team} - ${item.quantity}').join(', ')}',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +296,102 @@ class _PaymentViewState extends State<PaymentView> {
           title: const Text('Payment'),
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
-          elevation: 0,
+          actions: [
+            // Debug button to check user ID
+            IconButton(
+              onPressed: () {
+                final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+                final userId = userSharedPrefs.getCurrentUserId();
+                final userEmail = userSharedPrefs.getCurrentUserEmail();
+                print('🔍 DEBUG: Current User ID: $userId');
+                print('🔍 DEBUG: Current User Email: $userEmail');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('User ID: $userId\nEmail: $userEmail'),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.bug_report),
+            ),
+            // Debug button to create test order
+            IconButton(
+              onPressed: () async {
+                final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+                final userId = userSharedPrefs.getCurrentUserId();
+
+                if (userId == null || userId.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('No user ID found. Please login first.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                // Create a test order
+                final orderId = DateTime.now().millisecondsSinceEpoch
+                    .toString();
+                final now = DateTime.now();
+
+                // Create a mock product
+                final mockProduct = ProductEntity(
+                  id: 'test_product_1',
+                  team: 'Test Team',
+                  type: 'Test Type',
+                  size: 'M',
+                  price: 29.99,
+                  quantity: 10,
+                  categoryId: 'test_category',
+                  sellerId: 'test_seller',
+                  productImage: 'test_image.jpg',
+                  createdAt: now,
+                  updatedAt: now,
+                );
+
+                // Create a mock cart item
+                final mockCartItem = CartItemEntity(
+                  id: 'test_cart_item_1',
+                  product: mockProduct,
+                  quantity: 2,
+                  selectedSize: 'M',
+                  addedAt: now,
+                );
+
+                final testOrder = OrderEntity(
+                  id: orderId,
+                  userId: userId,
+                  items: [mockCartItem],
+                  subtotal: 59.98,
+                  shippingCost: 0.0,
+                  totalAmount: 59.98,
+                  status: OrderStatus.confirmed,
+                  customerName: 'Test Customer',
+                  customerEmail: 'test@example.com',
+                  customerPhone: '123-456-7890',
+                  shippingAddress: 'Test Address',
+                  createdAt: now,
+                  updatedAt: now,
+                );
+
+                print('🔍 DEBUG: Creating test order with ID: $orderId');
+                print('🔍 DEBUG: Test order user ID: $userId');
+
+                final orderViewModel = serviceLocator<OrderViewModel>();
+                orderViewModel.add(CreateOrderEvent(order: testOrder));
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Test order created! ID: $orderId'),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add_shopping_cart),
+            ),
+          ],
         ),
         body: BlocListener<PaymentViewModel, PaymentState>(
           listener: (context, state) {
@@ -126,10 +474,10 @@ class _PaymentViewState extends State<PaymentView> {
             ),
             const SizedBox(height: 16),
             _buildPaymentMethodTile(
-              PaymentMethod.esewa,
-              'eSewa',
-              'Pay securely with eSewa - Nepal\'s leading digital wallet',
-              Icons.payment,
+              PaymentMethod.creditCard,
+              'Credit Card',
+              'Pay securely with your credit or debit card',
+              Icons.credit_card,
             ),
             const SizedBox(height: 8),
             _buildPaymentMethodTile(
@@ -218,6 +566,11 @@ class _PaymentViewState extends State<PaymentView> {
       builder: (context, state) {
         final isLoading = state is PaymentLoading;
 
+        // Only show button if a payment method is selected
+        if (_selectedMethod == null) {
+          return const SizedBox.shrink();
+        }
+
         return SizedBox(
           width: double.infinity,
           height: 56,
@@ -254,22 +607,174 @@ class _PaymentViewState extends State<PaymentView> {
 
   String _getPaymentButtonText() {
     switch (_selectedMethod) {
-      case PaymentMethod.esewa:
-        return 'Pay with eSewa';
+      case PaymentMethod.creditCard:
+        return 'Pay with Credit Card';
       case PaymentMethod.cashOnDelivery:
         return 'Place Order (Cash on Delivery)';
+      case PaymentMethod.esewa:
+        return 'Pay';
+      case null:
+        return 'Select Payment Method';
     }
   }
 
   void _processPayment() {
     switch (_selectedMethod) {
-      case PaymentMethod.esewa:
-        _processEsewaPayment();
+      case PaymentMethod.creditCard:
+        _processCreditCardPayment();
         break;
       case PaymentMethod.cashOnDelivery:
         _processCashOnDelivery();
         break;
+      case PaymentMethod.esewa:
+        _processEsewaPayment();
+        break;
+      case null:
+        // Do nothing if no payment method is selected
+        break;
     }
+  }
+
+  void _processCreditCardPayment() {
+    print('💳 Processing Credit Card payment...');
+    print('📋 Order ID: ${widget.orderId}');
+    print('💰 Amount: \$${widget.amount.toStringAsFixed(2)}');
+    print('👤 Customer: ${widget.customerName}');
+    print('📧 Email: ${widget.customerEmail}');
+
+    // Show credit card form
+    _showCreditCardForm();
+  }
+
+  void _showCreditCardForm() {
+    final cardNumberController = TextEditingController();
+    final expiryController = TextEditingController();
+    final cvvController = TextEditingController();
+    final nameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Credit Card Payment'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: cardNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Card Number',
+                    hintText: '1234 5678 9012 3456',
+                  ),
+                  keyboardType: TextInputType.number,
+                  maxLength: 19,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: expiryController,
+                        decoration: const InputDecoration(
+                          labelText: 'Expiry (MM/YY)',
+                          hintText: '12/25',
+                        ),
+                        keyboardType: TextInputType.number,
+                        maxLength: 5,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: TextFormField(
+                        controller: cvvController,
+                        decoration: const InputDecoration(
+                          labelText: 'CVV',
+                          hintText: '123',
+                        ),
+                        keyboardType: TextInputType.number,
+                        maxLength: 4,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Cardholder Name',
+                    hintText: 'John Doe',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Validate form
+                if (cardNumberController.text.isEmpty ||
+                    expiryController.text.isEmpty ||
+                    cvvController.text.isEmpty ||
+                    nameController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please fill all fields'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                Navigator.of(context).pop();
+                _processCreditCardPaymentWithCredentials(
+                  cardNumberController.text,
+                  expiryController.text,
+                  cvvController.text,
+                  nameController.text,
+                );
+              },
+              child: const Text('Pay'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _processCreditCardPaymentWithCredentials(
+    String cardNumber,
+    String expiry,
+    String cvv,
+    String cardholderName,
+  ) {
+    print('💳 Processing Credit Card payment with credentials...');
+    print('📋 Order ID: ${widget.orderId}');
+    print('💰 Amount: \$${widget.amount.toStringAsFixed(2)}');
+    print('👤 Customer: ${widget.customerName}');
+    print('📧 Email: ${widget.customerEmail}');
+    print(
+      '💳 Card: ${cardNumber.substring(0, 4)}****${cardNumber.substring(cardNumber.length - 4)}',
+    );
+
+    // Show processing message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Processing credit card payment...'),
+        backgroundColor: Colors.blue,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    // Simulate payment processing
+    Future.delayed(const Duration(seconds: 3), () {
+      _createOrderAndNavigate();
+    });
   }
 
   void _processEsewaPayment() {
@@ -626,15 +1131,14 @@ class _PaymentViewState extends State<PaymentView> {
                 ),
                 const SizedBox(height: 24),
 
-                // OK Button
+                // OK Button - Navigate to Home Page
                 SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(
-                        context,
-                      ).pop(true); // Return true to indicate success
+                      Navigator.of(context).pop(true); // Close dialog
+                      _createOrderAndNavigateToOrders();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
@@ -645,7 +1149,7 @@ class _PaymentViewState extends State<PaymentView> {
                       elevation: 3,
                     ),
                     child: const Text(
-                      'OK',
+                      'Go to Home',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -658,6 +1162,30 @@ class _PaymentViewState extends State<PaymentView> {
           ),
         );
       },
+    );
+  }
+
+  void _clearCartAndNavigateToHome() {
+    // Clear the cart
+    final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+    final userId = userSharedPrefs.getCurrentUserId();
+    if (userId != null) {
+      final cartViewModel = serviceLocator<CartViewModel>();
+      cartViewModel.add(ClearCartEvent(userId: userId));
+    }
+
+    // Navigate to home page
+    Navigator.of(context).popUntil((route) => route.isFirst);
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Order placed successfully! Cart cleared. Welcome back to home.',
+        ),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 
@@ -851,11 +1379,11 @@ class _PaymentViewState extends State<PaymentView> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(
-                  context,
-                ).pop(true); // Return true to indicate payment success
-                // Don't call onPaymentSuccess here - let the user see the payment success first
-                // The order will be created when they navigate back
+                // Close dialog and create order
+                Navigator.of(context).pop(); // Close dialog
+
+                // Create order and navigate to Orders tab
+                _createOrderAndNavigateToOrders();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
@@ -864,11 +1392,167 @@ class _PaymentViewState extends State<PaymentView> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text('OK'),
+              child: const Text('Go to Orders'),
             ),
           ],
         );
       },
+    );
+  }
+
+  void _createOrderAndNavigate() {
+    // Create order and navigate to orders tab
+    _createOrderAndNavigateToOrders();
+  }
+
+  void _createOrderAndNavigateToOrders() async {
+    try {
+      // Get user ID
+      final userSharedPrefs = serviceLocator<UserSharedPrefs>();
+      final userId = userSharedPrefs.getCurrentUserId();
+
+      print('🔍 PaymentView: Current user ID from SharedPrefs: $userId');
+
+      if (userId == null || userId.isEmpty) {
+        print('❌ No user ID found for order creation');
+        _showErrorSnackBar('User not logged in. Please login again.');
+        _navigateToHomeDirectly();
+        return;
+      }
+
+      // Use cart items from widget instead of trying to preserve them
+      if (widget.cartItems.isEmpty) {
+        print('❌ PaymentView: No cart items provided for order creation');
+        print(
+          '❌ PaymentView: widget.cartItems.length = ${widget.cartItems.length}',
+        );
+        _showErrorSnackBar(
+          'No items in cart. Please add items before checkout.',
+        );
+        _navigateToHomeDirectly();
+        return;
+      }
+
+      print(
+        '🔍 PaymentView: Using ${widget.cartItems.length} cart items from widget',
+      );
+      print(
+        '🔍 PaymentView: Cart items: ${widget.cartItems.map((item) => '${item.product.team} - ${item.quantity}').join(', ')}',
+      );
+
+      // Create OrderEntity from cart items
+      final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+      final now = DateTime.now();
+
+      final order = OrderEntity(
+        id: orderId,
+        userId: userId,
+        items: widget.cartItems, // Use cart items from widget
+        subtotal: widget.cartItems.fold(
+          0.0,
+          (sum, item) => sum + (item.product.price * item.quantity),
+        ),
+        shippingCost: 0.0, // Free shipping for now
+        totalAmount: widget.cartItems.fold(
+          0.0,
+          (sum, item) => sum + (item.product.price * item.quantity),
+        ),
+        status: OrderStatus.confirmed,
+        customerName: widget.customerName,
+        customerEmail: widget.customerEmail,
+        customerPhone: 'N/A',
+        shippingAddress: 'Payment completed - Address to be updated',
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      print('🔗 PaymentView: Creating order with ID: $orderId');
+      print(
+        '🔗 PaymentView: Order details - UserID: ${order.userId}, Total: ${order.totalAmount}, Items: ${order.items.length}',
+      );
+
+      // Create order using local mechanism
+      final orderViewModel = serviceLocator<OrderViewModel>();
+      orderViewModel.add(CreateOrderEvent(order: order));
+
+      // Wait a bit for the order to be created
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      // Verify the order was created by checking local storage
+      final localDataSource = serviceLocator<OrderLocalDataSource>();
+      final savedOrders = await localDataSource.getAllOrders(userId);
+      print(
+        '🔍 PaymentView: Found ${savedOrders.length} orders in local storage after creation',
+      );
+
+      final createdOrder = savedOrders.firstWhere(
+        (o) => o.id == orderId,
+        orElse: () => throw Exception('Order not found in local storage'),
+      );
+      print(
+        '✅ PaymentView: Order successfully saved to local storage - ID: ${createdOrder.id}',
+      );
+
+      // Clear cart after successful order creation
+      final cartViewModel = serviceLocator<CartViewModel>();
+      cartViewModel.add(ClearCartEvent(userId: userId));
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Order created successfully! Order ID: ${order.id.substring(0, 8)}...',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      // Navigate to home and switch to orders tab
+      _navigateToHomeAndSwitchToOrders();
+    } catch (e) {
+      print('💥 PaymentView: Error creating order: $e');
+      _showErrorSnackBar('Error creating order: $e');
+      _navigateToHomeDirectly();
+    }
+  }
+
+  void _navigateToHomeAndSwitchToOrders() {
+    // Navigate to home page and switch to orders tab
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => BlocProvider(
+          create: (context) => serviceLocator<HomeViewModel>(),
+          child: const HomePageWithOrdersTab(),
+        ),
+      ),
+      (route) => false, // Remove all routes
+    );
+
+    // Show message to check orders tab
+    Future.delayed(const Duration(milliseconds: 500), () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Order placed successfully! Check your Orders tab.',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    });
+  }
+
+  void _navigateToHomeDirectly() {
+    // Navigate to home page without switching to orders tab
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => BlocProvider(
+          create: (context) => serviceLocator<HomeViewModel>(),
+          child: const HomePage(),
+        ),
+      ),
+      (route) => false, // Remove all routes
     );
   }
 }

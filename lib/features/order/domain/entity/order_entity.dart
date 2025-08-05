@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
 
 enum OrderStatus {
   pending,
@@ -175,13 +175,15 @@ class OrderEntity extends Equatable {
       customerPhone: customerPhone,
       shippingAddress: shippingAddress,
       trackingNumber: json['trackingNumber'],
-      createdAt: json['date'] != null
-          ? DateTime.parse(json['date'])
-          : DateTime.now(),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
           : (json['date'] != null
                 ? DateTime.parse(json['date'])
+                : DateTime.now()),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : (json['createdAt'] != null
+                ? DateTime.parse(json['createdAt'])
                 : DateTime.now()),
     );
   }

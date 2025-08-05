@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 
 class CartItemWidget extends StatelessWidget {
   final CartItemEntity cartItem;
@@ -41,11 +41,14 @@ class CartItemWidget extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Row(
+                  // Use Wrap instead of Row to prevent overflow
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -65,7 +68,6 @@ class CartItemWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -88,7 +90,7 @@ class CartItemWidget extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'रू${cartItem.product.price.toStringAsFixed(2)}',
+                    '\$${cartItem.product.price.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -191,7 +193,7 @@ class CartItemWidget extends StatelessWidget {
         color: Colors.grey[300],
       ),
       child: const Center(
-        child: Icon(Icons.sports_soccer, size: 32, color: Colors.grey),
+        child: Icon(Icons.shopping_basket, size: 32, color: Colors.grey),
       ),
     );
   }

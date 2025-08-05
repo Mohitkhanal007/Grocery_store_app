@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/app/use_case/usecase.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
-import 'package:jerseyhub/features/category/domain/repository/category_repository.dart';
+import 'package:grocerystore/app/use_case/usecase.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/category/domain/entity/category_entity.dart';
+import 'package:grocerystore/features/category/domain/repository/category_repository.dart';
 
 class GetCategoryByIdParams extends Equatable {
   final String id;

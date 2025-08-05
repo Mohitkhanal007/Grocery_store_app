@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
 
 class OrderItemWidget extends StatelessWidget {
   final CartItemEntity item;

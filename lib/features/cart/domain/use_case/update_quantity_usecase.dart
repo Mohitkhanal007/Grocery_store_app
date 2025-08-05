@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/app/use_case/usecase.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
-import 'package:jerseyhub/features/cart/domain/repository/cart_repository.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/app/use_case/usecase.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_entity.dart';
+import 'package:grocerystore/features/cart/domain/repository/cart_repository.dart';
 
 class UpdateQuantityParams {
   final String userId;

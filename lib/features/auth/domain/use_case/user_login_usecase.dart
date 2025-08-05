@@ -1,10 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/app/shared_prefs/token_shared_prefs.dart';
-import 'package:jerseyhub/app/use_case/usecase.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
-import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
+import 'package:grocerystore/app/shared_prefs/token_shared_prefs.dart';
+import 'package:grocerystore/app/use_case/usecase.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/auth/domain/entity/user_entity.dart';
+import 'package:grocerystore/features/auth/domain/repository/user_repository.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginParams extends Equatable {
@@ -33,14 +34,17 @@ class UserLoginUsecase implements UsecaseWithParams<LoginResult, LoginParams> {
   final IUserRepository _userRepository;
   final TokenSharedPrefs _tokenSharedPrefs;
   final SharedPreferences _sharedPreferences;
+  final CartViewModel? _cartViewModel;
 
   UserLoginUsecase({
     required IUserRepository userRepository,
     required TokenSharedPrefs tokenSharedPrefs,
     required SharedPreferences sharedPreferences,
+    CartViewModel? cartViewModel,
   }) : _userRepository = userRepository,
        _tokenSharedPrefs = tokenSharedPrefs,
-       _sharedPreferences = sharedPreferences;
+       _sharedPreferences = sharedPreferences,
+       _cartViewModel = cartViewModel;
 
   @override
   Future<Either<Failure, LoginResult>> call(LoginParams params) async {
@@ -100,6 +104,21 @@ class UserLoginUsecase implements UsecaseWithParams<LoginResult, LoginParams> {
               print(
                 '✅ UserLoginUsecase: Saved user email: ${loginResult.user.email}',
               );
+
+              // Store username for profile display
+              await _sharedPreferences.setString(
+                'userUsername',
+                loginResult.user.username,
+              );
+              print(
+                '✅ UserLoginUsecase: Saved user username: ${loginResult.user.username}',
+              );
+
+              // Clear cart for new user session
+              if (_cartViewModel != null) {
+                _cartViewModel!.add(ClearCartEvent());
+                print('🛒 UserLoginUsecase: Cleared cart for new user session');
+              }
 
               return Right(loginResult);
             },

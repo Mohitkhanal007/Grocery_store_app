@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
-import 'package:jerseyhub/features/auth/domain/use_case/user_register_usecase.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
+import 'package:grocerystore/features/auth/domain/repository/user_repository.dart';
+import 'package:grocerystore/features/auth/domain/use_case/user_register_usecase.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/auth/domain/entity/user_entity.dart';
 
 class MockUserRepository extends Mock implements IUserRepository {}
 

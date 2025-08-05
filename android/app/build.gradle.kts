@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.jerseyhub"
+    namespace = "com.example.grocerystore"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973" // ✅ Corrected line
 
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.jerseyhub"
+        applicationId = "com.example.grocerystore"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

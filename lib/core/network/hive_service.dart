@@ -1,6 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:jerseyhub/app/constant/hive_table_constant.dart';
-import 'package:jerseyhub/features/auth/data/model/user_hive_model.dart';
+import 'package:grocerystore/app/constant/hive_table_constant.dart';
+import 'package:grocerystore/features/auth/data/model/user_hive_model.dart';
 import 'package:path_provider/path_provider.dart';
 
 class HiveService {

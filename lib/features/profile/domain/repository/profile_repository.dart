@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/profile/domain/entity/profile_entity.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/profile/domain/entity/profile_entity.dart';
 
 abstract class ProfileRepository {
   Future<Either<Failure, ProfileEntity>> getProfile(String userId);

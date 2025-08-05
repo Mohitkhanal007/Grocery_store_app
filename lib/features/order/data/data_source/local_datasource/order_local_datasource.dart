@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/order/domain/entity/order_entity.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
 
 abstract class OrderLocalDataSource {
-  Future<List<OrderEntity>> getAllOrders();
+  Future<List<OrderEntity>> getAllOrders([String? userId]);
   Future<OrderEntity?> getOrderById(String orderId);
   Future<OrderEntity> createOrder(OrderEntity order);
   Future<OrderEntity> updateOrderStatus(String orderId, String status);
@@ -16,13 +16,37 @@ class OrderLocalDataSourceImpl implements OrderLocalDataSource {
   static const String _ordersKey = 'orders';
 
   @override
-  Future<List<OrderEntity>> getAllOrders() async {
+  Future<List<OrderEntity>> getAllOrders([String? userId]) async {
     final prefs = await SharedPreferences.getInstance();
     final ordersJson = prefs.getStringList(_ordersKey) ?? [];
-    
-    return ordersJson
+
+    print(
+      '🔍 OrderLocalDataSource: Found ${ordersJson.length} orders in SharedPreferences',
+    );
+
+    final allOrders = ordersJson
         .map((json) => _orderFromJson(jsonDecode(json)))
         .toList();
+
+    print('🔍 OrderLocalDataSource: Parsed ${allOrders.length} orders');
+
+    // If userId is provided, filter orders by user ID
+    if (userId != null && userId.isNotEmpty) {
+      final filteredOrders = allOrders
+          .where((order) => order.userId == userId)
+          .toList();
+      print(
+        '🔍 OrderLocalDataSource: Filtered to ${filteredOrders.length} orders for userId: $userId',
+      );
+      for (var order in filteredOrders) {
+        print(
+          '🔍 OrderLocalDataSource: Order ID: ${order.id}, UserID: ${order.userId}, Status: ${order.status}',
+        );
+      }
+      return filteredOrders;
+    }
+
+    return allOrders;
   }
 
   @override
@@ -37,14 +61,24 @@ class OrderLocalDataSourceImpl implements OrderLocalDataSource {
 
   @override
   Future<OrderEntity> createOrder(OrderEntity order) async {
+    print(
+      '🔍 OrderLocalDataSource: Creating order with ID: ${order.id}, UserID: ${order.userId}',
+    );
+
     final prefs = await SharedPreferences.getInstance();
     final orders = await getAllOrders();
-    
+
     orders.add(order);
-    
-    final ordersJson = orders.map((order) => jsonEncode(_orderToJson(order))).toList();
+
+    final ordersJson = orders
+        .map((order) => jsonEncode(_orderToJson(order)))
+        .toList();
     await prefs.setStringList(_ordersKey, ordersJson);
-    
+
+    print(
+      '🔍 OrderLocalDataSource: Successfully saved order. Total orders now: ${orders.length}',
+    );
+
     return order;
   }
 
@@ -52,12 +86,12 @@ class OrderLocalDataSourceImpl implements OrderLocalDataSource {
   Future<OrderEntity> updateOrderStatus(String orderId, String status) async {
     final prefs = await SharedPreferences.getInstance();
     final orders = await getAllOrders();
-    
+
     final orderIndex = orders.indexWhere((order) => order.id == orderId);
     if (orderIndex == -1) {
       throw Exception('Order not found');
     }
-    
+
     final order = orders[orderIndex];
     final updatedOrder = order.copyWith(
       status: OrderStatus.values.firstWhere(
@@ -66,12 +100,14 @@ class OrderLocalDataSourceImpl implements OrderLocalDataSource {
       ),
       updatedAt: DateTime.now(),
     );
-    
+
     orders[orderIndex] = updatedOrder;
-    
-    final ordersJson = orders.map((order) => jsonEncode(_orderToJson(order))).toList();
+
+    final ordersJson = orders
+        .map((order) => jsonEncode(_orderToJson(order)))
+        .toList();
     await prefs.setStringList(_ordersKey, ordersJson);
-    
+
     return updatedOrder;
   }
 
@@ -79,16 +115,19 @@ class OrderLocalDataSourceImpl implements OrderLocalDataSource {
   Future<void> deleteOrder(String orderId) async {
     final prefs = await SharedPreferences.getInstance();
     final orders = await getAllOrders();
-    
+
     orders.removeWhere((order) => order.id == orderId);
-    
-    final ordersJson = orders.map((order) => jsonEncode(_orderToJson(order))).toList();
+
+    final ordersJson = orders
+        .map((order) => jsonEncode(_orderToJson(order)))
+        .toList();
     await prefs.setStringList(_ordersKey, ordersJson);
   }
 
   Map<String, dynamic> _orderToJson(OrderEntity order) {
     return {
       'id': order.id,
+      'userId': order.userId,
       'items': order.items.map((item) => _cartItemToJson(item)).toList(),
       'subtotal': order.subtotal,
       'shippingCost': order.shippingCost,
@@ -107,6 +146,7 @@ class OrderLocalDataSourceImpl implements OrderLocalDataSource {
   OrderEntity _orderFromJson(Map<String, dynamic> json) {
     return OrderEntity(
       id: json['id'],
+      userId: json['userId'] ?? '',
       items: (json['items'] as List)
           .map((item) => _cartItemFromJson(item))
           .toList(),
@@ -178,4 +218,4 @@ class OrderLocalDataSourceImpl implements OrderLocalDataSource {
       updatedAt: DateTime.parse(json['updatedAt']),
     );
   }
-} 
+}

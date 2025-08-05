@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/app/use_case/usecase.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
+import 'package:grocerystore/app/use_case/usecase.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/auth/domain/repository/user_repository.dart';
 
 class UploadImageParams {
   final File file;

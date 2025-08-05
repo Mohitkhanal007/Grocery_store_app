@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/cart/data/data_source/local_datasource/cart_local_datasource.dart';
-import 'package:jerseyhub/features/cart/data/data_source/remote_datasource/cart_remote_datasource.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:jerseyhub/features/cart/domain/repository/cart_repository.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/cart/data/data_source/local_datasource/cart_local_datasource.dart';
+import 'package:grocerystore/features/cart/data/data_source/remote_datasource/cart_remote_datasource.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_entity.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/cart/domain/repository/cart_repository.dart';
 
 class CartRepositoryImpl implements CartRepository {
   final CartLocalDataSource _localDataSource;

@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/app/shared_prefs/token_shared_prefs.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/auth/domain/repository/user_repository.dart';
+import 'package:grocerystore/app/shared_prefs/token_shared_prefs.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/auth/domain/repository/user_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserLogoutUseCase {

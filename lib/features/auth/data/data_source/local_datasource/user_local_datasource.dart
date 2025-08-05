@@ -1,8 +1,8 @@
-import 'package:jerseyhub/core/network/hive_service.dart';
-import 'package:jerseyhub/features/auth/data/data_source/user_data_source.dart';
-import 'package:jerseyhub/features/auth/data/model/user_hive_model.dart';
-import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
-import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
+import 'package:grocerystore/core/network/hive_service.dart';
+import 'package:grocerystore/features/auth/data/data_source/user_data_source.dart';
+import 'package:grocerystore/features/auth/data/model/user_hive_model.dart';
+import 'package:grocerystore/features/auth/domain/entity/user_entity.dart';
+import 'package:grocerystore/features/auth/domain/use_case/user_login_usecase.dart';
 
 class UserLocalDatasource implements IUserDataSource {
   final HiveService _hiveService;

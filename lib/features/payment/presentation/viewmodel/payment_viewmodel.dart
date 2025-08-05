@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
-import 'package:jerseyhub/features/payment/domain/use_case/create_payment_usecase.dart';
+import 'package:grocerystore/features/payment/domain/entity/payment_entity.dart';
+import 'package:grocerystore/features/payment/domain/use_case/create_payment_usecase.dart';
 
 // Events
 abstract class PaymentEvent extends Equatable {

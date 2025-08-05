@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
-import 'package:jerseyhub/features/category/presentation/view/category_list_view.dart';
-import 'package:jerseyhub/features/category/presentation/viewmodel/category_viewmodel.dart';
-import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
-import 'package:jerseyhub/features/product/presentation/view/product_detail_view.dart';
-import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
-import 'package:jerseyhub/features/product/presentation/widgets/product_card.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/features/category/domain/entity/category_entity.dart';
+import 'package:grocerystore/features/category/presentation/view/category_list_view.dart';
+import 'package:grocerystore/features/category/presentation/viewmodel/category_viewmodel.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/product/presentation/view/product_detail_view.dart';
+import 'package:grocerystore/features/product/presentation/viewmodel/product_viewmodel.dart';
+import 'package:grocerystore/features/product/presentation/widgets/product_card.dart';
 
 class ProductListView extends StatefulWidget {
-  const ProductListView({super.key});
+  final VoidCallback? onNavigateToCart;
+
+  const ProductListView({super.key, this.onNavigateToCart});
 
   @override
   State<ProductListView> createState() => _ProductListViewState();
@@ -77,7 +79,7 @@ class _ProductListViewState extends State<ProductListView> {
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Search jerseys...',
+              hintText: 'Search groceries...',
               prefixIcon: const Icon(Icons.search),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.clear),
@@ -114,15 +116,24 @@ class _ProductListViewState extends State<ProductListView> {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is ProductsLoaded) {
                 if (state.products.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.search_off, size: 64, color: Colors.grey),
+                        Icon(
+                          Icons.shopping_basket,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
                         SizedBox(height: 16),
                         Text(
-                          'No products found',
-                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                          'No groceries found',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color:
+                                Theme.of(context).textTheme.bodyLarge?.color ??
+                                Colors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -134,18 +145,19 @@ class _ProductListViewState extends State<ProductListView> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Colors.red,
-                      ),
-                      const SizedBox(height: 16),
+                      Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      SizedBox(height: 16),
                       Text(
                         'Error: ${state.message}',
-                        style: const TextStyle(fontSize: 16, color: Colors.red),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color:
+                              Theme.of(context).textTheme.bodyLarge?.color ??
+                              Colors.red,
+                        ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
                           context.read<ProductViewModel>().add(
@@ -158,7 +170,17 @@ class _ProductListViewState extends State<ProductListView> {
                   ),
                 );
               }
-              return const Center(child: Text('No products available'));
+              return Center(
+                child: Text(
+                  'No groceries available',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color:
+                        Theme.of(context).textTheme.bodyLarge?.color ??
+                        Colors.grey,
+                  ),
+                ),
+              );
             },
           ),
         ),
@@ -170,38 +192,47 @@ class _ProductListViewState extends State<ProductListView> {
     List<ProductEntity> filteredProducts;
 
     if (_selectedCategory != null) {
-      // If a category is selected, filter products by that club
+      // If a category is selected, filter products by that category
       filteredProducts = products.where((product) {
         return _matchesSelectedCategory(product.team, _selectedCategory!.name);
       }).toList();
     } else {
-      // If no category selected, show all products from supported clubs
+      // If no category selected, show all products from supported categories
       filteredProducts = products.where((product) {
-        return _hasClubLogo(product.team);
+        return _hasValidCategory(product.team);
       }).toList();
     }
 
     if (filteredProducts.isEmpty) {
       String message = _selectedCategory != null
-          ? 'No ${_selectedCategory!.name} jerseys found'
-          : 'No products from supported clubs found';
+          ? 'No ${_selectedCategory!.name} items found'
+          : 'No groceries from supported categories found';
 
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
+            Icon(Icons.shopping_basket, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
             Text(
               message,
-              style: const TextStyle(fontSize: 18, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 18,
+                color:
+                    Theme.of(context).textTheme.bodyLarge?.color ?? Colors.grey,
+              ),
               textAlign: TextAlign.center,
             ),
             if (_selectedCategory == null) ...[
-              const SizedBox(height: 8),
-              const Text(
-                'Currently supporting: Barcelona, Manchester United, Real Madrid, Liverpool',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+              SizedBox(height: 8),
+              Text(
+                'Try adjusting your search or filters',
+                style: TextStyle(
+                  fontSize: 14,
+                  color:
+                      Theme.of(context).textTheme.bodyMedium?.color ??
+                      Colors.grey,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -214,9 +245,9 @@ class _ProductListViewState extends State<ProductListView> {
       padding: const EdgeInsets.all(12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
       ),
       itemCount: filteredProducts.length,
       itemBuilder: (context, index) {
@@ -240,6 +271,7 @@ class _ProductListViewState extends State<ProductListView> {
                   child: ProductDetailView(
                     productId: product.id,
                     initialProduct: product,
+                    onNavigateToCart: widget.onNavigateToCart,
                   ),
                 ),
               ),
@@ -250,44 +282,98 @@ class _ProductListViewState extends State<ProductListView> {
     );
   }
 
-  bool _hasClubLogo(String teamName) {
-    String lowerName = teamName.toLowerCase();
+  bool _hasValidCategory(String productName) {
+    String lowerName = productName.toLowerCase();
 
-    // Check for Atletico Madrid first and exclude it
-    if (lowerName.contains('atletico') ||
-        lowerName.contains('atletico madrid') ||
-        lowerName.contains('atleti')) {
-      return false;
+    // Check for dairy products
+    if (lowerName.contains('milk') ||
+        lowerName.contains('eggs') ||
+        lowerName.contains('yogurt') ||
+        lowerName.contains('cheese') ||
+        lowerName.contains('butter') ||
+        lowerName.contains('cream')) {
+      return true;
     }
 
-    return lowerName.contains('barcelona') ||
-        lowerName.contains('fcb') ||
-        lowerName.contains('manchester') ||
-        lowerName.contains('united') ||
-        lowerName.contains('man utd') ||
-        lowerName.contains('real madrid') ||
-        lowerName.contains('madrid') ||
-        lowerName.contains('liverpool') ||
-        lowerName.contains('lfc');
+    // Check for vegetables
+    if (lowerName.contains('potato') ||
+        lowerName.contains('spinach') ||
+        lowerName.contains('tomato') ||
+        lowerName.contains('carrot') ||
+        lowerName.contains('onion') ||
+        lowerName.contains('cucumber') ||
+        lowerName.contains('broccoli') ||
+        lowerName.contains('pepper')) {
+      return true;
+    }
+
+    // Check for fruits
+    if (lowerName.contains('apple') ||
+        lowerName.contains('banana') ||
+        lowerName.contains('orange') ||
+        lowerName.contains('strawberry') ||
+        lowerName.contains('grape') ||
+        lowerName.contains('pineapple') ||
+        lowerName.contains('mango')) {
+      return true;
+    }
+
+    // Check for pantry & snacks
+    if (lowerName.contains('oil') ||
+        lowerName.contains('noodle') ||
+        lowerName.contains('ketchup') ||
+        lowerName.contains('chip') ||
+        lowerName.contains('rice') ||
+        lowerName.contains('pasta') ||
+        lowerName.contains('bread') ||
+        lowerName.contains('honey') ||
+        lowerName.contains('peanut')) {
+      return true;
+    }
+
+    return false;
   }
 
-  bool _matchesSelectedCategory(String productTeam, String categoryName) {
-    String lowerTeam = productTeam.toLowerCase();
-    String lowerCategory = categoryName.toLowerCase();
+  bool _matchesSelectedCategory(String productName, String categoryName) {
+    String lowerProductName = productName.toLowerCase();
+    String lowerSelectedCategory = categoryName.toLowerCase();
 
-    // Map category names to team name patterns
-    switch (lowerCategory) {
-      case 'barcelona':
-        return lowerTeam.contains('barcelona') || lowerTeam.contains('fcb');
-      case 'manchester united':
-        return lowerTeam.contains('manchester') ||
-            lowerTeam.contains('united') ||
-            lowerTeam.contains('man utd');
-      case 'real madrid':
-        return lowerTeam.contains('real madrid') ||
-            lowerTeam.contains('madrid');
-      case 'liverpool':
-        return lowerTeam.contains('liverpool') || lowerTeam.contains('lfc');
+    // Map category names to product patterns
+    switch (lowerSelectedCategory) {
+      case 'fruits':
+        return lowerProductName.contains('apple') ||
+            lowerProductName.contains('banana') ||
+            lowerProductName.contains('orange') ||
+            lowerProductName.contains('strawberry') ||
+            lowerProductName.contains('grape') ||
+            lowerProductName.contains('pineapple') ||
+            lowerProductName.contains('mango');
+      case 'vegetables':
+        return lowerProductName.contains('potato') ||
+            lowerProductName.contains('spinach') ||
+            lowerProductName.contains('tomato') ||
+            lowerProductName.contains('carrot') ||
+            lowerProductName.contains('onion') ||
+            lowerProductName.contains('cucumber') ||
+            lowerProductName.contains('broccoli') ||
+            lowerProductName.contains('pepper');
+      case 'dairy':
+        return lowerProductName.contains('milk') ||
+            lowerProductName.contains('eggs') ||
+            lowerProductName.contains('yogurt') ||
+            lowerProductName.contains('cheese') ||
+            lowerProductName.contains('butter') ||
+            lowerProductName.contains('cream');
+      case 'pantry & snacks':
+        return lowerProductName.contains('oil') ||
+            lowerProductName.contains('noodle') ||
+            lowerProductName.contains('ketchup') ||
+            lowerProductName.contains('chip') ||
+            lowerProductName.contains('rice') ||
+            lowerProductName.contains('pasta') ||
+            lowerProductName.contains('bread') ||
+            lowerProductName.contains('honey') ||
+            lowerProductName.contains('peanut');
       default:
         return false;
     }

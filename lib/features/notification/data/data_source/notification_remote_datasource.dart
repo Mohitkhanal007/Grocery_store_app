@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:jerseyhub/app/constant/backend_config.dart';
-import 'package:jerseyhub/features/notification/data/model/notification_api_model.dart';
-import 'package:jerseyhub/features/notification/domain/entity/notification_entity.dart';
+import 'package:grocerystore/app/constant/backend_config.dart';
+import 'package:grocerystore/features/notification/data/model/notification_api_model.dart';
+import 'package:grocerystore/features/notification/domain/entity/notification_entity.dart';
 
 abstract class INotificationRemoteDataSource {
   Future<List<NotificationApiModel>> getNotifications(String userId);
@@ -26,15 +26,32 @@ class NotificationRemoteDataSource implements INotificationRemoteDataSource {
   @override
   Future<List<NotificationApiModel>> getNotifications(String userId) async {
     try {
+      print(
+        '🔍 NotificationDataSource: Fetching notifications for user: $userId',
+      );
       final response = await _dio.get('/notifications/user/$userId');
+
+      print(
+        '🔍 NotificationDataSource: Response status: ${response.statusCode}',
+      );
+      print('🔍 NotificationDataSource: Response data: ${response.data}');
 
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        return data.map((json) => NotificationApiModel.fromJson(json)).toList();
+        final notifications = data
+            .map((json) => NotificationApiModel.fromJson(json))
+            .toList();
+        print(
+          '🔍 NotificationDataSource: Parsed ${notifications.length} notifications',
+        );
+        return notifications;
       } else {
-        throw Exception('Failed to load notifications');
+        throw Exception(
+          'Failed to load notifications: Status ${response.statusCode}',
+        );
       }
     } catch (e) {
+      print('❌ NotificationDataSource: Error fetching notifications: $e');
       throw Exception('Failed to load notifications: $e');
     }
   }

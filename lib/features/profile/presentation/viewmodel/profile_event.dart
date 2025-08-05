@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/profile/domain/entity/profile_entity.dart';
-import 'package:jerseyhub/features/profile/domain/use_case/change_password_usecase.dart';
+import 'package:grocerystore/features/profile/domain/entity/profile_entity.dart';
+import 'package:grocerystore/features/profile/domain/use_case/change_password_usecase.dart';
 
 abstract class ProfileEvent extends Equatable {
   const ProfileEvent();

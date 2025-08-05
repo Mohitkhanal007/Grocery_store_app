@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
+import 'package:grocerystore/features/category/domain/entity/category_entity.dart';
 
 class CategoryCard extends StatelessWidget {
   final CategoryEntity category;

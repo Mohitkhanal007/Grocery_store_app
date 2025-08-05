@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jerseyhub/features/profile/domain/entity/profile_entity.dart';
-import 'package:jerseyhub/features/profile/data/model/profile_model.dart';
+import 'package:grocerystore/features/profile/domain/entity/profile_entity.dart';
+import 'package:grocerystore/features/profile/data/model/profile_model.dart';
 
 void main() {
   group('Profile Tests', () {

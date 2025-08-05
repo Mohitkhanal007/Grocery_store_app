@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
+import 'package:grocerystore/features/auth/domain/entity/user_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user_api_model.g.dart';

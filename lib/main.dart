@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/features/splash/presentation/view/splash_view.dart';
-import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
-import 'package:jerseyhub/core/widgets/sensor_aware_widget.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/features/splash/presentation/view/splash_view.dart';
+import 'package:grocerystore/features/splash/presentation/view_model/splash_view_model.dart';
+import 'package:grocerystore/core/theme/theme_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,19 +16,29 @@ void main() async {
         BlocProvider(create: (_) => serviceLocator<SplashViewModel>()),
         // You can add more BlocProviders here if needed
       ],
-      child: SensorAwareWidget(
-        onThemeChanged: (bool isDarkMode) {
-          print('🎨 Theme changed to: ${isDarkMode ? "Dark" : "Light"} mode');
-        },
-        onRefreshRequested: () {
-          print('🔄 Refresh requested via shake sensor');
-          // You can add global refresh logic here
-        },
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: SplashScreenView(),
-        ),
-      ),
+      child: const MyApp(),
     ),
   );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: ThemeManager(),
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'GroceryStore',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeManager().getTheme(),
+          home: BlocProvider(
+            create: (context) => serviceLocator<SplashViewModel>(),
+            child: const SplashScreenView(),
+          ),
+        );
+      },
+    );
+  }
 }

@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/core/network/api_service.dart';
-import 'package:jerseyhub/features/profile/data/model/profile_model.dart';
-import 'package:jerseyhub/features/profile/domain/entity/profile_entity.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/core/network/api_service.dart';
+import 'package:grocerystore/features/profile/data/model/profile_model.dart';
+import 'package:grocerystore/features/profile/domain/entity/profile_entity.dart';
 
 abstract class ProfileRemoteDataSource {
   Future<Either<Failure, ProfileModel>> getProfile(String userId);

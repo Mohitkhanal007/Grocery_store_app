@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
+import 'package:grocerystore/features/payment/domain/entity/payment_entity.dart';
 
 class PaymentModel extends Equatable {
   final String id;

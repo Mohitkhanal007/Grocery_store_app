@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:jerseyhub/features/notification/domain/entity/notification_entity.dart';
+import 'package:grocerystore/features/notification/domain/entity/notification_entity.dart';
 
 part 'notification_api_model.g.dart';
 

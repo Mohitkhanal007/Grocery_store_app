@@ -3,7 +3,7 @@
 /// This file contains app-wide constants and information
 class AppInfo {
   // App Details
-  static const String appName = "JerseyHub";
+  static const String appName = "GroceryStore";
   static const String appVersion = "1.0.0";
   static const String appDescription = "A Flutter app for jersey management";
 
@@ -31,7 +31,7 @@ class AppInfo {
   // App URLs
   static const String privacyPolicyUrl = "https://example.com/privacy";
   static const String termsOfServiceUrl = "https://example.com/terms";
-  static const String supportEmail = "support@jerseyhub.com";
+  static const String supportEmail = "support@grocerystore.com";
 
   // App Storage Keys
   static const String userTokenKey = "user_token";

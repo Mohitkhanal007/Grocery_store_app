@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/payment/data/data_source/payment_remote_datasource.dart';
-import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
-import 'package:jerseyhub/features/payment/domain/repository/payment_repository.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/payment/data/data_source/payment_remote_datasource.dart';
+import 'package:grocerystore/features/payment/domain/entity/payment_entity.dart';
+import 'package:grocerystore/features/payment/domain/repository/payment_repository.dart';
 
 class PaymentRepositoryImpl implements PaymentRepository {
   final PaymentRemoteDataSource remoteDataSource;

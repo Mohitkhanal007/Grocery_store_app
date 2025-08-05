@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
-import 'package:jerseyhub/features/payment/data/model/payment_model.dart';
+import 'package:grocerystore/features/payment/domain/entity/payment_entity.dart';
+import 'package:grocerystore/features/payment/data/model/payment_model.dart';
 
 void main() {
   group('Payment Tests', () {

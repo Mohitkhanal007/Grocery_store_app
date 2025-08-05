@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/payment/domain/entity/payment_entity.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/payment/domain/entity/payment_entity.dart';
 
 abstract class PaymentRepository {
   // Payment creation and processing

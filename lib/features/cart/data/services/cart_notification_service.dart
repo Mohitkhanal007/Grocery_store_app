@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:jerseyhub/app/constant/backend_config.dart';
-import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
+import 'package:grocerystore/app/constant/backend_config.dart';
+import 'package:grocerystore/app/shared_prefs/user_shared_prefs.dart';
 
 class CartNotificationService {
   final Dio _dio;

@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/category/data/data_source/remote_datasource/category_remote_datasource.dart';
-import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
-import 'package:jerseyhub/features/category/domain/repository/category_repository.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/category/data/data_source/remote_datasource/category_remote_datasource.dart';
+import 'package:grocerystore/features/category/domain/entity/category_entity.dart';
+import 'package:grocerystore/features/category/domain/repository/category_repository.dart';
 
 class CategoryRepositoryImpl implements ICategoryRepository {
   final CategoryRemoteDataSource _remoteDataSource;

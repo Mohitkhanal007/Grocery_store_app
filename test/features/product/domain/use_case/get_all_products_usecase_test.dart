@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
-import 'package:jerseyhub/features/product/domain/repository/product_repository.dart';
-import 'package:jerseyhub/features/product/domain/use_case/get_all_products_usecase.dart';
-import 'package:jerseyhub/core/error/failure.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/product/domain/repository/product_repository.dart';
+import 'package:grocerystore/features/product/domain/use_case/get_all_products_usecase.dart';
+import 'package:grocerystore/core/error/failure.dart';
 
 class MockProductRepository extends Mock implements IProductRepository {}
 

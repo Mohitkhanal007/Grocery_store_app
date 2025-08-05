@@ -1,12 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
-import 'package:jerseyhub/features/order/domain/use_case/get_all_orders_usecase.dart';
-import 'package:jerseyhub/features/order/domain/use_case/get_order_by_id_usecase.dart';
-import 'package:jerseyhub/features/order/domain/use_case/create_order_usecase.dart';
-import 'package:jerseyhub/features/order/domain/use_case/update_order_status_usecase.dart';
-import 'package:jerseyhub/features/order/domain/use_case/delete_order_usecase.dart';
-import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
+import 'package:grocerystore/features/order/domain/entity/order_entity.dart';
+import 'package:grocerystore/features/order/domain/use_case/get_all_orders_usecase.dart';
+import 'package:grocerystore/features/order/domain/use_case/get_order_by_id_usecase.dart';
+import 'package:grocerystore/features/order/domain/use_case/create_order_usecase.dart';
+import 'package:grocerystore/features/order/domain/use_case/update_order_status_usecase.dart';
+import 'package:grocerystore/features/order/domain/use_case/delete_order_usecase.dart';
+import 'package:grocerystore/app/shared_prefs/user_shared_prefs.dart';
 
 // Events
 abstract class OrderEvent extends Equatable {
@@ -143,7 +143,11 @@ class OrderViewModel extends Bloc<OrderEvent, OrderState> {
   }
 
   String _getUserId(String? eventUserId) {
-    return eventUserId ?? _userSharedPrefs.getCurrentUserId() ?? 'unknown_user';
+    final userId = eventUserId ?? _userSharedPrefs.getCurrentUserId();
+    if (userId == null || userId.isEmpty) {
+      throw Exception('User ID is required for order operations');
+    }
+    return userId;
   }
 
   Future<void> _onLoadAllOrders(
@@ -151,22 +155,34 @@ class OrderViewModel extends Bloc<OrderEvent, OrderState> {
     Emitter<OrderState> emit,
   ) async {
     emit(OrderLoading());
-    final userId = _getUserId(event.userId);
-    print('🔍 OrderViewModel: Loading orders for userId: $userId');
+    try {
+      final userId = _getUserId(event.userId);
+      print('🔍 OrderViewModel: Loading orders for userId: $userId');
 
-    final result = await getAllOrdersUseCase(
-      GetAllOrdersParams(userId: userId),
-    );
-    result.fold(
-      (failure) {
-        print('❌ OrderViewModel: Failed to load orders: ${failure.message}');
-        emit(OrderError(message: failure.message));
-      },
-      (orders) {
-        print('✅ OrderViewModel: Successfully loaded ${orders.length} orders');
-        emit(OrdersLoaded(orders: orders));
-      },
-    );
+      final result = await getAllOrdersUseCase(
+        GetAllOrdersParams(userId: userId),
+      );
+      result.fold(
+        (failure) {
+          print('❌ OrderViewModel: Failed to load orders: ${failure.message}');
+          emit(OrderError(message: failure.message));
+        },
+        (orders) {
+          print(
+            '✅ OrderViewModel: Successfully loaded ${orders.length} orders',
+          );
+          for (var order in orders) {
+            print(
+              '📦 Order: ID=${order.id}, Status=${order.status}, Total=${order.totalAmount}',
+            );
+          }
+          emit(OrdersLoaded(orders: orders));
+        },
+      );
+    } catch (e) {
+      print('💥 OrderViewModel: Exception in _onLoadAllOrders: $e');
+      emit(OrderError(message: 'Exception: $e'));
+    }
   }
 
   Future<void> _onLoadOrderById(

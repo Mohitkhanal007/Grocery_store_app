@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/app/use_case/usecase.dart';
-import 'package:jerseyhub/features/order/domain/repository/order_repository.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/app/use_case/usecase.dart';
+import 'package:grocerystore/features/order/domain/repository/order_repository.dart';
 
 class DeleteOrderParams {
   final String orderId;

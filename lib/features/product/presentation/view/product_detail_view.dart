@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
-import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/product/presentation/viewmodel/product_viewmodel.dart';
 
 class ProductDetailView extends StatefulWidget {
   final String productId;
   final ProductEntity? initialProduct;
+  final VoidCallback? onNavigateToCart;
 
   const ProductDetailView({
     super.key,
     required this.productId,
     this.initialProduct,
+    this.onNavigateToCart,
   });
 
   @override
@@ -21,6 +23,7 @@ class ProductDetailView extends StatefulWidget {
 
 class _ProductDetailViewState extends State<ProductDetailView> {
   ProductEntity? _currentProduct;
+  int _selectedQuantity = 1;
 
   @override
   void initState() {
@@ -150,36 +153,22 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 ),
               ),
               const SizedBox(width: 12),
-              GestureDetector(
-                onTap: () => _showSizeSelector(context),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[400]!),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Size ${product.size}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_drop_down,
-                        size: 16,
-                        color: Colors.grey[600],
-                      ),
-                    ],
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[400]!),
+                ),
+                child: Text(
+                  product.size,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -191,7 +180,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           Row(
             children: [
               Text(
-                'रू${product.price.toStringAsFixed(2)}',
+                '\$${product.price.toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -241,6 +230,79 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           ),
           const SizedBox(height: 32),
 
+          // Quantity Selector
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Quantity',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: _selectedQuantity > 1
+                          ? () => setState(() => _selectedQuantity--)
+                          : null,
+                      icon: const Icon(Icons.remove_circle_outline),
+                      color: _selectedQuantity > 1
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey,
+                      iconSize: 28,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Text(
+                        '$_selectedQuantity',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: _selectedQuantity < product.quantity
+                          ? () => setState(() => _selectedQuantity++)
+                          : null,
+                      icon: const Icon(Icons.add_circle_outline),
+                      color: _selectedQuantity < product.quantity
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey,
+                      iconSize: 28,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Available: ${product.quantity} in stock',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
           // Add to Cart Button
           SizedBox(
             width: double.infinity,
@@ -263,36 +325,6 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Buy Now Button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              onPressed: product.quantity > 0
-                  ? () {
-                      // TODO: Buy now functionality
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Proceeding to checkout...'),
-                          backgroundColor: Colors.blue,
-                        ),
-                      );
-                    }
-                  : null,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Theme.of(context).primaryColor,
-                side: BorderSide(color: Theme.of(context).primaryColor),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Buy Now',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -331,141 +363,73 @@ class _ProductDetailViewState extends State<ProductDetailView> {
         color: Colors.grey[300],
       ),
       child: const Center(
-        child: Icon(Icons.sports_soccer, size: 64, color: Colors.grey),
+        child: Icon(Icons.shopping_basket, size: 64, color: Colors.grey),
       ),
     );
   }
 
   Color _getTypeColor(String type) {
     switch (type.toLowerCase()) {
-      case 'home':
+      case 'dozen':
+        return Colors.orange;
+      case 'whole':
         return Colors.blue;
-      case 'away':
-        return Colors.red;
-      case 'third':
+      case 'plain':
+        return Colors.green;
+      case 'fresh':
+        return Colors.green;
+      case 'organic':
         return Colors.purple;
+      case 'classic':
+        return Colors.red;
+      case 'chicken':
+        return Colors.amber;
+      case 'olive':
+        return Colors.teal;
+      case 'sharp':
+        return Colors.orange;
+      case 'unsalted':
+        return Colors.yellow;
+      case 'regular':
+        return Colors.blue;
+      case 'yellow':
+        return Colors.yellow;
+      case 'english':
+        return Colors.green;
+      case 'red seedless':
+        return Colors.red;
+      case 'alphonso':
+        return Colors.orange;
+      case 'long grain':
+        return Colors.brown;
+      case 'spaghetti':
+        return Colors.amber;
+      case 'whole wheat':
+        return Colors.brown;
+      case 'pure':
+        return Colors.amber;
+      case 'smooth':
+        return Colors.orange;
+      case 'mixed colors':
+        return Colors.purple;
+      case 'navel':
+        return Colors.orange;
+      case 'russet':
+        return Colors.brown;
+      case 'roma':
+        return Colors.red;
+      case 'gala':
+        return Colors.red;
       default:
         return Colors.grey;
     }
-  }
-
-  void _showSizeSelector(BuildContext context) {
-    final List<String> availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle bar
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Title
-              Text(
-                'Select Size for ${_currentProduct!.team}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Size grid
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 2.5,
-                ),
-                itemCount: availableSizes.length,
-                itemBuilder: (context, index) {
-                  final size = availableSizes[index];
-                  final isCurrentSize = size == _currentProduct!.size;
-
-                  return GestureDetector(
-                    onTap: () {
-                      print('ProductDetailView: User selected size $size');
-                      print(
-                        'ProductDetailView: Current product size before update: ${_currentProduct!.size}',
-                      );
-                      // Update the product size using setState
-                      setState(() {
-                        _currentProduct = _currentProduct!.copyWith(
-                          size: size,
-                          updatedAt: DateTime.now(),
-                        );
-                        print(
-                          'ProductDetailView: Size updated to ${_currentProduct!.size}',
-                        );
-                      });
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Size $size selected for ${_currentProduct!.team}',
-                          ),
-                          duration: const Duration(seconds: 2),
-                          backgroundColor: Theme.of(context).primaryColor,
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isCurrentSize
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isCurrentSize
-                              ? Theme.of(context).primaryColor
-                              : Colors.grey[300]!,
-                          width: isCurrentSize ? 2 : 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          size,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isCurrentSize
-                                ? Colors.white
-                                : Colors.black87,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   void _addToCart(BuildContext context, ProductEntity product) {
     final cartItem = CartItemEntity(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       product: product,
-      quantity: 1,
+      quantity: _selectedQuantity,
       selectedSize: product.size,
       addedAt: DateTime.now(),
     );
@@ -475,14 +439,18 @@ class _ProductDetailViewState extends State<ProductDetailView> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${product.team} added to cart!'),
+        content: Text('${_selectedQuantity}x ${product.team} added to cart!'),
         backgroundColor: Colors.green,
         action: SnackBarAction(
           label: 'View Cart',
           textColor: Colors.white,
           onPressed: () {
-            // Navigate to cart tab
+            // Close product detail and navigate to cart
             Navigator.pop(context);
+            // Use the callback to switch to cart tab
+            if (widget.onNavigateToCart != null) {
+              widget.onNavigateToCart!();
+            }
           },
         ),
       ),

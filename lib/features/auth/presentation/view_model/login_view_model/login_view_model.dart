@@ -2,7 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'login_event.dart';
 import 'login_state.dart';
-import 'package:jerseyhub/features/auth/domain/use_case/user_login_usecase.dart';
+import 'package:grocerystore/features/auth/domain/use_case/user_login_usecase.dart';
 
 class LoginViewModel extends Bloc<LoginEvent, LoginState> {
   final UserLoginUsecase _userLoginUsecase;

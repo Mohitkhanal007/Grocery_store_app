@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/auth/domain/use_case/user_logout_usecase.dart';
+import 'package:grocerystore/features/auth/domain/use_case/user_logout_usecase.dart';
 
 enum HomeState { initial, loggedOut, logoutError }
 

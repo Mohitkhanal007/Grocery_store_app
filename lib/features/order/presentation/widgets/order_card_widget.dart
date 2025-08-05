@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
-import 'package:jerseyhub/features/order/presentation/view/order_detail_view.dart';
-import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/features/order/domain/entity/order_entity.dart';
+import 'package:grocerystore/features/order/presentation/view/order_detail_view.dart';
+import 'package:grocerystore/features/order/presentation/viewmodel/order_viewmodel.dart';
 
 class OrderCardWidget extends StatelessWidget {
   final OrderEntity order;
@@ -42,10 +42,12 @@ class OrderCardWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Order #${order.id.substring(0, 8)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    'Order #${order.id.substring(order.id.length - 8)}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color:
+                          Theme.of(context).textTheme.bodyMedium?.color ??
+                          Colors.grey[600],
                     ),
                   ),
                   Row(

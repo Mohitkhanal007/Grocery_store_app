@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
-import 'package:jerseyhub/features/category/domain/use_case/get_all_categories_usecase.dart';
-import 'package:jerseyhub/features/category/domain/use_case/get_category_by_id_usecase.dart';
+import 'package:grocerystore/features/category/domain/entity/category_entity.dart';
+import 'package:grocerystore/features/category/domain/use_case/get_all_categories_usecase.dart';
+import 'package:grocerystore/features/category/domain/use_case/get_category_by_id_usecase.dart';
 
 // Events
 abstract class CategoryEvent {}

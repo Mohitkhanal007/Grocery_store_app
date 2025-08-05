@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/notification/domain/entity/notification_entity.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/notification/domain/entity/notification_entity.dart';
 
 abstract class INotificationRepository {
   Future<Either<Failure, List<NotificationEntity>>> getNotifications(

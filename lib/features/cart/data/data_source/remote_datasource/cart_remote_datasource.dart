@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_entity.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
 
 abstract class CartRemoteDataSource {
   Future<Either<Failure, CartEntity>> getCart(String userId);

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/auth/domain/entity/user_entity.dart';
 import '../../../domain/repository/user_repository.dart';
 import '../../../domain/use_case/user_login_usecase.dart';
 import '../../data_source/remote_datasource/user_remote_datasource.dart';

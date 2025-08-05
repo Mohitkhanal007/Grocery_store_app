@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
+import 'package:grocerystore/core/error/failure.dart';
 
 abstract interface class UsecaseWithParams<SuccessType, Params>{
   Future<Either<Failure,SuccessType>>call (Params params);

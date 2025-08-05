@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
-import 'package:jerseyhub/features/order/presentation/widgets/order_item_widget.dart';
+import 'package:grocerystore/features/order/presentation/viewmodel/order_viewmodel.dart';
+import 'package:grocerystore/features/order/presentation/widgets/order_item_widget.dart';
 
 class OrderDetailView extends StatefulWidget {
   final String orderId;

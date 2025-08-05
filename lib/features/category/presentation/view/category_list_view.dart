@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
-import 'package:jerseyhub/features/category/presentation/viewmodel/category_viewmodel.dart';
-import 'package:jerseyhub/features/category/presentation/widgets/category_card.dart';
+import 'package:grocerystore/features/category/domain/entity/category_entity.dart';
+import 'package:grocerystore/features/category/presentation/viewmodel/category_viewmodel.dart';
+import 'package:grocerystore/features/category/presentation/widgets/category_card.dart';
 
 class CategoryListView extends StatefulWidget {
   final Function(CategoryEntity?)? onCategorySelected;
@@ -33,15 +33,20 @@ class _CategoryListViewState extends State<CategoryListView> {
           return const Center(child: CircularProgressIndicator());
         } else if (state is CategoriesLoaded) {
           if (state.categories.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.category_outlined, size: 64, color: Colors.grey),
                   SizedBox(height: 16),
                   Text(
-                    'No categories available',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    'No categories found',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color:
+                          Theme.of(context).textTheme.bodyLarge?.color ??
+                          Colors.grey,
+                    ),
                   ),
                 ],
               ),
@@ -53,14 +58,19 @@ class _CategoryListViewState extends State<CategoryListView> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
+                Icon(Icons.error_outline, size: 64, color: Colors.red),
+                SizedBox(height: 16),
                 Text(
                   'Error: ${state.message}',
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color:
+                        Theme.of(context).textTheme.bodyLarge?.color ??
+                        Colors.red,
+                  ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     context.read<CategoryViewModel>().add(
@@ -73,21 +83,29 @@ class _CategoryListViewState extends State<CategoryListView> {
             ),
           );
         }
-        return const Center(child: Text('No categories available'));
+        return Center(
+          child: Text(
+            'No categories available',
+            style: TextStyle(
+              color:
+                  Theme.of(context).textTheme.bodyLarge?.color ?? Colors.grey,
+            ),
+          ),
+        );
       },
     );
   }
 
   Widget _buildCategoriesList(List<CategoryEntity> categories) {
-    // Filter categories to only show those with images
+    // Filter categories to only show grocery categories
     final categoriesWithImages = categories.where((category) {
-      // Check if category has a club logo (based on name)
-      final hasClubLogo = _hasClubLogo(category.name);
+      // Check if category has a grocery category (based on name)
+      final hasGroceryCategory = _hasGroceryCategory(category.name);
       // Check if category has a valid imageUrl
       final hasImageUrl =
           category.imageUrl != null && category.imageUrl!.isNotEmpty;
 
-      return hasClubLogo || hasImageUrl;
+      return hasGroceryCategory || hasImageUrl;
     }).toList();
 
     return ListView.builder(
@@ -134,17 +152,18 @@ class _CategoryListViewState extends State<CategoryListView> {
     );
   }
 
-  bool _hasClubLogo(String categoryName) {
+  bool _hasGroceryCategory(String categoryName) {
     String lowerName = categoryName.toLowerCase();
 
-    return lowerName.contains('barcelona') ||
-        lowerName.contains('fcb') ||
-        lowerName.contains('manchester') ||
-        lowerName.contains('united') ||
-        lowerName.contains('man utd') ||
-        lowerName.contains('real madrid') ||
-        lowerName.contains('madrid') ||
-        lowerName.contains('liverpool') ||
-        lowerName.contains('lfc');
+    return lowerName.contains('fruits') ||
+        lowerName.contains('vegetables') ||
+        lowerName.contains('dairy') ||
+        lowerName.contains('meat') ||
+        lowerName.contains('bakery') ||
+        lowerName.contains('beverages') ||
+        lowerName.contains('snacks') ||
+        lowerName.contains('pantry') ||
+        lowerName.contains('frozen') ||
+        lowerName.contains('organic');
   }
 }

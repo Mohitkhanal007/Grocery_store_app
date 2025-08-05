@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jerseyhub/features/notification/domain/entity/notification_entity.dart';
+import 'package:grocerystore/features/notification/domain/entity/notification_entity.dart';
 
 class NotificationTile extends StatelessWidget {
   final NotificationEntity notification;
@@ -52,7 +52,12 @@ class NotificationTile extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               _formatTime(notification.createdAt),
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+              style: TextStyle(
+                fontSize: 12,
+                color:
+                    Theme.of(context).textTheme.bodySmall?.color ??
+                    Colors.grey.shade500,
+              ),
             ),
             if (notification.type != 'order') ...[
               const SizedBox(height: 4),

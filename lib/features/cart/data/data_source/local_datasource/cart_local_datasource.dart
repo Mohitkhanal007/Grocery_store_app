@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_entity.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
 
 abstract class CartLocalDataSource {
   Future<CartEntity> getCart();

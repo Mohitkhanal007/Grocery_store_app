@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/notification/domain/entity/notification_entity.dart';
-import 'package:jerseyhub/features/notification/domain/repository/notification_repository.dart';
-import 'package:jerseyhub/features/notification/domain/use_case/get_notifications_usecase.dart';
-import 'package:jerseyhub/features/notification/domain/use_case/mark_notification_read_usecase.dart';
-import 'package:jerseyhub/features/notification/domain/use_case/mark_all_notifications_read_usecase.dart';
-import 'package:jerseyhub/features/notification/domain/use_case/clear_all_notifications_usecase.dart';
+import 'package:grocerystore/features/notification/domain/entity/notification_entity.dart';
+import 'package:grocerystore/features/notification/domain/repository/notification_repository.dart';
+import 'package:grocerystore/features/notification/domain/use_case/get_notifications_usecase.dart';
+import 'package:grocerystore/features/notification/domain/use_case/mark_notification_read_usecase.dart';
+import 'package:grocerystore/features/notification/domain/use_case/mark_all_notifications_read_usecase.dart';
+import 'package:grocerystore/features/notification/domain/use_case/clear_all_notifications_usecase.dart';
 
 // Events
 abstract class NotificationEvent extends Equatable {

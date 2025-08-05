@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
 
 class CartItemEntity extends Equatable {
   final String id;

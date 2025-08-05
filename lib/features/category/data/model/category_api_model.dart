@@ -1,4 +1,4 @@
-import 'package:jerseyhub/features/category/domain/entity/category_entity.dart';
+import 'package:grocerystore/features/category/domain/entity/category_entity.dart';
 
 class CategoryApiModel {
   final String id;

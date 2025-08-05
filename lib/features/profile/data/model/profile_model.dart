@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/profile/domain/entity/profile_entity.dart';
+import 'package:grocerystore/features/profile/domain/entity/profile_entity.dart';
 
 class ProfileModel extends Equatable {
   final String? id;

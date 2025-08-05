@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
-import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
-import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
-import 'package:jerseyhub/features/order/presentation/widgets/order_item_widget.dart';
-import 'package:jerseyhub/features/payment/presentation/view/payment_view.dart';
-import 'package:jerseyhub/features/payment/presentation/viewmodel/payment_viewmodel.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/app/shared_prefs/user_shared_prefs.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_entity.dart';
+import 'package:grocerystore/features/order/domain/entity/order_entity.dart';
+import 'package:grocerystore/features/order/presentation/viewmodel/order_viewmodel.dart';
+import 'package:grocerystore/features/order/presentation/widgets/order_item_widget.dart';
+import 'package:grocerystore/features/payment/presentation/view/payment_view.dart';
+import 'package:grocerystore/features/payment/presentation/viewmodel/payment_viewmodel.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
 
 class CheckoutView extends StatefulWidget {
   final CartEntity cart;
@@ -277,6 +278,11 @@ class _CheckoutViewState extends State<CheckoutView> {
       final totalAmount = widget.cart.totalPrice + 5.99;
 
       // Navigate to payment page
+      print('🔍 CheckoutView: Cart has ${widget.cart.items.length} items');
+      print(
+        '🔍 CheckoutView: Cart items: ${widget.cart.items.map((item) => '${item.product.team} - ${item.quantity}').join(', ')}',
+      );
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -291,6 +297,7 @@ class _CheckoutViewState extends State<CheckoutView> {
               amount: totalAmount,
               customerName: _nameController.text,
               customerEmail: _emailController.text,
+              cartItems: widget.cart.items, // Pass cart items to PaymentView
               onPaymentSuccess: () {
                 // This will be called when payment is successful
                 _placeOrder(orderId);
@@ -355,16 +362,43 @@ class _CheckoutViewState extends State<CheckoutView> {
             ],
           ),
           actions: [
-            TextButton(
+            ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pop(); // Close dialog
+                _clearCartAndNavigateToHome();
               },
-              child: const Text('Continue Shopping'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Go to Home'),
             ),
           ],
         );
       },
+    );
+  }
+
+  void _clearCartAndNavigateToHome() {
+    // Clear the cart
+    final userId = _userSharedPrefs.getCurrentUserId();
+    if (userId != null) {
+      final cartViewModel = serviceLocator<CartViewModel>();
+      cartViewModel.add(ClearCartEvent(userId: userId));
+    }
+
+    // Navigate to home page
+    Navigator.of(context).popUntil((route) => route.isFirst);
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Order placed successfully! Cart cleared. Welcome back to home.',
+        ),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 

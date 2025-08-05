@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:jerseyhub/core/error/failure.dart';
-import 'package:jerseyhub/features/order/domain/entity/order_entity.dart';
-import 'package:jerseyhub/features/order/domain/repository/order_repository.dart';
-import 'package:jerseyhub/features/order/data/data_source/local_datasource/order_local_datasource.dart';
-import 'package:jerseyhub/features/order/data/data_source/remote_datasource/order_remote_datasource.dart';
+import 'package:grocerystore/core/error/failure.dart';
+import 'package:grocerystore/features/order/domain/entity/order_entity.dart';
+import 'package:grocerystore/features/order/domain/repository/order_repository.dart';
+import 'package:grocerystore/features/order/data/data_source/local_datasource/order_local_datasource.dart';
+import 'package:grocerystore/features/order/data/data_source/remote_datasource/order_remote_datasource.dart';
 
 class OrderRepositoryImpl implements OrderRepository {
   final OrderLocalDataSource _localDataSource;
@@ -13,9 +13,11 @@ class OrderRepositoryImpl implements OrderRepository {
 
   // Local operations
   @override
-  Future<Either<Failure, List<OrderEntity>>> getAllLocalOrders() async {
+  Future<Either<Failure, List<OrderEntity>>> getAllLocalOrders([
+    String? userId,
+  ]) async {
     try {
-      final orders = await _localDataSource.getAllOrders();
+      final orders = await _localDataSource.getAllOrders(userId);
       return Right(orders);
     } catch (e) {
       return Left(SharedPreferencesFailure(message: e.toString()));
@@ -123,7 +125,7 @@ class OrderRepositoryImpl implements OrderRepository {
           '❌ OrderRepositoryImpl: Remote failed, falling back to local: ${failure.message}',
         );
         // If remote fails, return local orders
-        return getAllLocalOrders();
+        return getAllLocalOrders(userId);
       },
       (remoteOrders) {
         print(

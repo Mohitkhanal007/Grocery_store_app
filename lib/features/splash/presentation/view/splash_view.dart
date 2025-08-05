@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/features/auth/presentation/view/login_view.dart';
-import 'package:jerseyhub/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
-import 'package:jerseyhub/features/home/presentation/view/home_page.dart';
-import 'package:jerseyhub/features/home/presentation/viewmodel/homepage_viewmodel.dart';
-import 'package:jerseyhub/features/splash/presentation/view_model/splash_view_model.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/features/auth/presentation/view/login_view.dart';
+import 'package:grocerystore/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:grocerystore/features/home/presentation/view/home_page.dart';
+import 'package:grocerystore/features/home/presentation/viewmodel/homepage_viewmodel.dart';
+import 'package:grocerystore/features/splash/presentation/view_model/splash_view_model.dart';
+import 'package:grocerystore/core/network/connection_test.dart';
 import 'dart:math' as math;
 
 class SplashScreenView extends StatefulWidget {
@@ -125,17 +126,25 @@ class _SplashScreenViewState extends State<SplashScreenView>
     );
   }
 
-  Widget _buildFootballShirtDesign() {
+  Widget _buildGroceryStoreLogo() {
     return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: Image.asset(
-          'assets/images/image.png',
-          fit: BoxFit.fill,
-          width: double.infinity,
-          height: double.infinity,
-        ),
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.3),
+            blurRadius: 20,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: Icon(
+        Icons.shopping_basket,
+        size: 60,
+        color: Colors.purple.shade700,
       ),
     );
   }
@@ -173,10 +182,10 @@ class _SplashScreenViewState extends State<SplashScreenView>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.blue.shade900,
-                Colors.purple.shade800,
-                Colors.indigo.shade900,
-                Colors.blue.shade800,
+                Colors.purple.shade900,
+                Colors.purple.shade700,
+                Colors.purple.shade500,
+                Colors.purple.shade300,
               ],
               stops: const [0.0, 0.3, 0.7, 1.0],
             ),
@@ -185,7 +194,12 @@ class _SplashScreenViewState extends State<SplashScreenView>
             children: [
               // Floating particles
               _buildFloatingParticle(50, 100, 8, Colors.white.withOpacity(0.3)),
-              _buildFloatingParticle(300, 150, 6, Colors.blue.withOpacity(0.4)),
+              _buildFloatingParticle(
+                300,
+                150,
+                6,
+                Colors.purple.withOpacity(0.4),
+              ),
               _buildFloatingParticle(
                 100,
                 300,
@@ -202,9 +216,14 @@ class _SplashScreenViewState extends State<SplashScreenView>
                 80,
                 500,
                 5,
-                Colors.indigo.withOpacity(0.4),
+                Colors.purple.withOpacity(0.4),
               ),
-              _buildFloatingParticle(320, 600, 9, Colors.blue.withOpacity(0.3)),
+              _buildFloatingParticle(
+                320,
+                600,
+                9,
+                Colors.purple.withOpacity(0.3),
+              ),
 
               // Main content
               SafeArea(
@@ -240,7 +259,7 @@ class _SplashScreenViewState extends State<SplashScreenView>
                                 ),
                               ],
                             ),
-                            child: _buildFootballShirtDesign(),
+                            child: Center(child: _buildGroceryStoreLogo()),
                           ),
                         ),
                       ),
@@ -251,7 +270,7 @@ class _SplashScreenViewState extends State<SplashScreenView>
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: const Text(
-                          'JERSEY HUB',
+                          'GROCERY STORE',
                           style: TextStyle(
                             fontFamily: 'OpenSans Bold',
                             color: Colors.white,
@@ -275,15 +294,40 @@ class _SplashScreenViewState extends State<SplashScreenView>
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Text(
-                          'Your Ultimate Jersey Destination',
+                          'Fresh Groceries at Your Doorstep',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: 16,
-                            fontWeight: FontWeight.w300,
-                            letterSpacing: 1,
+                            fontFamily: 'OpenSans Regular',
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 30),
+
+                      // Debug Connection Test Button (only in debug mode)
+                      if (const bool.fromEnvironment('dart.vm.product') ==
+                          false)
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              await ConnectionTest.runAllTests();
+                            },
+                            icon: const Icon(Icons.wifi, color: Colors.white),
+                            label: const Text(
+                              'Test Backend Connection',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.purple.withOpacity(0.7),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
 
                       const SizedBox(height: 60),
 

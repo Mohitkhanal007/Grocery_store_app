@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
-import 'package:jerseyhub/app/constant/hive_table_constant.dart';
-import 'package:jerseyhub/features/auth/domain/entity/user_entity.dart';
+import 'package:grocerystore/app/constant/hive_table_constant.dart';
+import 'package:grocerystore/features/auth/domain/entity/user_entity.dart';
 import 'package:uuid/uuid.dart';
 
 part 'user_hive_model.g.dart';

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
-import 'package:jerseyhub/features/cart/presentation/view/cart_view.dart';
-import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
-import 'package:jerseyhub/features/order/presentation/view/order_list_view.dart';
-import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
-import 'package:jerseyhub/features/product/presentation/view/product_list_view.dart';
-import 'package:jerseyhub/features/product/presentation/viewmodel/product_viewmodel.dart';
-import 'package:jerseyhub/features/profile/presentation/view/profile_view.dart';
-import 'package:jerseyhub/features/profile/presentation/viewmodel/profile_viewmodel.dart';
-import 'package:jerseyhub/features/notification/presentation/view/notification_list_view.dart';
-import 'package:jerseyhub/features/notification/presentation/bloc/notification_bloc.dart';
-import 'package:jerseyhub/features/notification/presentation/widgets/notification_badge.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/app/shared_prefs/user_shared_prefs.dart';
+import 'package:grocerystore/features/cart/presentation/view/cart_view.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
+import 'package:grocerystore/features/order/presentation/view/order_list_view.dart';
+import 'package:grocerystore/features/order/presentation/viewmodel/order_viewmodel.dart';
+import 'package:grocerystore/features/product/presentation/view/product_list_view.dart';
+import 'package:grocerystore/features/product/presentation/viewmodel/product_viewmodel.dart';
+import 'package:grocerystore/features/profile/presentation/view/profile_view.dart';
+import 'package:grocerystore/features/profile/presentation/viewmodel/profile_viewmodel.dart';
+import 'package:grocerystore/features/notification/presentation/view/notification_list_view.dart';
+import 'package:grocerystore/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:grocerystore/core/theme/theme_manager.dart';
+import 'package:grocerystore/features/auth/presentation/view/login_view.dart';
+import 'package:grocerystore/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,39 +26,74 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   late final CartViewModel _cartViewModel;
+  late final ThemeManager _themeManager;
 
-  final List<String> _titles = ['', '', '', '', 'Profile'];
+  final List<String> _titles = ['GroceryStore', 'Cart', 'Orders', 'Profile'];
 
   @override
   void initState() {
     super.initState();
     _cartViewModel = serviceLocator<CartViewModel>();
+    _themeManager = ThemeManager();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-
-    // Refresh cart when cart tab is selected
-    if (index == 1) {
-      _cartViewModel.add(LoadCartEvent());
-    }
-
-    // Connect to notification socket when notifications tab is selected
-    if (index == 3) {
-      final userSharedPrefs = serviceLocator<UserSharedPrefs>();
-      final userId = userSharedPrefs.getCurrentUserId() ?? 'unknown_user';
-      final notificationBloc = serviceLocator<NotificationBloc>();
-      notificationBloc.add(ConnectToSocket(userId));
-      notificationBloc.add(LoadNotifications(userId));
-    }
   }
 
   Widget _buildProfilePage() {
     final userSharedPrefs = serviceLocator<UserSharedPrefs>();
-    final userId = userSharedPrefs.getCurrentUserId() ?? 'unknown_user';
+    final userId = userSharedPrefs.getCurrentUserId();
 
+    print('🔍 HomePage: Building profile page with user ID: $userId');
+
+    if (userId == null || userId.isEmpty || userId == 'unknown_user') {
+      print('❌ HomePage: No valid user ID found, showing login prompt');
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person, size: 80, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'Please log in to view your profile',
+              style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => serviceLocator<LoginViewModel>(),
+                      child: const LoginView(),
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+              ),
+              child: const Text('Go to Login'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    print('✅ HomePage: Valid user ID found, building profile view');
     return BlocProvider(
       create: (context) => serviceLocator<ProfileViewModel>(),
       child: ProfileView(userId: userId),
@@ -70,9 +107,24 @@ class _HomePageState extends State<HomePage> {
     final List<Widget> pages = [
       BlocProvider(
         create: (context) => serviceLocator<ProductViewModel>(),
-        child: const ProductListView(),
+        child: ProductListView(
+          onNavigateToCart: () {
+            setState(() {
+              _selectedIndex = 1; // Switch to cart tab
+            });
+          },
+        ),
       ),
-      BlocProvider.value(value: _cartViewModel, child: const CartView()),
+      BlocProvider.value(
+        value: _cartViewModel,
+        child: CartView(
+          onShopNowPressed: () {
+            setState(() {
+              _selectedIndex = 0; // Switch to home/products tab
+            });
+          },
+        ),
+      ),
       BlocProvider(
         create: (context) => serviceLocator<OrderViewModel>(),
         child: OrderListView(
@@ -83,10 +135,6 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-      BlocProvider.value(
-        value: notificationBloc,
-        child: const NotificationListView(),
-      ),
       _buildProfilePage(),
     ];
 
@@ -96,54 +144,26 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: Text(_titles[_selectedIndex]),
           backgroundColor: Theme.of(context).primaryColor,
+          actions: [
+            // Theme indicator in app bar
+            ListenableBuilder(
+              listenable: _themeManager,
+              builder: (context, child) {
+                return Container(
+                  margin: const EdgeInsets.only(right: 16),
+                  child: Icon(
+                    _themeManager.isDarkMode
+                        ? Icons.dark_mode
+                        : Icons.light_mode,
+                    color: Colors.white,
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         body: pages[_selectedIndex],
-        floatingActionButton: _selectedIndex != 3
-            ? BlocBuilder<NotificationBloc, NotificationState>(
-                builder: (context, state) {
-                  if (state is NotificationsLoaded && state.unreadCount > 0) {
-                    return FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndex = 3; // Switch to notifications tab
-                        });
-                      },
-                      backgroundColor: Colors.red,
-                      child: Stack(
-                        children: [
-                          const Icon(Icons.notifications, color: Colors.white),
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 20,
-                                minHeight: 20,
-                              ),
-                              child: Text(
-                                '${state.unreadCount}',
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              )
-            : null,
+        floatingActionButton: null,
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
@@ -152,8 +172,8 @@ class _HomePageState extends State<HomePage> {
           type: BottomNavigationBarType.fixed,
           items: [
             const BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+              icon: Icon(Icons.store),
+              label: 'Store',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.shopping_cart),
@@ -162,10 +182,6 @@ class _HomePageState extends State<HomePage> {
             const BottomNavigationBarItem(
               icon: Icon(Icons.shopping_bag),
               label: 'Orders',
-            ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.notifications),
-              label: 'Notifications',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.person),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/features/auth/domain/use_case/user_register_usecase.dart';
-import 'package:jerseyhub/features/auth/presentation/view/register_view.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/features/auth/domain/use_case/user_register_usecase.dart';
+import 'package:grocerystore/features/auth/presentation/view/register_view.dart';
 
 class MockUserRegisterUsecase extends Mock implements UserRegisterUsecase {}
 

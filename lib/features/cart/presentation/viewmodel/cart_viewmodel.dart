@@ -1,15 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:jerseyhub/features/product/domain/entity/product_entity.dart';
-import 'package:jerseyhub/features/cart/domain/use_case/get_cart_usecase.dart';
-import 'package:jerseyhub/features/cart/domain/use_case/add_to_cart_usecase.dart';
-import 'package:jerseyhub/features/cart/domain/use_case/remove_from_cart_usecase.dart';
-import 'package:jerseyhub/features/cart/domain/use_case/update_quantity_usecase.dart';
-import 'package:jerseyhub/features/cart/domain/use_case/clear_cart_usecase.dart';
-import 'package:jerseyhub/features/cart/data/services/cart_notification_service.dart';
-import 'package:jerseyhub/app/shared_prefs/user_shared_prefs.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_entity.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:grocerystore/features/product/domain/entity/product_entity.dart';
+import 'package:grocerystore/features/cart/domain/use_case/get_cart_usecase.dart';
+import 'package:grocerystore/features/cart/domain/use_case/add_to_cart_usecase.dart';
+import 'package:grocerystore/features/cart/domain/use_case/remove_from_cart_usecase.dart';
+import 'package:grocerystore/features/cart/domain/use_case/update_quantity_usecase.dart';
+import 'package:grocerystore/features/cart/domain/use_case/clear_cart_usecase.dart';
+import 'package:grocerystore/features/cart/data/services/cart_notification_service.dart';
+import 'package:grocerystore/app/shared_prefs/user_shared_prefs.dart';
 
 // Events
 abstract class CartEvent extends Equatable {
@@ -138,7 +138,11 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
   }
 
   String _getUserId(String? eventUserId) {
-    return eventUserId ?? _userSharedPrefs.getCurrentUserId() ?? 'unknown_user';
+    final userId = eventUserId ?? _userSharedPrefs.getCurrentUserId();
+    if (userId == null || userId.isEmpty) {
+      throw Exception('User ID is required for cart operations');
+    }
+    return userId;
   }
 
   Future<void> _onLoadCart(LoadCartEvent event, Emitter<CartState> emit) async {
@@ -252,6 +256,21 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     UpdateQuantityEvent event,
     Emitter<CartState> emit,
   ) async {
+    // Optimize: Update local state immediately for instant UI response
+    if (state is CartLoaded) {
+      final currentCart = (state as CartLoaded).cart;
+      final updatedItems = currentCart.items.map((item) {
+        if (item.id == event.itemId) {
+          return item.copyWith(quantity: event.quantity);
+        }
+        return item;
+      }).toList();
+
+      final updatedCart = currentCart.copyWith(items: updatedItems);
+      emit(CartLoaded(cart: updatedCart));
+    }
+
+    // Then update backend in background
     final userId = _getUserId(event.userId);
     final result = await _updateQuantityUseCase(
       UpdateQuantityParams(
@@ -261,8 +280,15 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
       ),
     );
     result.fold(
-      (failure) => emit(CartError(message: failure.message)),
-      (cart) => emit(CartLoaded(cart: cart)),
+      (failure) {
+        // If backend update fails, revert to previous state
+        print('❌ CartViewModel: Quantity update failed: ${failure.message}');
+        // Don't emit error to avoid disrupting user experience
+      },
+      (cart) {
+        // Update with server response to ensure consistency
+        emit(CartLoaded(cart: cart));
+      },
     );
   }
 

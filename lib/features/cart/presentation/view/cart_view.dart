@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jerseyhub/features/cart/presentation/viewmodel/cart_viewmodel.dart';
-import 'package:jerseyhub/features/cart/presentation/widgets/cart_item_widget.dart';
-import 'package:jerseyhub/features/order/presentation/view/checkout_view.dart';
-import 'package:jerseyhub/features/order/presentation/viewmodel/order_viewmodel.dart';
-import 'package:jerseyhub/app/service_locator/service_locator.dart';
-import 'package:jerseyhub/features/cart/domain/entity/cart_entity.dart';
+import 'package:grocerystore/features/cart/presentation/viewmodel/cart_viewmodel.dart';
+import 'package:grocerystore/features/cart/presentation/widgets/cart_item_widget.dart';
+import 'package:grocerystore/features/order/presentation/view/checkout_view.dart';
+import 'package:grocerystore/features/order/presentation/viewmodel/order_viewmodel.dart';
+import 'package:grocerystore/app/service_locator/service_locator.dart';
+import 'package:grocerystore/features/cart/domain/entity/cart_entity.dart';
 
 class CartView extends StatefulWidget {
-  const CartView({super.key});
+  final VoidCallback? onShopNowPressed;
+
+  const CartView({super.key, this.onShopNowPressed});
 
   @override
   State<CartView> createState() => _CartViewState();
@@ -36,11 +38,11 @@ class _CartViewState extends State<CartView> {
           print(
             '🛒 CartView: Cart updated with ${state.cart.items.length} items',
           );
-          state.cart.items.forEach((item) {
+          for (var item in state.cart.items) {
             print(
               '🛒 CartView: Item - ${item.product.team} (${item.selectedSize}) - रू${item.product.price}',
             );
-          });
+          }
         }
       },
       child: Scaffold(
@@ -136,14 +138,18 @@ class _CartViewState extends State<CartView> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Add some jerseys to get started!',
+            'Add some groceries to get started!',
             style: TextStyle(fontSize: 16, color: Colors.grey[500]),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              // Navigate back to products
-              Navigator.pop(context);
+              // Use callback if provided, otherwise fallback to pop
+              if (widget.onShopNowPressed != null) {
+                widget.onShopNowPressed!();
+              } else {
+                Navigator.popUntil(context, (route) => route.isFirst);
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).primaryColor,
@@ -154,7 +160,7 @@ class _CartViewState extends State<CartView> {
               ),
             ),
             child: const Text(
-              'Browse Jerseys',
+              'Shop Now',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
@@ -215,7 +221,7 @@ class _CartViewState extends State<CartView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Shipping:', style: TextStyle(fontSize: 16)),
+                const Text('Delivery:', style: TextStyle(fontSize: 16)),
                 Text(
                   cart.shippingCost == 0
                       ? 'FREE'
@@ -231,7 +237,7 @@ class _CartViewState extends State<CartView> {
             if (cart.shippingCost > 0) ...[
               const SizedBox(height: 4),
               Text(
-                'Free shipping on orders above रू1000',
+                'Free delivery on orders above रू1000',
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
@@ -298,7 +304,10 @@ class _CartViewState extends State<CartView> {
           const SizedBox(height: 16),
           Text(
             'Error: $message',
-            style: const TextStyle(fontSize: 16, color: Colors.red),
+            style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.red,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),

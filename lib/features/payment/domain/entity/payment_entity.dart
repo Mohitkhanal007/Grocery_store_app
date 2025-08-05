@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 enum PaymentStatus { pending, processing, completed, failed, cancelled }
 
-enum PaymentMethod { esewa, cashOnDelivery }
+enum PaymentMethod { esewa, cashOnDelivery, creditCard }
 
 class PaymentEntity extends Equatable {
   final String id;
@@ -124,6 +124,8 @@ class PaymentEntity extends Equatable {
         return 'esewa';
       case PaymentMethod.cashOnDelivery:
         return 'cash_on_delivery';
+      case PaymentMethod.creditCard:
+        return 'credit_card';
     }
   }
 
@@ -133,6 +135,8 @@ class PaymentEntity extends Equatable {
         return PaymentMethod.esewa;
       case 'cash_on_delivery':
         return PaymentMethod.cashOnDelivery;
+      case 'credit_card':
+        return PaymentMethod.creditCard;
       default:
         return PaymentMethod.esewa;
     }
@@ -187,6 +191,8 @@ class PaymentEntity extends Equatable {
         return 'eSewa';
       case PaymentMethod.cashOnDelivery:
         return 'Cash on Delivery';
+      case PaymentMethod.creditCard:
+        return 'Credit Card';
     }
   }
 
